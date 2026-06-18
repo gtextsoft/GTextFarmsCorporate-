@@ -1,0 +1,150 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-display: "Instrument Serif", ui-serif, Georgia, serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-ring-offset-background: var(--background);
+
+  --color-cream: var(--cream);
+  --color-bone: var(--bone);
+  --color-forest: var(--forest);
+  --color-forest-deep: var(--forest-deep);
+  --color-lime: var(--lime);
+  --color-clay: var(--clay);
+  --color-gold: var(--gold);
+  --color-ink: var(--ink);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+}
+
+:root {
+  --radius: 0.75rem;
+
+  /* Brand palette — agritech meets fintech */
+  --cream: oklch(0.972 0.018 95);          /* page background */
+  --bone: oklch(0.955 0.022 92);           /* card surface tint */
+  --forest-deep: oklch(0.24 0.045 150);    /* deep forest, primary dark */
+  --forest: oklch(0.34 0.07 150);          /* forest accent */
+  --lime: oklch(0.86 0.18 118);            /* signature lime accent */
+  --clay: oklch(0.55 0.11 50);             /* warm earth brown */
+  --gold: oklch(0.78 0.14 80);             /* gold accent */
+  --ink: oklch(0.18 0.015 150);            /* almost-black text */
+
+  --background: var(--cream);
+  --foreground: var(--ink);
+  --card: oklch(1 0 0);
+  --card-foreground: var(--ink);
+  --popover: oklch(1 0 0);
+  --popover-foreground: var(--ink);
+
+  --primary: var(--forest-deep);
+  --primary-foreground: var(--cream);
+
+  --secondary: var(--bone);
+  --secondary-foreground: var(--ink);
+
+  --muted: oklch(0.93 0.018 92);
+  --muted-foreground: oklch(0.42 0.02 150);
+
+  --accent: var(--lime);
+  --accent-foreground: var(--forest-deep);
+
+  --destructive: oklch(0.55 0.21 28);
+  --destructive-foreground: oklch(0.99 0 0);
+
+  --border: oklch(0.88 0.015 90);
+  --input: oklch(0.88 0.015 90);
+  --ring: var(--forest);
+
+  --chart-1: var(--forest);
+  --chart-2: var(--lime);
+  --chart-3: var(--clay);
+  --chart-4: var(--gold);
+  --chart-5: var(--forest-deep);
+
+  --shadow-soft: 0 1px 2px oklch(0.2 0.02 150 / 0.04), 0 8px 24px -8px oklch(0.2 0.02 150 / 0.08);
+  --shadow-lifted: 0 2px 4px oklch(0.2 0.02 150 / 0.05), 0 24px 48px -16px oklch(0.2 0.02 150 / 0.18);
+}
+
+.dark {
+  --background: var(--ink);
+  --foreground: var(--cream);
+  --card: oklch(0.22 0.02 150);
+  --card-foreground: var(--cream);
+  --popover: oklch(0.22 0.02 150);
+  --popover-foreground: var(--cream);
+  --primary: var(--lime);
+  --primary-foreground: var(--forest-deep);
+  --secondary: oklch(0.26 0.025 150);
+  --secondary-foreground: var(--cream);
+  --muted: oklch(0.26 0.025 150);
+  --muted-foreground: oklch(0.72 0.02 95);
+  --accent: var(--lime);
+  --accent-foreground: var(--forest-deep);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 12%);
+  --ring: var(--lime);
+}
+
+@layer base {
+  * { border-color: var(--color-border); }
+  html { font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-feature-settings: "ss01", "cv11";
+  }
+  ::selection { background: var(--lime); color: var(--forest-deep); }
+}
+
+@layer utilities {
+  .font-display { font-family: var(--font-display); font-weight: 400; letter-spacing: -0.02em; }
+  .text-balance { text-wrap: balance; }
+  .shadow-soft { box-shadow: var(--shadow-soft); }
+  .shadow-lifted { box-shadow: var(--shadow-lifted); }
+
+  .grain::before {
+    content: "";
+    position: absolute; inset: 0; pointer-events: none;
+    background-image: radial-gradient(oklch(0.2 0.02 150 / 0.08) 1px, transparent 1px);
+    background-size: 3px 3px;
+    mix-blend-mode: multiply;
+    opacity: 0.35;
+  }
+}

@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { z } from "zod";
 
 import {
   catalogGallery,
@@ -6,6 +7,7 @@ import {
   type GalleryCategory,
   type ProductCategory,
 } from "@/lib/catalog-data";
+import { seedNewsPosts } from "@/lib/news-data";
 import { withDatabase } from "@/lib/with-database";
 
 export type PublicProduct = {
@@ -136,3 +138,70 @@ export const getPublicTeamFn = createServerFn({ method: "GET" }).handler(async (
     }));
   }, []),
 );
+
+export type PublicNewsPost = {
+  slug: string;
+  title: string;
+  excerpt: string;
+  body: string;
+  category: string;
+  categoryLabel: string;
+  imageUrl?: string;
+  authorName: string;
+  publishedAt: string;
+};
+
+const fallbackNews: PublicNewsPost[] = seedNewsPosts.map((post, index) => ({
+  slug: post.slug,
+  title: post.title,
+  excerpt: post.excerpt,
+  body: post.body,
+  category: post.category,
+  categoryLabel: post.categoryLabel,
+  imageUrl: post.imageUrl,
+  authorName: post.authorName,
+  publishedAt: new Date(Date.now() - index * 7 * 24 * 60 * 60 * 1000).toISOString(),
+}));
+
+export const getPublicNewsFn = createServerFn({ method: "GET" }).handler(async () =>
+  withDatabase(async () => {
+    const { NewsPost } = await import("@/lib/models/news-post.model.server");
+    const docs = await NewsPost.find({ published: true })
+      .sort({ sortOrder: -1, publishedAt: -1, createdAt: -1 })
+      .lean();
+    return docs.map((doc) => ({
+      slug: doc.slug,
+      title: doc.title,
+      excerpt: doc.excerpt,
+      body: doc.body,
+      category: doc.category ?? "general",
+      categoryLabel: doc.categoryLabel,
+      imageUrl: doc.imageUrl,
+      authorName: doc.authorName ?? "GText Farms",
+      publishedAt: doc.publishedAt?.toISOString() ?? doc.createdAt?.toISOString() ?? "",
+    }));
+  }, fallbackNews),
+);
+
+export const getPublicNewsPostFn = createServerFn({ method: "GET" })
+  .validator(z.object({ slug: z.string().min(1) }))
+  .handler(async ({ data }) => {
+    const fallback = fallbackNews.find((p) => p.slug === data.slug);
+
+    return withDatabase(async () => {
+      const { NewsPost } = await import("@/lib/models/news-post.model.server");
+      const doc = await NewsPost.findOne({ slug: data.slug, published: true }).lean();
+      if (!doc) return { error: "Post not found." as const };
+      return {
+        slug: doc.slug,
+        title: doc.title,
+        excerpt: doc.excerpt,
+        body: doc.body,
+        category: doc.category ?? "general",
+        categoryLabel: doc.categoryLabel,
+        imageUrl: doc.imageUrl,
+        authorName: doc.authorName ?? "GText Farms",
+        publishedAt: doc.publishedAt?.toISOString() ?? doc.createdAt?.toISOString() ?? "",
+      };
+    }, fallback ?? { error: "Post not found." as const });
+  });

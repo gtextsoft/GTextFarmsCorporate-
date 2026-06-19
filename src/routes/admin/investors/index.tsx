@@ -1,12 +1,15 @@
 import { Link, createFileRoute, useRouter } from "@tanstack/react-router";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
 
-import { SectionHeader } from "@/components/marketing/SectionHeader";
+import { AdminDataTable } from "@/components/admin/AdminDataTable";
+import { AdminPage } from "@/components/admin/AdminPage";
+import { DetailFieldGrid, RecordDetailDialog } from "@/components/admin/RecordDetailDialog";
+import { StatusBadge } from "@/components/admin/StatusBadge";
+import { Button } from "@/components/ui/button";
 import { listInvestorsFn, reviewKycFn } from "@/lib/api/admin.functions";
-import type { AdminInvestorRow } from "@/lib/types";
-import type { KycStatus } from "@/lib/types";
+import type { AdminInvestorRow, KycStatus } from "@/lib/types";
 
 const searchSchema = z.object({
   status: z.enum(["all", "pending", "submitted", "verified", "rejected"]).optional(),
@@ -31,38 +34,37 @@ const statusFilters: { label: string; value: KycStatus | "all" }[] = [
   { label: "Rejected", value: "rejected" },
 ];
 
-function kycBadgeClass(status: KycStatus) {
-  switch (status) {
-    case "verified":
-      return "bg-forest/15 text-forest-deep";
-    case "submitted":
-      return "bg-accent/30 text-forest-deep";
-    case "rejected":
-      return "bg-destructive/10 text-destructive";
-    default:
-      return "bg-muted text-muted-foreground";
-  }
-}
-
 function AdminInvestorsPage() {
   const { investors, error } = Route.useLoaderData();
   const { status } = Route.useSearch();
   const router = useRouter();
+  const [selected, setSelected] = useState<AdminInvestorRow | null>(null);
   const [pendingId, setPendingId] = useState<string | null>(null);
-  const [rejectingId, setRejectingId] = useState<string | null>(null);
   const [rejectReason, setRejectReason] = useState("");
+
+  const stats = useMemo(
+    () => [
+      { label: "Total shown", value: investors.length },
+      {
+        label: "Awaiting review",
+        value: investors.filter((i) => i.kycStatus === "submitted").length,
+        highlight: true,
+      },
+      { label: "Verified", value: investors.filter((i) => i.kycStatus === "verified").length },
+      { label: "Rejected", value: investors.filter((i) => i.kycStatus === "rejected").length },
+    ],
+    [investors],
+  );
 
   async function handleReview(userId: string, action: "approve" | "reject", reason?: string) {
     setPendingId(userId);
     try {
-      const result = await reviewKycFn({
-        data: { userId, action, reason },
-      });
+      const result = await reviewKycFn({ data: { userId, action, reason } });
       if (result?.error) {
         toast.error(result.error);
       } else {
         toast.success(action === "approve" ? "KYC approved" : "KYC rejected");
-        setRejectingId(null);
+        setSelected(null);
         setRejectReason("");
         await router.invalidate();
       }
@@ -74,156 +76,153 @@ function AdminInvestorsPage() {
   }
 
   return (
-    <main className="px-6 py-12">
-      <div className="mx-auto max-w-6xl">
-        <SectionHeader
-          eyebrow="Investors"
-          title="KYC review queue."
-          sub="Approve or reject identity verification before investors can fund cycles."
-        />
-
-        <div className="mt-8 flex flex-wrap gap-2">
+    <AdminPage
+      title="Investors"
+      description="Review KYC submissions and manage investor accounts."
+      stats={stats}
+      actions={
+        <div className="flex flex-wrap gap-2">
           {statusFilters.map((f) => (
             <Link
               key={f.value}
               to="/admin/investors"
               search={{ status: f.value === "all" ? undefined : f.value }}
-              className={`rounded-full px-3 py-1.5 text-sm font-medium transition ${
+              className={`rounded-md px-3 py-1.5 text-sm font-medium transition ${
                 (status ?? "all") === f.value || (!status && f.value === "all")
                   ? "bg-primary text-primary-foreground"
-                  : "border border-border bg-card text-muted-foreground hover:text-foreground"
+                  : "border border-border bg-background text-muted-foreground hover:text-foreground"
               }`}
             >
               {f.label}
             </Link>
           ))}
         </div>
+      }
+    >
+      {error && (
+        <p className="rounded-lg bg-destructive/10 px-4 py-3 text-sm text-destructive">
+          {error === "Forbidden"
+            ? "You do not have admin access."
+            : "Could not load investors. Sign in as admin and ensure MongoDB is running."}
+        </p>
+      )}
 
-        {error && (
-          <p className="mt-6 rounded-lg bg-destructive/10 px-4 py-3 text-sm text-destructive">
-            {error === "Forbidden"
-              ? "You do not have admin access."
-              : "Could not load investors. Sign in as admin and ensure MongoDB is running."}
-          </p>
-        )}
-
-        <div className="mt-8 overflow-hidden rounded-2xl border border-border bg-card shadow-soft">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="border-b border-border bg-bone/50 text-xs uppercase tracking-wide text-muted-foreground">
-                <tr>
-                  <th className="px-5 py-3 font-medium">Investor</th>
-                  <th className="px-5 py-3 font-medium">Location</th>
-                  <th className="px-5 py-3 font-medium">KYC</th>
-                  <th className="px-5 py-3 font-medium">Joined</th>
-                  <th className="px-5 py-3 font-medium">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {investors.length === 0 ? (
-                  <tr>
-                    <td colSpan={5} className="px-5 py-10 text-center text-muted-foreground">
-                      No investors in this filter.
-                    </td>
-                  </tr>
-                ) : (
-                  investors.map((inv) => (
-                    <tr key={inv.id} className="hover:bg-bone/30">
-                      <td className="px-5 py-4">
-                        <div className="font-medium">{inv.fullName}</div>
-                        <div className="text-xs text-muted-foreground">{inv.email}</div>
-                        {inv.phone && (
-                          <div className="text-xs text-muted-foreground">{inv.phone}</div>
-                        )}
-                      </td>
-                      <td className="px-5 py-4 text-muted-foreground">
-                        {inv.city && inv.state ? `${inv.city}, ${inv.state}` : "—"}
-                      </td>
-                      <td className="px-5 py-4">
-                        <span
-                          className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold capitalize ${kycBadgeClass(inv.kycStatus)}`}
-                        >
-                          {inv.kycStatus}
-                        </span>
-                        {inv.kycRejectionReason && (
-                          <p className="mt-1 max-w-xs text-xs text-muted-foreground">
-                            {inv.kycRejectionReason}
-                          </p>
-                        )}
-                      </td>
-                      <td className="px-5 py-4 text-muted-foreground">
-                        {new Date(inv.createdAt).toLocaleDateString()}
-                      </td>
-                      <td className="px-5 py-4">
-                        {inv.kycStatus === "submitted" ? (
-                          <div className="flex flex-wrap gap-2">
-                            <button
-                              type="button"
-                              disabled={pendingId === inv.id}
-                              onClick={() => handleReview(inv.id, "approve")}
-                              className="rounded-full bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground disabled:opacity-60"
-                            >
-                              Approve
-                            </button>
-                            <button
-                              type="button"
-                              disabled={pendingId === inv.id}
-                              onClick={() => {
-                                setRejectingId(inv.id);
-                                setRejectReason("");
-                              }}
-                              className="rounded-full border border-border px-3 py-1.5 text-xs font-medium hover:bg-secondary"
-                            >
-                              Reject
-                            </button>
-                          </div>
-                        ) : (
-                          <span className="text-xs text-muted-foreground">—</span>
-                        )}
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        {rejectingId && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/40 p-4">
-            <div className="w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-lifted">
-              <h3 className="font-display text-xl">Reject KYC</h3>
-              <p className="mt-2 text-sm text-muted-foreground">
-                Optional reason shown to the investor.
-              </p>
-              <textarea
-                value={rejectReason}
-                onChange={(e) => setRejectReason(e.target.value)}
-                rows={3}
-                className="mt-4 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
-                placeholder="e.g. BVN could not be verified"
-              />
-              <div className="mt-4 flex justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={() => setRejectingId(null)}
-                  className="rounded-full border border-border px-4 py-2 text-sm"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  disabled={pendingId === rejectingId}
-                  onClick={() => handleReview(rejectingId, "reject", rejectReason)}
-                  className="rounded-full bg-destructive px-4 py-2 text-sm font-medium text-destructive-foreground"
-                >
-                  Confirm reject
-                </button>
+      <AdminDataTable
+        data={investors}
+        getRowKey={(row) => row.id}
+        onRowClick={setSelected}
+        emptyMessage="No investors match this filter."
+        caption="Click a row to view details and take KYC action."
+        columns={[
+          {
+            id: "investor",
+            header: "Investor",
+            cell: (inv) => (
+              <div>
+                <div className="font-medium">{inv.fullName}</div>
+                <div className="text-xs text-muted-foreground">{inv.email}</div>
               </div>
-            </div>
+            ),
+          },
+          {
+            id: "location",
+            header: "Location",
+            hideOnMobile: true,
+            cell: (inv) =>
+              inv.city && inv.state ? `${inv.city}, ${inv.state}` : "—",
+            className: "text-muted-foreground",
+          },
+          {
+            id: "kyc",
+            header: "KYC status",
+            cell: (inv) => <StatusBadge status={inv.kycStatus} />,
+          },
+          {
+            id: "joined",
+            header: "Joined",
+            hideOnMobile: true,
+            cell: (inv) => new Date(inv.createdAt).toLocaleDateString(),
+            className: "text-muted-foreground",
+          },
+        ]}
+      />
+
+      <RecordDetailDialog
+        open={selected != null}
+        onOpenChange={(open) => !open && setSelected(null)}
+        title={selected?.fullName ?? "Investor"}
+        description={selected?.email}
+        size="lg"
+        footer={
+          selected && (
+            <>
+              <Button variant="outline" asChild>
+                <Link to="/admin/investors/$investorId" params={{ investorId: selected.id }}>
+                  Full profile
+                </Link>
+              </Button>
+              {selected.kycStatus === "submitted" && (
+                <>
+                  <Button
+                    variant="outline"
+                    disabled={pendingId === selected.id}
+                    onClick={() => handleReview(selected.id, "reject", rejectReason)}
+                  >
+                    Reject
+                  </Button>
+                  <Button
+                    disabled={pendingId === selected.id}
+                    onClick={() => handleReview(selected.id, "approve")}
+                  >
+                    Approve KYC
+                  </Button>
+                </>
+              )}
+            </>
+          )
+        }
+      >
+        {selected && (
+          <div className="space-y-4">
+            <DetailFieldGrid
+              fields={[
+                { label: "Phone", value: selected.phone ?? "—" },
+                {
+                  label: "Location",
+                  value:
+                    selected.city && selected.state
+                      ? `${selected.city}, ${selected.state}`
+                      : "—",
+                },
+                { label: "KYC status", value: <StatusBadge status={selected.kycStatus} /> },
+                {
+                  label: "Joined",
+                  value: new Date(selected.createdAt).toLocaleString(),
+                },
+              ]}
+            />
+            {selected.kycRejectionReason && (
+              <div className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
+                Previous rejection: {selected.kycRejectionReason}
+              </div>
+            )}
+            {selected.kycStatus === "submitted" && (
+              <div>
+                <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                  Rejection reason (optional)
+                </label>
+                <textarea
+                  value={rejectReason}
+                  onChange={(e) => setRejectReason(e.target.value)}
+                  rows={3}
+                  className="mt-2 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  placeholder="Shown to investor if you reject"
+                />
+              </div>
+            )}
           </div>
         )}
-      </div>
-    </main>
+      </RecordDetailDialog>
+    </AdminPage>
   );
 }

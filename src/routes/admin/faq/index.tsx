@@ -1,7 +1,14 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
 
-import { SectionHeader } from "@/components/marketing/SectionHeader";
+import { AdminDataTable } from "@/components/admin/AdminDataTable";
+import { AdminPage } from "@/components/admin/AdminPage";
+import { DetailFieldGrid, RecordDetailDialog } from "@/components/admin/RecordDetailDialog";
+import { PublishedBadge } from "@/components/admin/StatusBadge";
+import { Button } from "@/components/ui/button";
 import { listAdminFaqFn } from "@/lib/api/admin.site.functions";
+
+type FaqRow = Awaited<ReturnType<typeof listAdminFaqFn>> extends (infer U)[] ? U : never;
 
 export const Route = createFileRoute("/admin/faq/")({
   loader: () => listAdminFaqFn(),
@@ -10,60 +17,73 @@ export const Route = createFileRoute("/admin/faq/")({
 
 function AdminFaqPage() {
   const items = Route.useLoaderData();
+  const [selected, setSelected] = useState<FaqRow | null>(null);
 
   if ("error" in items) {
     return (
-      <main className="px-6 py-12">
+      <AdminPage title="FAQ" description="Manage frequently asked questions.">
         <p className="text-muted-foreground">{items.error}</p>
-      </main>
+      </AdminPage>
     );
   }
 
   return (
-    <main className="px-6 py-12">
-      <div className="mx-auto max-w-6xl">
-        <SectionHeader
-          eyebrow="Admin"
-          title="FAQ."
-          sub="Questions shown on the landing page and /about."
-        />
-        <div className="mt-6">
-          <Link
-            to="/admin/faq/new"
-            className="inline-flex rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
-          >
-            Add FAQ item
-          </Link>
-        </div>
-        <div className="mt-10 overflow-hidden rounded-2xl border border-border">
-          <table className="w-full text-sm">
-            <thead className="bg-bone/40 text-left text-xs uppercase tracking-wide text-muted-foreground">
-              <tr>
-                <th className="px-4 py-3">Question</th>
-                <th className="px-4 py-3">Published</th>
-                <th className="px-4 py-3" />
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border bg-card">
-              {items.map((item) => (
-                <tr key={item.id}>
-                  <td className="px-4 py-3 font-medium">{item.question}</td>
-                  <td className="px-4 py-3">{item.published ? "Yes" : "No"}</td>
-                  <td className="px-4 py-3 text-right">
-                    <Link
-                      to="/admin/faq/$faqId"
-                      params={{ faqId: item.id }}
-                      className="font-medium text-forest-deep hover:underline"
-                    >
-                      Edit
-                    </Link>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </main>
+    <AdminPage
+      title="FAQ"
+      description="Questions shown on the landing page and /about."
+      stats={[
+        { label: "Total items", value: items.length },
+        { label: "Published", value: items.filter((i) => i.published).length },
+      ]}
+      actions={
+        <Button asChild>
+          <Link to="/admin/faq/new">Add FAQ item</Link>
+        </Button>
+      }
+    >
+      <AdminDataTable
+        data={items}
+        getRowKey={(row) => row.id}
+        onRowClick={setSelected}
+        emptyMessage="No FAQ items yet."
+        columns={[
+          { id: "question", header: "Question", cell: (item) => item.question },
+          {
+            id: "published",
+            header: "Status",
+            cell: (item) => <PublishedBadge published={item.published} />,
+          },
+        ]}
+      />
+
+      <RecordDetailDialog
+        open={selected != null}
+        onOpenChange={(open) => !open && setSelected(null)}
+        title="FAQ item"
+        description={selected?.question}
+        size="lg"
+        footer={
+          selected && (
+            <Button asChild>
+              <Link to="/admin/faq/$faqId" params={{ faqId: selected.id }}>
+                Edit FAQ
+              </Link>
+            </Button>
+          )
+        }
+      >
+        {selected && (
+          <DetailFieldGrid
+            fields={[
+              {
+                label: "Status",
+                value: <PublishedBadge published={selected.published} />,
+              },
+              { label: "Answer", value: selected.answer, fullWidth: true },
+            ]}
+          />
+        )}
+      </RecordDetailDialog>
+    </AdminPage>
   );
 }

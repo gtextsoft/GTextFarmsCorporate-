@@ -1,10 +1,19 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
 
 import { SectionHeader } from "@/components/marketing/SectionHeader";
-import { listMyFieldReportsFn } from "@/lib/api/field.reports.functions";
+import {
+  getFieldOfficerStatsFn,
+  listMyFieldReportsFn,
+} from "@/lib/api/field.reports.functions";
 
 export const Route = createFileRoute("/field/")({
-  loader: () => listMyFieldReportsFn(),
+  loader: async () => {
+    const [reports, stats] = await Promise.all([
+      listMyFieldReportsFn(),
+      getFieldOfficerStatsFn(),
+    ]);
+    return { reports, stats };
+  },
   component: FieldHomePage,
 });
 
@@ -16,7 +25,7 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 function FieldHomePage() {
-  const reports = Route.useLoaderData();
+  const { reports, stats } = Route.useLoaderData();
 
   if ("error" in reports) {
     return (
@@ -26,6 +35,16 @@ function FieldHomePage() {
     );
   }
 
+  const statCards =
+    stats && !("error" in stats)
+      ? [
+          { label: "Drafts", value: stats.draft },
+          { label: "In review", value: stats.submitted },
+          { label: "Published", value: stats.published },
+          { label: "Needs revision", value: stats.rejected, highlight: stats.rejected > 0 },
+        ]
+      : [];
+
   return (
     <main className="px-6 py-12">
       <div className="mx-auto max-w-4xl">
@@ -34,6 +53,24 @@ function FieldHomePage() {
           title="Weekly farm reports."
           sub="Document bird health, feed, mortality, and production data from the farm. Submit for admin review before investors see it."
         />
+
+        {statCards.length > 0 && (
+          <div className="mt-8 grid gap-3 grid-cols-2 sm:grid-cols-4">
+            {statCards.map((card) => (
+              <div
+                key={card.label}
+                className="rounded-xl border border-border bg-card px-4 py-3 shadow-soft"
+              >
+                <div className="text-xs text-muted-foreground">{card.label}</div>
+                <div
+                  className={`mt-1 font-display text-2xl ${card.highlight ? "text-destructive" : "text-forest-deep"}`}
+                >
+                  {card.value}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
 
         <Link
           to="/field/reports/new"
@@ -59,19 +96,40 @@ function FieldHomePage() {
                     <h3 className="mt-1 font-semibold">{report.title}</h3>
                     <p className="text-sm text-muted-foreground">{report.cycleTitle}</p>
                   </div>
-                  <span className="rounded-full bg-bone px-3 py-1 text-xs font-medium">
+                  <span
+                    className={`rounded-full px-3 py-1 text-xs font-medium ${
+                      report.status === "rejected"
+                        ? "bg-destructive/10 text-destructive"
+                        : "bg-bone"
+                    }`}
+                  >
                     {STATUS_LABELS[report.status] ?? report.status}
                   </span>
                 </div>
-                {(report.status === "draft" || report.status === "rejected") && (
-                  <Link
-                    to="/field/reports/$reportId"
-                    params={{ reportId: report.id }}
-                    className="mt-4 inline-flex text-sm font-medium text-forest-deep hover:underline"
-                  >
-                    Edit report →
-                  </Link>
+
+                {report.status === "rejected" && report.rejectionReason && (
+                  <p className="mt-3 text-sm text-destructive">{report.rejectionReason}</p>
                 )}
+
+                <div className="mt-4 flex flex-wrap gap-4 text-sm">
+                  {report.status === "draft" || report.status === "rejected" ? (
+                    <Link
+                      to="/field/reports/$reportId"
+                      params={{ reportId: report.id }}
+                      className="font-medium text-forest-deep hover:underline"
+                    >
+                      Edit →
+                    </Link>
+                  ) : (
+                    <Link
+                      to="/field/reports/$reportId/view"
+                      params={{ reportId: report.id }}
+                      className="font-medium text-forest-deep hover:underline"
+                    >
+                      View →
+                    </Link>
+                  )}
+                </div>
               </article>
             ))}
           </div>

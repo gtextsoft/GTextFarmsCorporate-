@@ -27,6 +27,9 @@ export function Nav() {
           <Link to="/gallery" className="hover:text-foreground">
             Gallery
           </Link>
+          <Link to="/news" className="hover:text-foreground">
+            News
+          </Link>
           <Link to="/farms" className="hover:text-foreground">
             Live farms
           </Link>

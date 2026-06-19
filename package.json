@@ -11,6 +11,7 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "db:seed": "tsx scripts/seed.ts",
+    "db:demo": "tsx scripts/seed-demo-all.ts",
     "db:create-admin": "tsx scripts/create-admin.ts",
     "db:create-investor": "tsx scripts/create-investor.ts",
     "db:create-field-officer": "tsx scripts/create-field-officer.ts"

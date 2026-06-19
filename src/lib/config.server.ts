@@ -25,5 +25,8 @@ export function getServerConfig() {
     paystackWebhookSecret: process.env.PAYSTACK_WEBHOOK_SECRET,
     kycApiKey: process.env.KYC_API_KEY,
     resendApiKey: process.env.RESEND_API_KEY,
+    formspreeFormId: process.env.FORMSPREE_FORM_ID,
+    termiiApiKey: process.env.TERMII_API_KEY,
+    termiiSenderId: process.env.TERMII_SENDER_ID,
   };
 }

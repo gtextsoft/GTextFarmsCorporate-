@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
 
-import { SectionHeader } from "@/components/marketing/SectionHeader";
+import { AdminPage } from "@/components/admin/AdminPage";
 import {
   deleteCompletedCycleFn,
   deletePayoutFn,
@@ -23,23 +23,21 @@ function AdminPerformancePage() {
 
   if ("error" in data) {
     return (
-      <main className="px-6 py-12">
+      <AdminPage title="Performance & payouts" description="Platform performance metrics.">
         <p className="text-muted-foreground">{data.error}</p>
-      </main>
+      </AdminPage>
     );
   }
 
   const { summary, platformStats, completedCycles, payoutHistory } = data;
 
   return (
-    <main className="px-6 py-12">
-      <div className="mx-auto max-w-4xl space-y-12">
-        <SectionHeader
-          eyebrow="Admin"
-          title="Performance & payouts."
-          sub="Platform stats, completed cycles, and payout history shown on /performance and the landing page."
-        />
-
+    <AdminPage
+      title="Performance & payouts"
+      description="Platform stats, completed cycles, and payout history shown on /performance and the landing page."
+      className="max-w-4xl"
+    >
+      <div className="space-y-12">
         <section className="rounded-2xl border border-border bg-card p-6 shadow-soft">
           <h2 className="font-semibold">Platform summary</h2>
           <form
@@ -112,7 +110,7 @@ function AdminPerformancePage() {
         <CompletedCycleSection cycles={completedCycles} />
         <PayoutSection payouts={payoutHistory} />
       </div>
-    </main>
+    </AdminPage>
   );
 }
 

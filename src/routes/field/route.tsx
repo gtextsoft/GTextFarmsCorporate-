@@ -34,6 +34,9 @@ function FieldLayout() {
             <Link to="/field" className="text-muted-foreground hover:text-foreground">
               My reports
             </Link>
+            <Link to="/field/profile" className="text-muted-foreground hover:text-foreground">
+              Profile
+            </Link>
             <Link
               to="/field/reports/new"
               className="rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground"

@@ -213,3 +213,47 @@ export const submitFieldReportFn = createServerFn({ method: "POST" })
 
     return { success: true as const };
   });
+
+export const getFieldOfficerStatsFn = createServerFn({ method: "GET" }).handler(async () => {
+  const auth = await requireFieldOfficerSession();
+  if ("error" in auth) return { error: auth.error };
+
+  const { connectDB } = await import("@/lib/db.server");
+  const { FieldReport } = await import("@/lib/models/field-report.model.server");
+
+  await connectDB();
+
+  const filter =
+    auth.user.role === "field_officer" ? { authorId: auth.user._id } : {};
+
+  const [draft, submitted, published, rejected] = await Promise.all([
+    FieldReport.countDocuments({ ...filter, status: "draft" }),
+    FieldReport.countDocuments({ ...filter, status: "submitted" }),
+    FieldReport.countDocuments({ ...filter, status: "published" }),
+    FieldReport.countDocuments({ ...filter, status: "rejected" }),
+  ]);
+
+  return { draft, submitted, published, rejected };
+});
+
+export const viewMyFieldReportFn = createServerFn({ method: "GET" })
+  .validator(z.object({ reportId: z.string().min(1) }))
+  .handler(async ({ data }): Promise<FieldReportView | { error: string }> => {
+    const auth = await requireFieldOfficerSession();
+    if ("error" in auth) return { error: auth.error };
+
+    const { connectDB } = await import("@/lib/db.server");
+    const { FieldReport } = await import("@/lib/models/field-report.model.server");
+
+    await connectDB();
+    const doc = await FieldReport.findById(data.reportId).lean();
+    if (!doc) return { error: "Report not found." };
+    if (
+      auth.user.role === "field_officer" &&
+      doc.authorId.toString() !== auth.user._id.toString()
+    ) {
+      return { error: "Forbidden." };
+    }
+
+    return mapFieldReport(doc as Record<string, unknown>);
+  });

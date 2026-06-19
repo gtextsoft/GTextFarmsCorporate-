@@ -1,9 +1,11 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
+import { toast } from "sonner";
 import { z } from "zod";
 
 import { MarketingLayout } from "@/components/marketing/MarketingLayout";
 import { SectionHeader } from "@/components/marketing/SectionHeader";
+import { submitContactFn } from "@/lib/api/contact.functions";
 import { brand, brandTitle } from "@/lib/brand";
 import { catalogProducts } from "@/lib/catalog-data";
 
@@ -29,6 +31,7 @@ export const Route = createFileRoute("/contact")({
 function ContactPage() {
   const { product: productSlug, intent } = Route.useSearch();
   const [submitted, setSubmitted] = useState(false);
+  const [pending, setPending] = useState(false);
 
   const product = useMemo(
     () => catalogProducts.find((p) => p.slug === productSlug),
@@ -46,6 +49,8 @@ function ContactPage() {
     : intent === "bulk"
       ? `Hello ${brand.name} team,\n\nI am interested in placing a bulk order. Products of interest:\nEstimated volume:\nDelivery schedule:\n`
       : "";
+
+  const contactIntent = product ? "quote" : intent === "bulk" ? "bulk" : "general";
 
   return (
     <MarketingLayout>
@@ -122,9 +127,32 @@ function ContactPage() {
               ) : (
                 <form
                   key={`${productSlug ?? ""}-${intent ?? ""}`}
-                  onSubmit={(e) => {
+                  onSubmit={async (e) => {
                     e.preventDefault();
-                    setSubmitted(true);
+                    setPending(true);
+                    const form = new FormData(e.currentTarget);
+                    try {
+                      const result = await submitContactFn({
+                        data: {
+                          name: String(form.get("name")),
+                          email: String(form.get("email")),
+                          phone: String(form.get("phone") || "") || undefined,
+                          subject: String(form.get("subject")),
+                          message: String(form.get("message")),
+                          intent: contactIntent,
+                          productSlug: productSlug,
+                        },
+                      });
+                      if ("error" in result && result.error) {
+                        toast.error(String(result.error));
+                      } else {
+                        setSubmitted(true);
+                      }
+                    } catch {
+                      toast.error("Could not send message. Please try again or email us directly.");
+                    } finally {
+                      setPending(false);
+                    }
                   }}
                   className="space-y-5"
                 >
@@ -188,9 +216,10 @@ function ContactPage() {
                   </div>
                   <button
                     type="submit"
-                    className="w-full rounded-full bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground hover:opacity-90"
+                    disabled={pending}
+                    className="w-full rounded-full bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-60"
                   >
-                    Send message
+                    {pending ? "Sending…" : "Send message"}
                   </button>
                 </form>
               )}

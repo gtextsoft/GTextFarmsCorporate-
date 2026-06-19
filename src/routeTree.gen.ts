@@ -18,12 +18,14 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProductsIndexRouteImport } from './routes/products/index'
 import { Route as PerformanceIndexRouteImport } from './routes/performance/index'
 import { Route as OpportunitiesIndexRouteImport } from './routes/opportunities/index'
+import { Route as NewsIndexRouteImport } from './routes/news/index'
 import { Route as GalleryIndexRouteImport } from './routes/gallery/index'
 import { Route as FieldIndexRouteImport } from './routes/field/index'
 import { Route as FarmsIndexRouteImport } from './routes/farms/index'
 import { Route as AppIndexRouteImport } from './routes/app/index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as OpportunitiesCycleIdRouteImport } from './routes/opportunities/$cycleId'
+import { Route as NewsSlugRouteImport } from './routes/news/$slug'
 import { Route as LegalTermsRouteImport } from './routes/legal/terms'
 import { Route as LegalRiskRouteImport } from './routes/legal/risk'
 import { Route as LegalPrivacyRouteImport } from './routes/legal/privacy'
@@ -35,21 +37,29 @@ import { Route as AuthResetPasswordRouteImport } from './routes/auth/reset-passw
 import { Route as AuthKycRouteImport } from './routes/auth/kyc'
 import { Route as AuthForgotPasswordRouteImport } from './routes/auth/forgot-password'
 import { Route as AppWalletRouteImport } from './routes/app/wallet'
+import { Route as ApiHealthRouteImport } from './routes/api/health'
+import { Route as FieldProfileIndexRouteImport } from './routes/field/profile/index'
 import { Route as AppReportsIndexRouteImport } from './routes/app/reports/index'
 import { Route as AppProfileIndexRouteImport } from './routes/app/profile/index'
+import { Route as AppPerformanceIndexRouteImport } from './routes/app/performance/index'
 import { Route as AppNotificationsIndexRouteImport } from './routes/app/notifications/index'
 import { Route as AppInvestmentsIndexRouteImport } from './routes/app/investments/index'
 import { Route as AppActivityIndexRouteImport } from './routes/app/activity/index'
 import { Route as AdminWithdrawalsIndexRouteImport } from './routes/admin/withdrawals/index'
 import { Route as AdminTeamIndexRouteImport } from './routes/admin/team/index'
+import { Route as AdminStaffIndexRouteImport } from './routes/admin/staff/index'
 import { Route as AdminReportsIndexRouteImport } from './routes/admin/reports/index'
+import { Route as AdminProfileIndexRouteImport } from './routes/admin/profile/index'
 import { Route as AdminProductsIndexRouteImport } from './routes/admin/products/index'
 import { Route as AdminPerformanceIndexRouteImport } from './routes/admin/performance/index'
+import { Route as AdminNewsIndexRouteImport } from './routes/admin/news/index'
 import { Route as AdminInvestorsIndexRouteImport } from './routes/admin/investors/index'
+import { Route as AdminInquiriesIndexRouteImport } from './routes/admin/inquiries/index'
 import { Route as AdminGalleryIndexRouteImport } from './routes/admin/gallery/index'
 import { Route as AdminFarmsIndexRouteImport } from './routes/admin/farms/index'
 import { Route as AdminFaqIndexRouteImport } from './routes/admin/faq/index'
 import { Route as AdminCyclesIndexRouteImport } from './routes/admin/cycles/index'
+import { Route as AdminAuditIndexRouteImport } from './routes/admin/audit/index'
 import { Route as AdminAnalyticsIndexRouteImport } from './routes/admin/analytics/index'
 import { Route as FieldReportsNewRouteImport } from './routes/field/reports/new'
 import { Route as FieldReportsReportIdRouteImport } from './routes/field/reports/$reportId'
@@ -59,6 +69,10 @@ import { Route as AdminTeamNewRouteImport } from './routes/admin/team/new'
 import { Route as AdminTeamMemberIdRouteImport } from './routes/admin/team/$memberId'
 import { Route as AdminProductsNewRouteImport } from './routes/admin/products/new'
 import { Route as AdminProductsProductSlugRouteImport } from './routes/admin/products/$productSlug'
+import { Route as AdminNewsNewRouteImport } from './routes/admin/news/new'
+import { Route as AdminNewsPostSlugRouteImport } from './routes/admin/news/$postSlug'
+import { Route as AdminInvestorsInvestorIdRouteImport } from './routes/admin/investors/$investorId'
+import { Route as AdminInquiriesInquiryIdRouteImport } from './routes/admin/inquiries/$inquiryId'
 import { Route as AdminGalleryNewRouteImport } from './routes/admin/gallery/new'
 import { Route as AdminGalleryItemSlugRouteImport } from './routes/admin/gallery/$itemSlug'
 import { Route as AdminFarmsNewRouteImport } from './routes/admin/farms/new'
@@ -67,6 +81,7 @@ import { Route as AdminFaqNewRouteImport } from './routes/admin/faq/new'
 import { Route as AdminFaqFaqIdRouteImport } from './routes/admin/faq/$faqId'
 import { Route as AdminCyclesNewRouteImport } from './routes/admin/cycles/new'
 import { Route as AdminCyclesCycleSlugRouteImport } from './routes/admin/cycles/$cycleSlug'
+import { Route as FieldReportsReportIdViewRouteImport } from './routes/field/reports/$reportId/view'
 import { Route as AppReportsTransactionIdReceiptRouteImport } from './routes/app/reports/$transactionId/receipt'
 import { Route as AppInvestmentsInvestmentIdCertificateRouteImport } from './routes/app/investments/$investmentId/certificate'
 
@@ -115,6 +130,11 @@ const OpportunitiesIndexRoute = OpportunitiesIndexRouteImport.update({
   path: '/opportunities/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const NewsIndexRoute = NewsIndexRouteImport.update({
+  id: '/news/',
+  path: '/news/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const GalleryIndexRoute = GalleryIndexRouteImport.update({
   id: '/gallery/',
   path: '/gallery/',
@@ -143,6 +163,11 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
 const OpportunitiesCycleIdRoute = OpportunitiesCycleIdRouteImport.update({
   id: '/opportunities/$cycleId',
   path: '/opportunities/$cycleId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NewsSlugRoute = NewsSlugRouteImport.update({
+  id: '/news/$slug',
+  path: '/news/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LegalTermsRoute = LegalTermsRouteImport.update({
@@ -201,6 +226,16 @@ const AppWalletRoute = AppWalletRouteImport.update({
   path: '/wallet',
   getParentRoute: () => AppRouteRoute,
 } as any)
+const ApiHealthRoute = ApiHealthRouteImport.update({
+  id: '/api/health',
+  path: '/api/health',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FieldProfileIndexRoute = FieldProfileIndexRouteImport.update({
+  id: '/profile/',
+  path: '/profile/',
+  getParentRoute: () => FieldRouteRoute,
+} as any)
 const AppReportsIndexRoute = AppReportsIndexRouteImport.update({
   id: '/reports/',
   path: '/reports/',
@@ -209,6 +244,11 @@ const AppReportsIndexRoute = AppReportsIndexRouteImport.update({
 const AppProfileIndexRoute = AppProfileIndexRouteImport.update({
   id: '/profile/',
   path: '/profile/',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+const AppPerformanceIndexRoute = AppPerformanceIndexRouteImport.update({
+  id: '/performance/',
+  path: '/performance/',
   getParentRoute: () => AppRouteRoute,
 } as any)
 const AppNotificationsIndexRoute = AppNotificationsIndexRouteImport.update({
@@ -236,9 +276,19 @@ const AdminTeamIndexRoute = AdminTeamIndexRouteImport.update({
   path: '/team/',
   getParentRoute: () => AdminRouteRoute,
 } as any)
+const AdminStaffIndexRoute = AdminStaffIndexRouteImport.update({
+  id: '/staff/',
+  path: '/staff/',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
 const AdminReportsIndexRoute = AdminReportsIndexRouteImport.update({
   id: '/reports/',
   path: '/reports/',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminProfileIndexRoute = AdminProfileIndexRouteImport.update({
+  id: '/profile/',
+  path: '/profile/',
   getParentRoute: () => AdminRouteRoute,
 } as any)
 const AdminProductsIndexRoute = AdminProductsIndexRouteImport.update({
@@ -251,9 +301,19 @@ const AdminPerformanceIndexRoute = AdminPerformanceIndexRouteImport.update({
   path: '/performance/',
   getParentRoute: () => AdminRouteRoute,
 } as any)
+const AdminNewsIndexRoute = AdminNewsIndexRouteImport.update({
+  id: '/news/',
+  path: '/news/',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
 const AdminInvestorsIndexRoute = AdminInvestorsIndexRouteImport.update({
   id: '/investors/',
   path: '/investors/',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminInquiriesIndexRoute = AdminInquiriesIndexRouteImport.update({
+  id: '/inquiries/',
+  path: '/inquiries/',
   getParentRoute: () => AdminRouteRoute,
 } as any)
 const AdminGalleryIndexRoute = AdminGalleryIndexRouteImport.update({
@@ -274,6 +334,11 @@ const AdminFaqIndexRoute = AdminFaqIndexRouteImport.update({
 const AdminCyclesIndexRoute = AdminCyclesIndexRouteImport.update({
   id: '/cycles/',
   path: '/cycles/',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminAuditIndexRoute = AdminAuditIndexRouteImport.update({
+  id: '/audit/',
+  path: '/audit/',
   getParentRoute: () => AdminRouteRoute,
 } as any)
 const AdminAnalyticsIndexRoute = AdminAnalyticsIndexRouteImport.update({
@@ -322,6 +387,27 @@ const AdminProductsProductSlugRoute =
     path: '/products/$productSlug',
     getParentRoute: () => AdminRouteRoute,
   } as any)
+const AdminNewsNewRoute = AdminNewsNewRouteImport.update({
+  id: '/news/new',
+  path: '/news/new',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminNewsPostSlugRoute = AdminNewsPostSlugRouteImport.update({
+  id: '/news/$postSlug',
+  path: '/news/$postSlug',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminInvestorsInvestorIdRoute =
+  AdminInvestorsInvestorIdRouteImport.update({
+    id: '/investors/$investorId',
+    path: '/investors/$investorId',
+    getParentRoute: () => AdminRouteRoute,
+  } as any)
+const AdminInquiriesInquiryIdRoute = AdminInquiriesInquiryIdRouteImport.update({
+  id: '/inquiries/$inquiryId',
+  path: '/inquiries/$inquiryId',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
 const AdminGalleryNewRoute = AdminGalleryNewRouteImport.update({
   id: '/gallery/new',
   path: '/gallery/new',
@@ -362,6 +448,12 @@ const AdminCyclesCycleSlugRoute = AdminCyclesCycleSlugRouteImport.update({
   path: '/cycles/$cycleSlug',
   getParentRoute: () => AdminRouteRoute,
 } as any)
+const FieldReportsReportIdViewRoute =
+  FieldReportsReportIdViewRouteImport.update({
+    id: '/view',
+    path: '/view',
+    getParentRoute: () => FieldReportsReportIdRoute,
+  } as any)
 const AppReportsTransactionIdReceiptRoute =
   AppReportsTransactionIdReceiptRouteImport.update({
     id: '/reports/$transactionId/receipt',
@@ -382,6 +474,7 @@ export interface FileRoutesByFullPath {
   '/field': typeof FieldRouteRouteWithChildren
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
+  '/api/health': typeof ApiHealthRoute
   '/app/wallet': typeof AppWalletRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/kyc': typeof AuthKycRoute
@@ -393,12 +486,14 @@ export interface FileRoutesByFullPath {
   '/legal/privacy': typeof LegalPrivacyRoute
   '/legal/risk': typeof LegalRiskRoute
   '/legal/terms': typeof LegalTermsRoute
+  '/news/$slug': typeof NewsSlugRoute
   '/opportunities/$cycleId': typeof OpportunitiesCycleIdRoute
   '/admin/': typeof AdminIndexRoute
   '/app/': typeof AppIndexRoute
   '/farms/': typeof FarmsIndexRoute
   '/field/': typeof FieldIndexRoute
   '/gallery/': typeof GalleryIndexRoute
+  '/news/': typeof NewsIndexRoute
   '/opportunities/': typeof OpportunitiesIndexRoute
   '/performance/': typeof PerformanceIndexRoute
   '/products/': typeof ProductsIndexRoute
@@ -410,37 +505,50 @@ export interface FileRoutesByFullPath {
   '/admin/farms/new': typeof AdminFarmsNewRoute
   '/admin/gallery/$itemSlug': typeof AdminGalleryItemSlugRoute
   '/admin/gallery/new': typeof AdminGalleryNewRoute
+  '/admin/inquiries/$inquiryId': typeof AdminInquiriesInquiryIdRoute
+  '/admin/investors/$investorId': typeof AdminInvestorsInvestorIdRoute
+  '/admin/news/$postSlug': typeof AdminNewsPostSlugRoute
+  '/admin/news/new': typeof AdminNewsNewRoute
   '/admin/products/$productSlug': typeof AdminProductsProductSlugRoute
   '/admin/products/new': typeof AdminProductsNewRoute
   '/admin/team/$memberId': typeof AdminTeamMemberIdRoute
   '/admin/team/new': typeof AdminTeamNewRoute
   '/api/webhooks/paystack': typeof ApiWebhooksPaystackRoute
   '/app/invest/$cycleId': typeof AppInvestCycleIdRoute
-  '/field/reports/$reportId': typeof FieldReportsReportIdRoute
+  '/field/reports/$reportId': typeof FieldReportsReportIdRouteWithChildren
   '/field/reports/new': typeof FieldReportsNewRoute
   '/admin/analytics/': typeof AdminAnalyticsIndexRoute
+  '/admin/audit/': typeof AdminAuditIndexRoute
   '/admin/cycles/': typeof AdminCyclesIndexRoute
   '/admin/faq/': typeof AdminFaqIndexRoute
   '/admin/farms/': typeof AdminFarmsIndexRoute
   '/admin/gallery/': typeof AdminGalleryIndexRoute
+  '/admin/inquiries/': typeof AdminInquiriesIndexRoute
   '/admin/investors/': typeof AdminInvestorsIndexRoute
+  '/admin/news/': typeof AdminNewsIndexRoute
   '/admin/performance/': typeof AdminPerformanceIndexRoute
   '/admin/products/': typeof AdminProductsIndexRoute
+  '/admin/profile/': typeof AdminProfileIndexRoute
   '/admin/reports/': typeof AdminReportsIndexRoute
+  '/admin/staff/': typeof AdminStaffIndexRoute
   '/admin/team/': typeof AdminTeamIndexRoute
   '/admin/withdrawals/': typeof AdminWithdrawalsIndexRoute
   '/app/activity/': typeof AppActivityIndexRoute
   '/app/investments/': typeof AppInvestmentsIndexRoute
   '/app/notifications/': typeof AppNotificationsIndexRoute
+  '/app/performance/': typeof AppPerformanceIndexRoute
   '/app/profile/': typeof AppProfileIndexRoute
   '/app/reports/': typeof AppReportsIndexRoute
+  '/field/profile/': typeof FieldProfileIndexRoute
   '/app/investments/$investmentId/certificate': typeof AppInvestmentsInvestmentIdCertificateRoute
   '/app/reports/$transactionId/receipt': typeof AppReportsTransactionIdReceiptRoute
+  '/field/reports/$reportId/view': typeof FieldReportsReportIdViewRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
+  '/api/health': typeof ApiHealthRoute
   '/app/wallet': typeof AppWalletRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/kyc': typeof AuthKycRoute
@@ -452,12 +560,14 @@ export interface FileRoutesByTo {
   '/legal/privacy': typeof LegalPrivacyRoute
   '/legal/risk': typeof LegalRiskRoute
   '/legal/terms': typeof LegalTermsRoute
+  '/news/$slug': typeof NewsSlugRoute
   '/opportunities/$cycleId': typeof OpportunitiesCycleIdRoute
   '/admin': typeof AdminIndexRoute
   '/app': typeof AppIndexRoute
   '/farms': typeof FarmsIndexRoute
   '/field': typeof FieldIndexRoute
   '/gallery': typeof GalleryIndexRoute
+  '/news': typeof NewsIndexRoute
   '/opportunities': typeof OpportunitiesIndexRoute
   '/performance': typeof PerformanceIndexRoute
   '/products': typeof ProductsIndexRoute
@@ -469,32 +579,44 @@ export interface FileRoutesByTo {
   '/admin/farms/new': typeof AdminFarmsNewRoute
   '/admin/gallery/$itemSlug': typeof AdminGalleryItemSlugRoute
   '/admin/gallery/new': typeof AdminGalleryNewRoute
+  '/admin/inquiries/$inquiryId': typeof AdminInquiriesInquiryIdRoute
+  '/admin/investors/$investorId': typeof AdminInvestorsInvestorIdRoute
+  '/admin/news/$postSlug': typeof AdminNewsPostSlugRoute
+  '/admin/news/new': typeof AdminNewsNewRoute
   '/admin/products/$productSlug': typeof AdminProductsProductSlugRoute
   '/admin/products/new': typeof AdminProductsNewRoute
   '/admin/team/$memberId': typeof AdminTeamMemberIdRoute
   '/admin/team/new': typeof AdminTeamNewRoute
   '/api/webhooks/paystack': typeof ApiWebhooksPaystackRoute
   '/app/invest/$cycleId': typeof AppInvestCycleIdRoute
-  '/field/reports/$reportId': typeof FieldReportsReportIdRoute
+  '/field/reports/$reportId': typeof FieldReportsReportIdRouteWithChildren
   '/field/reports/new': typeof FieldReportsNewRoute
   '/admin/analytics': typeof AdminAnalyticsIndexRoute
+  '/admin/audit': typeof AdminAuditIndexRoute
   '/admin/cycles': typeof AdminCyclesIndexRoute
   '/admin/faq': typeof AdminFaqIndexRoute
   '/admin/farms': typeof AdminFarmsIndexRoute
   '/admin/gallery': typeof AdminGalleryIndexRoute
+  '/admin/inquiries': typeof AdminInquiriesIndexRoute
   '/admin/investors': typeof AdminInvestorsIndexRoute
+  '/admin/news': typeof AdminNewsIndexRoute
   '/admin/performance': typeof AdminPerformanceIndexRoute
   '/admin/products': typeof AdminProductsIndexRoute
+  '/admin/profile': typeof AdminProfileIndexRoute
   '/admin/reports': typeof AdminReportsIndexRoute
+  '/admin/staff': typeof AdminStaffIndexRoute
   '/admin/team': typeof AdminTeamIndexRoute
   '/admin/withdrawals': typeof AdminWithdrawalsIndexRoute
   '/app/activity': typeof AppActivityIndexRoute
   '/app/investments': typeof AppInvestmentsIndexRoute
   '/app/notifications': typeof AppNotificationsIndexRoute
+  '/app/performance': typeof AppPerformanceIndexRoute
   '/app/profile': typeof AppProfileIndexRoute
   '/app/reports': typeof AppReportsIndexRoute
+  '/field/profile': typeof FieldProfileIndexRoute
   '/app/investments/$investmentId/certificate': typeof AppInvestmentsInvestmentIdCertificateRoute
   '/app/reports/$transactionId/receipt': typeof AppReportsTransactionIdReceiptRoute
+  '/field/reports/$reportId/view': typeof FieldReportsReportIdViewRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -504,6 +626,7 @@ export interface FileRoutesById {
   '/field': typeof FieldRouteRouteWithChildren
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
+  '/api/health': typeof ApiHealthRoute
   '/app/wallet': typeof AppWalletRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/kyc': typeof AuthKycRoute
@@ -515,12 +638,14 @@ export interface FileRoutesById {
   '/legal/privacy': typeof LegalPrivacyRoute
   '/legal/risk': typeof LegalRiskRoute
   '/legal/terms': typeof LegalTermsRoute
+  '/news/$slug': typeof NewsSlugRoute
   '/opportunities/$cycleId': typeof OpportunitiesCycleIdRoute
   '/admin/': typeof AdminIndexRoute
   '/app/': typeof AppIndexRoute
   '/farms/': typeof FarmsIndexRoute
   '/field/': typeof FieldIndexRoute
   '/gallery/': typeof GalleryIndexRoute
+  '/news/': typeof NewsIndexRoute
   '/opportunities/': typeof OpportunitiesIndexRoute
   '/performance/': typeof PerformanceIndexRoute
   '/products/': typeof ProductsIndexRoute
@@ -532,32 +657,44 @@ export interface FileRoutesById {
   '/admin/farms/new': typeof AdminFarmsNewRoute
   '/admin/gallery/$itemSlug': typeof AdminGalleryItemSlugRoute
   '/admin/gallery/new': typeof AdminGalleryNewRoute
+  '/admin/inquiries/$inquiryId': typeof AdminInquiriesInquiryIdRoute
+  '/admin/investors/$investorId': typeof AdminInvestorsInvestorIdRoute
+  '/admin/news/$postSlug': typeof AdminNewsPostSlugRoute
+  '/admin/news/new': typeof AdminNewsNewRoute
   '/admin/products/$productSlug': typeof AdminProductsProductSlugRoute
   '/admin/products/new': typeof AdminProductsNewRoute
   '/admin/team/$memberId': typeof AdminTeamMemberIdRoute
   '/admin/team/new': typeof AdminTeamNewRoute
   '/api/webhooks/paystack': typeof ApiWebhooksPaystackRoute
   '/app/invest/$cycleId': typeof AppInvestCycleIdRoute
-  '/field/reports/$reportId': typeof FieldReportsReportIdRoute
+  '/field/reports/$reportId': typeof FieldReportsReportIdRouteWithChildren
   '/field/reports/new': typeof FieldReportsNewRoute
   '/admin/analytics/': typeof AdminAnalyticsIndexRoute
+  '/admin/audit/': typeof AdminAuditIndexRoute
   '/admin/cycles/': typeof AdminCyclesIndexRoute
   '/admin/faq/': typeof AdminFaqIndexRoute
   '/admin/farms/': typeof AdminFarmsIndexRoute
   '/admin/gallery/': typeof AdminGalleryIndexRoute
+  '/admin/inquiries/': typeof AdminInquiriesIndexRoute
   '/admin/investors/': typeof AdminInvestorsIndexRoute
+  '/admin/news/': typeof AdminNewsIndexRoute
   '/admin/performance/': typeof AdminPerformanceIndexRoute
   '/admin/products/': typeof AdminProductsIndexRoute
+  '/admin/profile/': typeof AdminProfileIndexRoute
   '/admin/reports/': typeof AdminReportsIndexRoute
+  '/admin/staff/': typeof AdminStaffIndexRoute
   '/admin/team/': typeof AdminTeamIndexRoute
   '/admin/withdrawals/': typeof AdminWithdrawalsIndexRoute
   '/app/activity/': typeof AppActivityIndexRoute
   '/app/investments/': typeof AppInvestmentsIndexRoute
   '/app/notifications/': typeof AppNotificationsIndexRoute
+  '/app/performance/': typeof AppPerformanceIndexRoute
   '/app/profile/': typeof AppProfileIndexRoute
   '/app/reports/': typeof AppReportsIndexRoute
+  '/field/profile/': typeof FieldProfileIndexRoute
   '/app/investments/$investmentId/certificate': typeof AppInvestmentsInvestmentIdCertificateRoute
   '/app/reports/$transactionId/receipt': typeof AppReportsTransactionIdReceiptRoute
+  '/field/reports/$reportId/view': typeof FieldReportsReportIdViewRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -568,6 +705,7 @@ export interface FileRouteTypes {
     | '/field'
     | '/about'
     | '/contact'
+    | '/api/health'
     | '/app/wallet'
     | '/auth/forgot-password'
     | '/auth/kyc'
@@ -579,12 +717,14 @@ export interface FileRouteTypes {
     | '/legal/privacy'
     | '/legal/risk'
     | '/legal/terms'
+    | '/news/$slug'
     | '/opportunities/$cycleId'
     | '/admin/'
     | '/app/'
     | '/farms/'
     | '/field/'
     | '/gallery/'
+    | '/news/'
     | '/opportunities/'
     | '/performance/'
     | '/products/'
@@ -596,6 +736,10 @@ export interface FileRouteTypes {
     | '/admin/farms/new'
     | '/admin/gallery/$itemSlug'
     | '/admin/gallery/new'
+    | '/admin/inquiries/$inquiryId'
+    | '/admin/investors/$investorId'
+    | '/admin/news/$postSlug'
+    | '/admin/news/new'
     | '/admin/products/$productSlug'
     | '/admin/products/new'
     | '/admin/team/$memberId'
@@ -605,28 +749,37 @@ export interface FileRouteTypes {
     | '/field/reports/$reportId'
     | '/field/reports/new'
     | '/admin/analytics/'
+    | '/admin/audit/'
     | '/admin/cycles/'
     | '/admin/faq/'
     | '/admin/farms/'
     | '/admin/gallery/'
+    | '/admin/inquiries/'
     | '/admin/investors/'
+    | '/admin/news/'
     | '/admin/performance/'
     | '/admin/products/'
+    | '/admin/profile/'
     | '/admin/reports/'
+    | '/admin/staff/'
     | '/admin/team/'
     | '/admin/withdrawals/'
     | '/app/activity/'
     | '/app/investments/'
     | '/app/notifications/'
+    | '/app/performance/'
     | '/app/profile/'
     | '/app/reports/'
+    | '/field/profile/'
     | '/app/investments/$investmentId/certificate'
     | '/app/reports/$transactionId/receipt'
+    | '/field/reports/$reportId/view'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/about'
     | '/contact'
+    | '/api/health'
     | '/app/wallet'
     | '/auth/forgot-password'
     | '/auth/kyc'
@@ -638,12 +791,14 @@ export interface FileRouteTypes {
     | '/legal/privacy'
     | '/legal/risk'
     | '/legal/terms'
+    | '/news/$slug'
     | '/opportunities/$cycleId'
     | '/admin'
     | '/app'
     | '/farms'
     | '/field'
     | '/gallery'
+    | '/news'
     | '/opportunities'
     | '/performance'
     | '/products'
@@ -655,6 +810,10 @@ export interface FileRouteTypes {
     | '/admin/farms/new'
     | '/admin/gallery/$itemSlug'
     | '/admin/gallery/new'
+    | '/admin/inquiries/$inquiryId'
+    | '/admin/investors/$investorId'
+    | '/admin/news/$postSlug'
+    | '/admin/news/new'
     | '/admin/products/$productSlug'
     | '/admin/products/new'
     | '/admin/team/$memberId'
@@ -664,23 +823,31 @@ export interface FileRouteTypes {
     | '/field/reports/$reportId'
     | '/field/reports/new'
     | '/admin/analytics'
+    | '/admin/audit'
     | '/admin/cycles'
     | '/admin/faq'
     | '/admin/farms'
     | '/admin/gallery'
+    | '/admin/inquiries'
     | '/admin/investors'
+    | '/admin/news'
     | '/admin/performance'
     | '/admin/products'
+    | '/admin/profile'
     | '/admin/reports'
+    | '/admin/staff'
     | '/admin/team'
     | '/admin/withdrawals'
     | '/app/activity'
     | '/app/investments'
     | '/app/notifications'
+    | '/app/performance'
     | '/app/profile'
     | '/app/reports'
+    | '/field/profile'
     | '/app/investments/$investmentId/certificate'
     | '/app/reports/$transactionId/receipt'
+    | '/field/reports/$reportId/view'
   id:
     | '__root__'
     | '/'
@@ -689,6 +856,7 @@ export interface FileRouteTypes {
     | '/field'
     | '/about'
     | '/contact'
+    | '/api/health'
     | '/app/wallet'
     | '/auth/forgot-password'
     | '/auth/kyc'
@@ -700,12 +868,14 @@ export interface FileRouteTypes {
     | '/legal/privacy'
     | '/legal/risk'
     | '/legal/terms'
+    | '/news/$slug'
     | '/opportunities/$cycleId'
     | '/admin/'
     | '/app/'
     | '/farms/'
     | '/field/'
     | '/gallery/'
+    | '/news/'
     | '/opportunities/'
     | '/performance/'
     | '/products/'
@@ -717,6 +887,10 @@ export interface FileRouteTypes {
     | '/admin/farms/new'
     | '/admin/gallery/$itemSlug'
     | '/admin/gallery/new'
+    | '/admin/inquiries/$inquiryId'
+    | '/admin/investors/$investorId'
+    | '/admin/news/$postSlug'
+    | '/admin/news/new'
     | '/admin/products/$productSlug'
     | '/admin/products/new'
     | '/admin/team/$memberId'
@@ -726,23 +900,31 @@ export interface FileRouteTypes {
     | '/field/reports/$reportId'
     | '/field/reports/new'
     | '/admin/analytics/'
+    | '/admin/audit/'
     | '/admin/cycles/'
     | '/admin/faq/'
     | '/admin/farms/'
     | '/admin/gallery/'
+    | '/admin/inquiries/'
     | '/admin/investors/'
+    | '/admin/news/'
     | '/admin/performance/'
     | '/admin/products/'
+    | '/admin/profile/'
     | '/admin/reports/'
+    | '/admin/staff/'
     | '/admin/team/'
     | '/admin/withdrawals/'
     | '/app/activity/'
     | '/app/investments/'
     | '/app/notifications/'
+    | '/app/performance/'
     | '/app/profile/'
     | '/app/reports/'
+    | '/field/profile/'
     | '/app/investments/$investmentId/certificate'
     | '/app/reports/$transactionId/receipt'
+    | '/field/reports/$reportId/view'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -752,6 +934,7 @@ export interface RootRouteChildren {
   FieldRouteRoute: typeof FieldRouteRouteWithChildren
   AboutRoute: typeof AboutRoute
   ContactRoute: typeof ContactRoute
+  ApiHealthRoute: typeof ApiHealthRoute
   AuthForgotPasswordRoute: typeof AuthForgotPasswordRoute
   AuthKycRoute: typeof AuthKycRoute
   AuthResetPasswordRoute: typeof AuthResetPasswordRoute
@@ -762,9 +945,11 @@ export interface RootRouteChildren {
   LegalPrivacyRoute: typeof LegalPrivacyRoute
   LegalRiskRoute: typeof LegalRiskRoute
   LegalTermsRoute: typeof LegalTermsRoute
+  NewsSlugRoute: typeof NewsSlugRoute
   OpportunitiesCycleIdRoute: typeof OpportunitiesCycleIdRoute
   FarmsIndexRoute: typeof FarmsIndexRoute
   GalleryIndexRoute: typeof GalleryIndexRoute
+  NewsIndexRoute: typeof NewsIndexRoute
   OpportunitiesIndexRoute: typeof OpportunitiesIndexRoute
   PerformanceIndexRoute: typeof PerformanceIndexRoute
   ProductsIndexRoute: typeof ProductsIndexRoute
@@ -836,6 +1021,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OpportunitiesIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/news/': {
+      id: '/news/'
+      path: '/news'
+      fullPath: '/news/'
+      preLoaderRoute: typeof NewsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/gallery/': {
       id: '/gallery/'
       path: '/gallery'
@@ -876,6 +1068,13 @@ declare module '@tanstack/react-router' {
       path: '/opportunities/$cycleId'
       fullPath: '/opportunities/$cycleId'
       preLoaderRoute: typeof OpportunitiesCycleIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/news/$slug': {
+      id: '/news/$slug'
+      path: '/news/$slug'
+      fullPath: '/news/$slug'
+      preLoaderRoute: typeof NewsSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/legal/terms': {
@@ -955,6 +1154,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppWalletRouteImport
       parentRoute: typeof AppRouteRoute
     }
+    '/api/health': {
+      id: '/api/health'
+      path: '/api/health'
+      fullPath: '/api/health'
+      preLoaderRoute: typeof ApiHealthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/field/profile/': {
+      id: '/field/profile/'
+      path: '/profile'
+      fullPath: '/field/profile/'
+      preLoaderRoute: typeof FieldProfileIndexRouteImport
+      parentRoute: typeof FieldRouteRoute
+    }
     '/app/reports/': {
       id: '/app/reports/'
       path: '/reports'
@@ -967,6 +1180,13 @@ declare module '@tanstack/react-router' {
       path: '/profile'
       fullPath: '/app/profile/'
       preLoaderRoute: typeof AppProfileIndexRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/app/performance/': {
+      id: '/app/performance/'
+      path: '/performance'
+      fullPath: '/app/performance/'
+      preLoaderRoute: typeof AppPerformanceIndexRouteImport
       parentRoute: typeof AppRouteRoute
     }
     '/app/notifications/': {
@@ -1004,11 +1224,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminTeamIndexRouteImport
       parentRoute: typeof AdminRouteRoute
     }
+    '/admin/staff/': {
+      id: '/admin/staff/'
+      path: '/staff'
+      fullPath: '/admin/staff/'
+      preLoaderRoute: typeof AdminStaffIndexRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
     '/admin/reports/': {
       id: '/admin/reports/'
       path: '/reports'
       fullPath: '/admin/reports/'
       preLoaderRoute: typeof AdminReportsIndexRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/admin/profile/': {
+      id: '/admin/profile/'
+      path: '/profile'
+      fullPath: '/admin/profile/'
+      preLoaderRoute: typeof AdminProfileIndexRouteImport
       parentRoute: typeof AdminRouteRoute
     }
     '/admin/products/': {
@@ -1025,11 +1259,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminPerformanceIndexRouteImport
       parentRoute: typeof AdminRouteRoute
     }
+    '/admin/news/': {
+      id: '/admin/news/'
+      path: '/news'
+      fullPath: '/admin/news/'
+      preLoaderRoute: typeof AdminNewsIndexRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
     '/admin/investors/': {
       id: '/admin/investors/'
       path: '/investors'
       fullPath: '/admin/investors/'
       preLoaderRoute: typeof AdminInvestorsIndexRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/admin/inquiries/': {
+      id: '/admin/inquiries/'
+      path: '/inquiries'
+      fullPath: '/admin/inquiries/'
+      preLoaderRoute: typeof AdminInquiriesIndexRouteImport
       parentRoute: typeof AdminRouteRoute
     }
     '/admin/gallery/': {
@@ -1058,6 +1306,13 @@ declare module '@tanstack/react-router' {
       path: '/cycles'
       fullPath: '/admin/cycles/'
       preLoaderRoute: typeof AdminCyclesIndexRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/admin/audit/': {
+      id: '/admin/audit/'
+      path: '/audit'
+      fullPath: '/admin/audit/'
+      preLoaderRoute: typeof AdminAuditIndexRouteImport
       parentRoute: typeof AdminRouteRoute
     }
     '/admin/analytics/': {
@@ -1123,6 +1378,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminProductsProductSlugRouteImport
       parentRoute: typeof AdminRouteRoute
     }
+    '/admin/news/new': {
+      id: '/admin/news/new'
+      path: '/news/new'
+      fullPath: '/admin/news/new'
+      preLoaderRoute: typeof AdminNewsNewRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/admin/news/$postSlug': {
+      id: '/admin/news/$postSlug'
+      path: '/news/$postSlug'
+      fullPath: '/admin/news/$postSlug'
+      preLoaderRoute: typeof AdminNewsPostSlugRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/admin/investors/$investorId': {
+      id: '/admin/investors/$investorId'
+      path: '/investors/$investorId'
+      fullPath: '/admin/investors/$investorId'
+      preLoaderRoute: typeof AdminInvestorsInvestorIdRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/admin/inquiries/$inquiryId': {
+      id: '/admin/inquiries/$inquiryId'
+      path: '/inquiries/$inquiryId'
+      fullPath: '/admin/inquiries/$inquiryId'
+      preLoaderRoute: typeof AdminInquiriesInquiryIdRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
     '/admin/gallery/new': {
       id: '/admin/gallery/new'
       path: '/gallery/new'
@@ -1179,6 +1462,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCyclesCycleSlugRouteImport
       parentRoute: typeof AdminRouteRoute
     }
+    '/field/reports/$reportId/view': {
+      id: '/field/reports/$reportId/view'
+      path: '/view'
+      fullPath: '/field/reports/$reportId/view'
+      preLoaderRoute: typeof FieldReportsReportIdViewRouteImport
+      parentRoute: typeof FieldReportsReportIdRoute
+    }
     '/app/reports/$transactionId/receipt': {
       id: '/app/reports/$transactionId/receipt'
       path: '/reports/$transactionId/receipt'
@@ -1206,19 +1496,28 @@ interface AdminRouteRouteChildren {
   AdminFarmsNewRoute: typeof AdminFarmsNewRoute
   AdminGalleryItemSlugRoute: typeof AdminGalleryItemSlugRoute
   AdminGalleryNewRoute: typeof AdminGalleryNewRoute
+  AdminInquiriesInquiryIdRoute: typeof AdminInquiriesInquiryIdRoute
+  AdminInvestorsInvestorIdRoute: typeof AdminInvestorsInvestorIdRoute
+  AdminNewsPostSlugRoute: typeof AdminNewsPostSlugRoute
+  AdminNewsNewRoute: typeof AdminNewsNewRoute
   AdminProductsProductSlugRoute: typeof AdminProductsProductSlugRoute
   AdminProductsNewRoute: typeof AdminProductsNewRoute
   AdminTeamMemberIdRoute: typeof AdminTeamMemberIdRoute
   AdminTeamNewRoute: typeof AdminTeamNewRoute
   AdminAnalyticsIndexRoute: typeof AdminAnalyticsIndexRoute
+  AdminAuditIndexRoute: typeof AdminAuditIndexRoute
   AdminCyclesIndexRoute: typeof AdminCyclesIndexRoute
   AdminFaqIndexRoute: typeof AdminFaqIndexRoute
   AdminFarmsIndexRoute: typeof AdminFarmsIndexRoute
   AdminGalleryIndexRoute: typeof AdminGalleryIndexRoute
+  AdminInquiriesIndexRoute: typeof AdminInquiriesIndexRoute
   AdminInvestorsIndexRoute: typeof AdminInvestorsIndexRoute
+  AdminNewsIndexRoute: typeof AdminNewsIndexRoute
   AdminPerformanceIndexRoute: typeof AdminPerformanceIndexRoute
   AdminProductsIndexRoute: typeof AdminProductsIndexRoute
+  AdminProfileIndexRoute: typeof AdminProfileIndexRoute
   AdminReportsIndexRoute: typeof AdminReportsIndexRoute
+  AdminStaffIndexRoute: typeof AdminStaffIndexRoute
   AdminTeamIndexRoute: typeof AdminTeamIndexRoute
   AdminWithdrawalsIndexRoute: typeof AdminWithdrawalsIndexRoute
 }
@@ -1233,19 +1532,28 @@ const AdminRouteRouteChildren: AdminRouteRouteChildren = {
   AdminFarmsNewRoute: AdminFarmsNewRoute,
   AdminGalleryItemSlugRoute: AdminGalleryItemSlugRoute,
   AdminGalleryNewRoute: AdminGalleryNewRoute,
+  AdminInquiriesInquiryIdRoute: AdminInquiriesInquiryIdRoute,
+  AdminInvestorsInvestorIdRoute: AdminInvestorsInvestorIdRoute,
+  AdminNewsPostSlugRoute: AdminNewsPostSlugRoute,
+  AdminNewsNewRoute: AdminNewsNewRoute,
   AdminProductsProductSlugRoute: AdminProductsProductSlugRoute,
   AdminProductsNewRoute: AdminProductsNewRoute,
   AdminTeamMemberIdRoute: AdminTeamMemberIdRoute,
   AdminTeamNewRoute: AdminTeamNewRoute,
   AdminAnalyticsIndexRoute: AdminAnalyticsIndexRoute,
+  AdminAuditIndexRoute: AdminAuditIndexRoute,
   AdminCyclesIndexRoute: AdminCyclesIndexRoute,
   AdminFaqIndexRoute: AdminFaqIndexRoute,
   AdminFarmsIndexRoute: AdminFarmsIndexRoute,
   AdminGalleryIndexRoute: AdminGalleryIndexRoute,
+  AdminInquiriesIndexRoute: AdminInquiriesIndexRoute,
   AdminInvestorsIndexRoute: AdminInvestorsIndexRoute,
+  AdminNewsIndexRoute: AdminNewsIndexRoute,
   AdminPerformanceIndexRoute: AdminPerformanceIndexRoute,
   AdminProductsIndexRoute: AdminProductsIndexRoute,
+  AdminProfileIndexRoute: AdminProfileIndexRoute,
   AdminReportsIndexRoute: AdminReportsIndexRoute,
+  AdminStaffIndexRoute: AdminStaffIndexRoute,
   AdminTeamIndexRoute: AdminTeamIndexRoute,
   AdminWithdrawalsIndexRoute: AdminWithdrawalsIndexRoute,
 }
@@ -1261,6 +1569,7 @@ interface AppRouteRouteChildren {
   AppActivityIndexRoute: typeof AppActivityIndexRoute
   AppInvestmentsIndexRoute: typeof AppInvestmentsIndexRoute
   AppNotificationsIndexRoute: typeof AppNotificationsIndexRoute
+  AppPerformanceIndexRoute: typeof AppPerformanceIndexRoute
   AppProfileIndexRoute: typeof AppProfileIndexRoute
   AppReportsIndexRoute: typeof AppReportsIndexRoute
   AppInvestmentsInvestmentIdCertificateRoute: typeof AppInvestmentsInvestmentIdCertificateRoute
@@ -1274,6 +1583,7 @@ const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppActivityIndexRoute: AppActivityIndexRoute,
   AppInvestmentsIndexRoute: AppInvestmentsIndexRoute,
   AppNotificationsIndexRoute: AppNotificationsIndexRoute,
+  AppPerformanceIndexRoute: AppPerformanceIndexRoute,
   AppProfileIndexRoute: AppProfileIndexRoute,
   AppReportsIndexRoute: AppReportsIndexRoute,
   AppInvestmentsInvestmentIdCertificateRoute:
@@ -1285,16 +1595,29 @@ const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(
   AppRouteRouteChildren,
 )
 
+interface FieldReportsReportIdRouteChildren {
+  FieldReportsReportIdViewRoute: typeof FieldReportsReportIdViewRoute
+}
+
+const FieldReportsReportIdRouteChildren: FieldReportsReportIdRouteChildren = {
+  FieldReportsReportIdViewRoute: FieldReportsReportIdViewRoute,
+}
+
+const FieldReportsReportIdRouteWithChildren =
+  FieldReportsReportIdRoute._addFileChildren(FieldReportsReportIdRouteChildren)
+
 interface FieldRouteRouteChildren {
   FieldIndexRoute: typeof FieldIndexRoute
-  FieldReportsReportIdRoute: typeof FieldReportsReportIdRoute
+  FieldReportsReportIdRoute: typeof FieldReportsReportIdRouteWithChildren
   FieldReportsNewRoute: typeof FieldReportsNewRoute
+  FieldProfileIndexRoute: typeof FieldProfileIndexRoute
 }
 
 const FieldRouteRouteChildren: FieldRouteRouteChildren = {
   FieldIndexRoute: FieldIndexRoute,
-  FieldReportsReportIdRoute: FieldReportsReportIdRoute,
+  FieldReportsReportIdRoute: FieldReportsReportIdRouteWithChildren,
   FieldReportsNewRoute: FieldReportsNewRoute,
+  FieldProfileIndexRoute: FieldProfileIndexRoute,
 }
 
 const FieldRouteRouteWithChildren = FieldRouteRoute._addFileChildren(
@@ -1308,6 +1631,7 @@ const rootRouteChildren: RootRouteChildren = {
   FieldRouteRoute: FieldRouteRouteWithChildren,
   AboutRoute: AboutRoute,
   ContactRoute: ContactRoute,
+  ApiHealthRoute: ApiHealthRoute,
   AuthForgotPasswordRoute: AuthForgotPasswordRoute,
   AuthKycRoute: AuthKycRoute,
   AuthResetPasswordRoute: AuthResetPasswordRoute,
@@ -1318,9 +1642,11 @@ const rootRouteChildren: RootRouteChildren = {
   LegalPrivacyRoute: LegalPrivacyRoute,
   LegalRiskRoute: LegalRiskRoute,
   LegalTermsRoute: LegalTermsRoute,
+  NewsSlugRoute: NewsSlugRoute,
   OpportunitiesCycleIdRoute: OpportunitiesCycleIdRoute,
   FarmsIndexRoute: FarmsIndexRoute,
   GalleryIndexRoute: GalleryIndexRoute,
+  NewsIndexRoute: NewsIndexRoute,
   OpportunitiesIndexRoute: OpportunitiesIndexRoute,
   PerformanceIndexRoute: PerformanceIndexRoute,
   ProductsIndexRoute: ProductsIndexRoute,

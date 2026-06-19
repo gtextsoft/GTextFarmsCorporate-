@@ -4,15 +4,17 @@ import bcrypt from "bcryptjs";
 import { z } from "zod";
 
 import type { SafeUser } from "@/lib/types";
+import { isValidNgPhone, storeNgPhone } from "@/lib/phone";
+
+const phoneField = z
+  .string()
+  .min(10, "Enter a valid Nigerian phone number")
+  .refine(isValidNgPhone, "Use format 08012345678 or +2348012345678");
 
 const signUpSchema = z.object({
   fullName: z.string().min(2, "Enter your full name"),
   email: z.string().email("Enter a valid email"),
-  phone: z
-    .string()
-    .min(10, "Enter a valid phone number")
-    .optional()
-    .or(z.literal("")),
+  phone: phoneField,
   password: z.string().min(8, "Password must be at least 8 characters"),
 });
 
@@ -23,6 +25,7 @@ const signInSchema = z.object({
 
 const kycSchema = z.object({
   fullName: z.string().min(2),
+  phone: phoneField,
   address: z.string().min(5),
   city: z.string().min(2),
   state: z.string().min(2),
@@ -37,12 +40,16 @@ const kycSchema = z.object({
 
 const updateProfileSchema = z.object({
   fullName: z.string().min(2),
-  phone: z.string().min(10).optional().or(z.literal("")),
+  phone: phoneField,
 });
 
 const bankDetailsSchema = z.object({
   bankName: z.string().min(2),
-  accountNumber: z.string().min(10).max(10).regex(/^\d+$/, "Account number must be 10 digits"),
+  accountNumber: z
+    .string()
+    .regex(/^\d{10}$/, "Account number must be 10 digits")
+    .optional()
+    .or(z.literal("")),
   accountName: z.string().min(2),
 });
 
@@ -53,6 +60,11 @@ const forgotPasswordSchema = z.object({
 const resetPasswordSchema = z.object({
   token: z.string().min(1),
   password: z.string().min(8, "Password must be at least 8 characters"),
+});
+
+const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1, "Current password is required"),
+  newPassword: z.string().min(8, "New password must be at least 8 characters"),
 });
 
 export const getAuthUser = createServerFn({ method: "GET" }).handler(
@@ -72,7 +84,11 @@ export const getAuthUser = createServerFn({ method: "GET" }).handler(
         await session.clear();
         return null;
       }
-      return toSafeUser(user);
+      return {
+        ...toSafeUser(user),
+        kycRejectionReason: user.kycRejectionReason ?? undefined,
+        createdAt: user.createdAt?.toISOString?.(),
+      };
     } catch {
       return null;
     }
@@ -97,7 +113,7 @@ export const signUpFn = createServerFn({ method: "POST" })
     const passwordHash = await bcrypt.hash(data.password, 12);
     const user = await User.create({
       email: data.email.toLowerCase(),
-      phone: data.phone,
+      phone: storeNgPhone(data.phone) ?? data.phone,
       passwordHash,
       fullName: data.fullName,
       role: "investor",
@@ -192,6 +208,7 @@ export const submitKycFn = createServerFn({ method: "POST" })
     }
 
     user.fullName = data.fullName;
+    user.phone = storeNgPhone(data.phone) ?? data.phone;
     user.address = data.address;
     user.city = data.city;
     user.state = data.state;
@@ -223,7 +240,30 @@ export const updateProfileFn = createServerFn({ method: "POST" })
     if (!user) return { error: "Account not found." as const };
 
     user.fullName = data.fullName;
-    user.phone = data.phone || undefined;
+    user.phone = storeNgPhone(data.phone) ?? data.phone;
+    await user.save();
+
+    return { success: true as const };
+  });
+
+export const changePasswordFn = createServerFn({ method: "POST" })
+  .validator(changePasswordSchema)
+  .handler(async ({ data }) => {
+    const { useAppSession } = await import("@/lib/session.server");
+    const session = await useAppSession();
+    if (!session.data.userId) return { error: "Unauthorized" as const };
+
+    const { connectDB } = await import("@/lib/db.server");
+    const { User } = await import("@/lib/models/user.model.server");
+
+    await connectDB();
+    const user = await User.findById(session.data.userId).select("+passwordHash");
+    if (!user) return { error: "Account not found." as const };
+
+    const valid = await bcrypt.compare(data.currentPassword, user.passwordHash);
+    if (!valid) return { error: "Current password is incorrect." as const };
+
+    user.passwordHash = await bcrypt.hash(data.newPassword, 12);
     await user.save();
 
     return { success: true as const };
@@ -244,7 +284,12 @@ export const updateBankDetailsFn = createServerFn({ method: "POST" })
     if (!user) return { error: "Account not found." as const };
 
     user.bankName = data.bankName.trim();
-    user.accountNumber = data.accountNumber.trim();
+    const accountNumber = data.accountNumber?.trim() ?? "";
+    if (accountNumber) {
+      user.accountNumber = accountNumber;
+    } else if (!user.accountNumber) {
+      return { error: "Account number is required." as const };
+    }
     user.accountName = data.accountName.trim();
     await user.save();
 

@@ -97,6 +97,8 @@ export const reviewKycFn = createServerFn({ method: "POST" })
           }),
         "kyc-notification",
       );
+      const { notifySmsSafe, sendKycApprovedSms } = await import("@/lib/sms.server");
+      await notifySmsSafe(() => sendKycApprovedSms(user._id.toString()), "kyc-approved-sms");
     }
 
     return { success: true as const, kycStatus: user.kycStatus };
@@ -117,3 +119,62 @@ export const getAdminStatsFn = createServerFn({ method: "GET" }).handler(async (
 
   return { pendingKyc, submittedKyc, verifiedInvestors, totalInvestors };
 });
+
+export const getInvestorDetailFn = createServerFn({ method: "GET" })
+  .validator(z.object({ userId: z.string().min(1) }))
+  .handler(async ({ data }) => {
+    const auth = await requireAdminSession();
+    if ("error" in auth) return { error: auth.error };
+
+    const { connectDB } = await import("@/lib/db.server");
+    const { toSafeUser } = await import("@/lib/auth-utils.server");
+    const { User } = await import("@/lib/models/user.model.server");
+    const { Investment } = await import("@/lib/models/investment.model.server");
+    const { Transaction } = await import("@/lib/models/transaction.model.server");
+    const { getOrCreateWallet } = await import("@/lib/wallet.server");
+    const { formatNgPhoneDisplay } = await import("@/lib/phone");
+
+    await connectDB();
+
+    const user = await User.findById(data.userId);
+    if (!user || user.role !== "investor") {
+      return { error: "Investor not found." as const };
+    }
+
+    const wallet = await getOrCreateWallet(user._id.toString());
+    const [investments, transactions] = await Promise.all([
+      Investment.find({ userId: user._id }).sort({ investedAt: -1 }).lean(),
+      Transaction.find({ userId: user._id }).sort({ createdAt: -1 }).limit(15).lean(),
+    ]);
+
+    const safe = toSafeUser(user);
+
+    return {
+      investor: {
+        ...safe,
+        phone: user.phone ? formatNgPhoneDisplay(user.phone) : undefined,
+        kycRejectionReason: user.kycRejectionReason ?? undefined,
+        createdAt: user.createdAt?.toISOString() ?? "",
+      },
+      wallet: {
+        balance: wallet.balance,
+        lockedBalance: wallet.lockedBalance,
+      },
+      investments: investments.map((inv) => ({
+        id: inv._id.toString(),
+        cycleTitle: inv.cycleTitle,
+        cycleSlug: inv.cycleSlug,
+        amount: inv.amount,
+        status: inv.status,
+        certificateNumber: inv.certificateNumber,
+        investedAt: inv.investedAt?.toISOString() ?? "",
+      })),
+      transactions: transactions.map((txn) => ({
+        id: txn._id.toString(),
+        type: txn.type,
+        amount: txn.amount,
+        status: txn.status,
+        createdAt: txn.createdAt?.toISOString() ?? "",
+      })),
+    };
+  });

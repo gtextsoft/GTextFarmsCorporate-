@@ -1,13 +1,32 @@
-import { Link, createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
 
-import { SectionHeader } from "@/components/marketing/SectionHeader";
+import { AdminDataTable } from "@/components/admin/AdminDataTable";
+import { AdminPage } from "@/components/admin/AdminPage";
+import { DetailFieldGrid, RecordDetailDialog } from "@/components/admin/RecordDetailDialog";
+import { StatusBadge } from "@/components/admin/StatusBadge";
+import { Button } from "@/components/ui/button";
 import {
   listAdminWithdrawalsFn,
   reviewWithdrawalFn,
 } from "@/lib/api/admin.withdrawals.functions";
 import { formatNaira } from "@/lib/format";
+
+type WithdrawalRow = {
+  id: string;
+  amount: number;
+  status: string;
+  reference: string;
+  bankName: string;
+  accountNumber: string;
+  accountName: string;
+  adminNote?: string;
+  investorName: string;
+  investorEmail: string;
+  createdAt: string;
+  processedAt?: string;
+};
 
 export const Route = createFileRoute("/admin/withdrawals/")({
   loader: () => listAdminWithdrawalsFn({ data: { status: "pending" } }),
@@ -16,116 +35,160 @@ export const Route = createFileRoute("/admin/withdrawals/")({
 
 function AdminWithdrawalsPage() {
   const withdrawals = Route.useLoaderData();
+  const router = useRouter();
+  const [selected, setSelected] = useState<WithdrawalRow | null>(null);
   const [pendingId, setPendingId] = useState<string | null>(null);
+  const [rejectNote, setRejectNote] = useState("");
 
   if ("error" in withdrawals) {
     return (
-      <main className="px-6 py-12">
+      <AdminPage title="Withdrawals" description="Payout requests from investors.">
         <p className="text-muted-foreground">{withdrawals.error}</p>
-      </main>
+      </AdminPage>
     );
   }
 
-  return (
-    <main className="px-6 py-12">
-      <div className="mx-auto max-w-6xl">
-        <Link to="/admin" className="text-sm text-muted-foreground hover:text-foreground">
-          ← Back to admin
-        </Link>
-        <SectionHeader
-          eyebrow="Withdrawals"
-          title="Payout requests."
-          sub="Approve bank transfers after verifying investor details. Funds are locked when a request is submitted."
-        />
+  const rows = withdrawals as WithdrawalRow[];
+  const totalPending = rows.reduce((sum, row) => sum + row.amount, 0);
 
-        {withdrawals.length === 0 ? (
-          <p className="mt-10 text-sm text-muted-foreground">No pending withdrawal requests.</p>
-        ) : (
-          <div className="mt-10 space-y-4">
-            {withdrawals.map((row) => (
-              <article
-                key={row.id}
-                className="rounded-2xl border border-border bg-card p-6 shadow-soft"
+  async function handleReview(
+    withdrawalId: string,
+    action: "approve" | "reject",
+    adminNote?: string,
+  ) {
+    setPendingId(withdrawalId);
+    try {
+      const result = await reviewWithdrawalFn({
+        data: { withdrawalId, action, adminNote },
+      });
+      if ("error" in result && result.error) {
+        toast.error(result.error);
+      } else {
+        toast.success(
+          action === "approve" ? "Withdrawal approved" : "Withdrawal rejected — funds unlocked",
+        );
+        setSelected(null);
+        setRejectNote("");
+        await router.invalidate();
+      }
+    } catch {
+      toast.error("Could not process withdrawal");
+    } finally {
+      setPendingId(null);
+    }
+  }
+
+  return (
+    <AdminPage
+      title="Withdrawals"
+      description="Approve bank transfers after verifying investor details. Funds are locked when a request is submitted."
+      stats={[
+        { label: "Pending requests", value: rows.length, highlight: rows.length > 0 },
+        { label: "Total pending amount", value: formatNaira(totalPending) },
+      ]}
+    >
+      <AdminDataTable
+        data={rows}
+        getRowKey={(row) => row.id}
+        onRowClick={setSelected}
+        emptyMessage="No pending withdrawal requests."
+        caption="Click a row to review bank details and approve or reject."
+        columns={[
+          {
+            id: "investor",
+            header: "Investor",
+            cell: (row) => (
+              <div>
+                <div className="font-medium">{row.investorName}</div>
+                <div className="text-xs text-muted-foreground">{row.investorEmail}</div>
+              </div>
+            ),
+          },
+          {
+            id: "amount",
+            header: "Amount",
+            cell: (row) => (
+              <span className="font-semibold text-forest-deep">{formatNaira(row.amount)}</span>
+            ),
+          },
+          {
+            id: "bank",
+            header: "Bank",
+            hideOnMobile: true,
+            cell: (row) => row.bankName,
+          },
+          {
+            id: "status",
+            header: "Status",
+            cell: (row) => <StatusBadge status={row.status} />,
+          },
+          {
+            id: "requested",
+            header: "Requested",
+            hideOnMobile: true,
+            cell: (row) => new Date(row.createdAt).toLocaleString(),
+            className: "text-muted-foreground",
+          },
+        ]}
+      />
+
+      <RecordDetailDialog
+        open={selected != null}
+        onOpenChange={(open) => !open && setSelected(null)}
+        title={selected ? formatNaira(selected.amount) : "Withdrawal"}
+        description={selected ? `${selected.investorName} · ${selected.reference}` : undefined}
+        size="lg"
+        footer={
+          selected && (
+            <>
+              <Button
+                variant="outline"
+                disabled={pendingId === selected.id}
+                onClick={() => handleReview(selected.id, "reject", rejectNote)}
               >
-                <div className="flex flex-wrap items-start justify-between gap-4">
-                  <div>
-                    <p className="font-display text-2xl text-forest-deep">
-                      {formatNaira(row.amount)}
-                    </p>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      {row.investorName} · {row.investorEmail}
-                    </p>
-                    <p className="mt-2 text-sm">
-                      {row.bankName} · {row.accountNumber} · {row.accountName}
-                    </p>
-                    <p className="mt-1 font-mono text-xs text-muted-foreground">{row.reference}</p>
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      Requested {new Date(row.createdAt).toLocaleString("en-NG")}
-                    </p>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    <button
-                      type="button"
-                      disabled={pendingId === row.id}
-                      onClick={async () => {
-                        setPendingId(row.id);
-                        try {
-                          const result = await reviewWithdrawalFn({
-                            data: { withdrawalId: row.id, action: "approve" },
-                          });
-                          if ("error" in result && result.error) {
-                            toast.error(result.error);
-                          } else {
-                            toast.success("Withdrawal approved and wallet debited");
-                            window.location.reload();
-                          }
-                        } catch {
-                          toast.error("Could not approve withdrawal");
-                        } finally {
-                          setPendingId(null);
-                        }
-                      }}
-                      className="rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-60"
-                    >
-                      Approve
-                    </button>
-                    <button
-                      type="button"
-                      disabled={pendingId === row.id}
-                      onClick={async () => {
-                        const note = window.prompt("Reason for rejection (optional):") ?? "";
-                        setPendingId(row.id);
-                        try {
-                          const result = await reviewWithdrawalFn({
-                            data: {
-                              withdrawalId: row.id,
-                              action: "reject",
-                              adminNote: note,
-                            },
-                          });
-                          if ("error" in result && result.error) {
-                            toast.error(result.error);
-                          } else {
-                            toast.success("Withdrawal rejected — funds unlocked");
-                            window.location.reload();
-                          }
-                        } catch {
-                          toast.error("Could not reject withdrawal");
-                        } finally {
-                          setPendingId(null);
-                        }
-                      }}
-                      className="rounded-full border border-border px-4 py-2 text-sm font-medium hover:bg-secondary disabled:opacity-60"
-                    >
-                      Reject
-                    </button>
-                  </div>
-                </div>
-              </article>
-            ))}
+                Reject
+              </Button>
+              <Button
+                disabled={pendingId === selected.id}
+                onClick={() => handleReview(selected.id, "approve")}
+              >
+                Approve payout
+              </Button>
+            </>
+          )
+        }
+      >
+        {selected && (
+          <div className="space-y-4">
+            <DetailFieldGrid
+              fields={[
+                { label: "Investor email", value: selected.investorEmail },
+                { label: "Bank", value: selected.bankName },
+                { label: "Account number", value: selected.accountNumber },
+                { label: "Account name", value: selected.accountName },
+                { label: "Reference", value: selected.reference, fullWidth: true },
+                {
+                  label: "Requested",
+                  value: new Date(selected.createdAt).toLocaleString(),
+                },
+                { label: "Status", value: <StatusBadge status={selected.status} /> },
+              ]}
+            />
+            <div>
+              <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                Rejection note (optional)
+              </label>
+              <textarea
+                value={rejectNote}
+                onChange={(e) => setRejectNote(e.target.value)}
+                rows={2}
+                className="mt-2 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                placeholder="Shown to investor if rejected"
+              />
+            </div>
           </div>
         )}
-      </div>
-    </main>
+      </RecordDetailDialog>
+    </AdminPage>
   );
 }

@@ -47,6 +47,9 @@ function AppLayout() {
             <Link to="/app/activity" className="text-muted-foreground hover:text-foreground">
               Farm updates
             </Link>
+            <Link to="/app/performance" className="text-muted-foreground hover:text-foreground">
+              Performance
+            </Link>
             <Link
               to="/app/notifications"
               className="relative text-muted-foreground hover:text-foreground"

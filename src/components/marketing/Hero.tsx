@@ -38,7 +38,7 @@ export function Hero({ featuredCycle }: { featuredCycle: Opportunity }) {
               </h1>
 
               <p className="mt-6 max-w-xl text-base text-primary-foreground/80 sm:text-lg">
-                {brand.subheadline} Start with our {brand.investmentProgram} — weekly field reports,
+                {brand.subheadline} Start with our {brand.investmentProgram} - weekly field reports,
                 transparent unit economics, and realistic returns from real production.
               </p>
 

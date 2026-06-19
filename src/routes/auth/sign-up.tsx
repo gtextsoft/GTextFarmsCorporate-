@@ -1,4 +1,4 @@
-import { Link, createFileRoute, redirect } from "@tanstack/react-router";
+import { Link, createFileRoute, redirect, isRedirect } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -51,7 +51,8 @@ function SignUpPage() {
                   toast.error(result.error);
                 }
               } catch (err) {
-                if (err && typeof err === "object" && "isRedirect" in err) throw err;
+                if (isRedirect(err)) throw err;
+                console.error(err);
                 toast.error("Something went wrong. Please try again.");
               } finally {
                 setPending(false);
@@ -97,10 +98,12 @@ function SignUpPage() {
                 id="phone"
                 name="phone"
                 type="tel"
-                placeholder="+234"
+                placeholder="08012345678"
+                required
                 autoComplete="tel"
                 className="mt-1.5 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
               />
+              <p className="mt-1 text-xs text-muted-foreground">Required for SMS account alerts</p>
             </div>
             <div>
               <label htmlFor="password" className="text-sm font-medium">

@@ -1,4 +1,4 @@
-import { Link, createFileRoute, redirect } from "@tanstack/react-router";
+import { Link, createFileRoute, redirect, isRedirect } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -57,7 +57,8 @@ function SignInPage() {
                   toast.error(result.error);
                 }
               } catch (err) {
-                if (err && typeof err === "object" && "isRedirect" in err) throw err;
+                if (isRedirect(err)) throw err;
+                console.error(err);
                 toast.error("Something went wrong. Please try again.");
               } finally {
                 setPending(false);

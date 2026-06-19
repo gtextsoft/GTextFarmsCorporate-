@@ -1,7 +1,16 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
 
-import { SectionHeader } from "@/components/marketing/SectionHeader";
+import { AdminDataTable } from "@/components/admin/AdminDataTable";
+import { AdminPage } from "@/components/admin/AdminPage";
+import { DetailFieldGrid, RecordDetailDialog } from "@/components/admin/RecordDetailDialog";
+import { PublishedBadge } from "@/components/admin/StatusBadge";
+import { Button } from "@/components/ui/button";
 import { listAdminFarmsFn } from "@/lib/api/admin.content.functions";
+
+type FarmRow = Awaited<ReturnType<typeof listAdminFarmsFn>> extends (infer U)[]
+  ? U
+  : never;
 
 export const Route = createFileRoute("/admin/farms/")({
   loader: () => listAdminFarmsFn(),
@@ -10,78 +19,90 @@ export const Route = createFileRoute("/admin/farms/")({
 
 function AdminFarmsPage() {
   const farms = Route.useLoaderData();
+  const [selected, setSelected] = useState<FarmRow | null>(null);
 
   if ("error" in farms) {
     return (
-      <main className="px-6 py-12">
+      <AdminPage title="Farms" description="Manage published farms.">
         <p className="text-muted-foreground">{farms.error}</p>
-      </main>
+      </AdminPage>
     );
   }
 
   return (
-    <main className="px-6 py-12">
-      <div className="mx-auto max-w-6xl">
-        <SectionHeader
-          eyebrow="Admin"
-          title="Farms."
-          sub="Manage published farms and operational stats shown on the public site."
-        />
+    <AdminPage
+      title="Farms"
+      description="Manage published farms and operational stats shown on the public site."
+      stats={[
+        { label: "Total farms", value: farms.length },
+        {
+          label: "Published",
+          value: farms.filter((f) => f.published !== false).length,
+        },
+      ]}
+      actions={
+        <Button asChild>
+          <Link to="/admin/farms/new">Add farm</Link>
+        </Button>
+      }
+    >
+      <AdminDataTable
+        data={farms}
+        getRowKey={(row) => row.slug}
+        onRowClick={setSelected}
+        emptyMessage="No farms yet."
+        caption="Click a row to preview details."
+        columns={[
+          { id: "name", header: "Farm", cell: (farm) => farm.name },
+          {
+            id: "location",
+            header: "Location",
+            hideOnMobile: true,
+            cell: (farm) => `${farm.location}, ${farm.state}`,
+            className: "text-muted-foreground",
+          },
+          {
+            id: "birds",
+            header: "Birds",
+            cell: (farm) => farm.birdCount,
+          },
+          {
+            id: "published",
+            header: "Status",
+            cell: (farm) => <PublishedBadge published={farm.published !== false} />,
+          },
+        ]}
+      />
 
-        <div className="mt-6">
-          <Link
-            to="/admin/farms/new"
-            className="inline-flex rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
-          >
-            Add farm
-          </Link>
-        </div>
-
-        <div className="mt-10 overflow-hidden rounded-2xl border border-border">
-          <table className="w-full text-sm">
-            <thead className="bg-bone/40 text-left text-xs uppercase tracking-wide text-muted-foreground">
-              <tr>
-                <th className="px-4 py-3">Farm</th>
-                <th className="hidden px-4 py-3 sm:table-cell">Location</th>
-                <th className="px-4 py-3">Birds</th>
-                <th className="px-4 py-3">Published</th>
-                <th className="px-4 py-3" />
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border bg-card">
-              {farms.map((farm) => (
-                <tr key={farm.slug}>
-                  <td className="px-4 py-3 font-medium">{farm.name}</td>
-                  <td className="hidden px-4 py-3 text-muted-foreground sm:table-cell">
-                    {farm.location}, {farm.state}
-                  </td>
-                  <td className="px-4 py-3">{farm.birdCount}</td>
-                  <td className="px-4 py-3">
-                    <span
-                      className={
-                        farm.published !== false
-                          ? "text-forest-deep"
-                          : "text-muted-foreground"
-                      }
-                    >
-                      {farm.published !== false ? "Yes" : "No"}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <Link
-                      to="/admin/farms/$farmSlug"
-                      params={{ farmSlug: farm.slug }}
-                      className="font-medium text-forest-deep hover:underline"
-                    >
-                      Edit
-                    </Link>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </main>
+      <RecordDetailDialog
+        open={selected != null}
+        onOpenChange={(open) => !open && setSelected(null)}
+        title={selected?.name ?? "Farm"}
+        description={selected ? `${selected.location}, ${selected.state}` : undefined}
+        footer={
+          selected && (
+            <Button asChild>
+              <Link to="/admin/farms/$farmSlug" params={{ farmSlug: selected.slug }}>
+                Edit farm
+              </Link>
+            </Button>
+          )
+        }
+      >
+        {selected && (
+          <DetailFieldGrid
+            fields={[
+              { label: "Slug", value: selected.slug },
+              { label: "Bird count", value: selected.birdCount },
+              {
+                label: "Status",
+                value: <PublishedBadge published={selected.published !== false} />,
+              },
+              { label: "Description", value: selected.description, fullWidth: true },
+            ]}
+          />
+        )}
+      </RecordDetailDialog>
+    </AdminPage>
   );
 }

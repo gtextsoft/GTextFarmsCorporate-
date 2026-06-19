@@ -201,6 +201,12 @@ export async function completeWithdrawal(params: {
       "withdrawal-reject-notification",
     );
 
+    const { notifySmsSafe, sendWithdrawalRejectedSms } = await import("@/lib/sms.server");
+    await notifySmsSafe(
+      () => sendWithdrawalRejectedSms(withdrawal.userId.toString(), withdrawal.amount),
+      "withdrawal-reject-sms",
+    );
+
     return { withdrawal };
   }
 
@@ -242,6 +248,12 @@ export async function completeWithdrawal(params: {
         link: "/app/wallet",
       }),
     "withdrawal-complete-notification",
+  );
+
+  const { notifySmsSafe, sendWithdrawalApprovedSms } = await import("@/lib/sms.server");
+  await notifySmsSafe(
+    () => sendWithdrawalApprovedSms(withdrawal.userId.toString(), withdrawal.amount),
+    "withdrawal-complete-sms",
   );
 
   return { withdrawal, wallet };

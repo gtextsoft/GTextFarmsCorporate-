@@ -72,6 +72,8 @@ export const Route = createFileRoute("/api/webhooks/paystack")({
                 () => sendDepositReceiptEmail(user.email, user.fullName, amountNaira),
                 "deposit-receipt",
               );
+              const { notifySmsSafe, sendDepositSms } = await import("@/lib/sms.server");
+              await notifySmsSafe(() => sendDepositSms(userId, amountNaira), "deposit-sms");
             }
 
             await notify(

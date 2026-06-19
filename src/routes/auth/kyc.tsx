@@ -5,6 +5,8 @@ import { toast } from "sonner";
 import { MarketingLayout } from "@/components/marketing/MarketingLayout";
 import { SectionHeader } from "@/components/marketing/SectionHeader";
 import { submitKycFn } from "@/lib/api/auth.functions";
+import { nigerianStates } from "@/lib/nigeria-data";
+import { formatNgPhoneDisplay } from "@/lib/phone";
 
 export const Route = createFileRoute("/auth/kyc")({
   beforeLoad: ({ context }) => {
@@ -61,6 +63,7 @@ function KycPage() {
                   const result = await submitKycFn({
                     data: {
                       fullName: String(form.get("fullName")),
+                      phone: String(form.get("phone")),
                       address: String(form.get("address")),
                       city: String(form.get("city")),
                       state: String(form.get("state")),
@@ -94,6 +97,23 @@ function KycPage() {
                 />
               </div>
               <div>
+                <label htmlFor="phone" className="text-sm font-medium">
+                  Phone number
+                </label>
+                <input
+                  id="phone"
+                  name="phone"
+                  type="tel"
+                  defaultValue={current?.phone ? formatNgPhoneDisplay(current.phone) : ""}
+                  placeholder="08012345678"
+                  required
+                  className="mt-1.5 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
+                />
+                <p className="mt-1 text-xs text-muted-foreground">
+                  For SMS alerts on deposits, withdrawals, and verification updates.
+                </p>
+              </div>
+              <div>
                 <label htmlFor="address" className="text-sm font-medium">
                   Residential address
                 </label>
@@ -120,12 +140,22 @@ function KycPage() {
                   <label htmlFor="state" className="text-sm font-medium">
                     State
                   </label>
-                  <input
+                  <select
                     id="state"
                     name="state"
                     required
+                    defaultValue={current?.state ?? ""}
                     className="mt-1.5 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
-                  />
+                  >
+                    <option value="" disabled>
+                      Select state
+                    </option>
+                    {nigerianStates.map((state) => (
+                      <option key={state} value={state}>
+                        {state}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
               <div>

@@ -14,6 +14,8 @@ export interface SafeUser {
   bankName?: string;
   accountNumber?: string;
   accountName?: string;
+  kycRejectionReason?: string;
+  createdAt?: string;
 }
 
 export interface SessionUser {

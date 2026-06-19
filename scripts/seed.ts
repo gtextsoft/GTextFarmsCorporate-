@@ -16,9 +16,17 @@ import { PlatformMetrics } from "../src/lib/models/platform-metrics.model.server
 import { TeamMember } from "../src/lib/models/team-member.model.server";
 import { Product } from "../src/lib/models/product.model.server";
 import { GalleryItem } from "../src/lib/models/gallery-item.model.server";
+import { NewsPost } from "../src/lib/models/news-post.model.server";
+import { FieldReport } from "../src/lib/models/field-report.model.server";
+import { Investment } from "../src/lib/models/investment.model.server";
+import { User } from "../src/lib/models/user.model.server";
+import { Withdrawal } from "../src/lib/models/withdrawal.model.server";
+import { ContactInquiry } from "../src/lib/models/contact-inquiry.model.server";
+import { AuditLog } from "../src/lib/models/audit-log.model.server";
+import { Wallet } from "../src/lib/models/wallet.model.server";
+import { seedDemoFieldReports } from "./seed-field-reports";
+import { seedDemoOpsData } from "./seed-demo-ops";
 import {
-  catalogGallery,
-  catalogProducts,
   completedCycles,
   faqItems,
   farms,
@@ -29,6 +37,7 @@ import {
   teamMembers,
 } from "../src/lib/mock-data";
 import { catalogGallery, catalogProducts } from "../src/lib/catalog-data";
+import { seedNewsPosts } from "../src/lib/news-data";
 
 async function seed() {
   console.log("Connecting to MongoDB...");
@@ -152,7 +161,46 @@ async function seed() {
     );
   }
 
-  const [farmCount, cycleCount, completedCount, payoutCount, faqCount, teamCount, productCount, galleryCount] =
+  console.log("Seeding news...");
+  const now = Date.now();
+  for (const [index, post] of seedNewsPosts.entries()) {
+    await NewsPost.findOneAndUpdate(
+      { slug: post.slug },
+      {
+        $set: {
+          ...post,
+          publishedAt: new Date(now - index * 7 * 24 * 60 * 60 * 1000),
+          sortOrder: seedNewsPosts.length - index,
+          published: true,
+        },
+      },
+      { upsert: true, new: true },
+    );
+  }
+
+  console.log("Seeding demo field reports...");
+  await seedDemoFieldReports({
+    FieldReport,
+    Cycle,
+    Farm,
+    User,
+    Investment,
+  });
+
+  console.log("Seeding demo admin queues & investor data...");
+  await seedDemoOpsData({
+    User,
+    Cycle,
+    Farm,
+    Investment,
+    Withdrawal,
+    ContactInquiry,
+    FieldReport,
+    AuditLog,
+    Wallet,
+  });
+
+  const [farmCount, cycleCount, completedCount, payoutCount, faqCount, teamCount, productCount, galleryCount, newsCount, reportCount, pendingKyc, pendingWithdrawals, pendingReports, newLeads] =
     await Promise.all([
     Farm.countDocuments(),
     Cycle.countDocuments(),
@@ -162,9 +210,18 @@ async function seed() {
     TeamMember.countDocuments(),
     Product.countDocuments(),
     GalleryItem.countDocuments(),
+    NewsPost.countDocuments(),
+    FieldReport.countDocuments({ status: "published" }),
+    User.countDocuments({ role: "investor", kycStatus: "submitted" }),
+    Withdrawal.countDocuments({ status: "pending" }),
+    FieldReport.countDocuments({ status: "submitted" }),
+    ContactInquiry.countDocuments({ status: "new" }),
   ]);
   console.log(
-    `Done. ${farmCount} farms, ${cycleCount} cycles, ${completedCount} completed records, ${payoutCount} payouts, ${faqCount} FAQ, ${teamCount} team, ${productCount} products, ${galleryCount} gallery items.`,
+    `Done. ${farmCount} farms, ${cycleCount} cycles, ${completedCount} completed records, ${payoutCount} payouts, ${faqCount} FAQ, ${teamCount} team, ${productCount} products, ${galleryCount} gallery, ${newsCount} news, ${reportCount} published reports.`,
+  );
+  console.log(
+    `Admin dashboard preview: ${pendingKyc} KYC · ${pendingWithdrawals} withdrawals · ${pendingReports} reports · ${newLeads} new leads.`,
   );
 
   await disconnectDB();

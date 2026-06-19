@@ -115,6 +115,33 @@ export async function sendFieldReportPublishedEmail(
   });
 }
 
+export async function sendContactInquiryEmail(inquiry: {
+  name: string;
+  email: string;
+  phone?: string;
+  subject: string;
+  message: string;
+  intent?: string;
+  productSlug?: string;
+}) {
+  const salesEmail = brand.contact.salesEmail;
+  const lines = [
+    `<p><strong>New contact inquiry</strong> from ${inquiry.name} (${inquiry.email})</p>`,
+    inquiry.phone ? `<p>Phone: ${inquiry.phone}</p>` : "",
+    `<p>Subject: ${inquiry.subject}</p>`,
+    inquiry.intent ? `<p>Intent: ${inquiry.intent}</p>` : "",
+    inquiry.productSlug ? `<p>Product: ${inquiry.productSlug}</p>` : "",
+    `<p>${inquiry.message.replace(/\n/g, "<br>")}</p>`,
+    `<p><a href="${appUrl()}/admin/inquiries">View in admin</a></p>`,
+  ].join("");
+
+  return sendEmail({
+    to: salesEmail,
+    subject: `[Contact] ${inquiry.subject}`,
+    html: lines,
+  });
+}
+
 export async function notifySafe(
   fn: () => Promise<unknown>,
   label: string,

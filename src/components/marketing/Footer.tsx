@@ -15,6 +15,7 @@ const footerLinks = {
   ],
   Company: [
     { label: "About", to: "/about" as const },
+    { label: "News", to: "/news" as const },
     { label: "Team", to: "/about" as const, hash: "team" as const },
     { label: "Contact", to: "/contact" as const },
     { label: "Careers", to: "/contact" as const, hash: "careers" as const },

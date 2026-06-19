@@ -184,6 +184,16 @@ function EditFieldReportPage() {
                 className="mt-1 w-full rounded-xl border border-border px-3 py-2"
               />
             </label>
+            <label className="block text-sm">
+              <span className="font-medium">Egg count (layers)</span>
+              <input
+                name="eggCount"
+                type="number"
+                min={0}
+                defaultValue={report.eggCount ?? ""}
+                className="mt-1 w-full rounded-xl border border-border px-3 py-2"
+              />
+            </label>
           </div>
           <label className="block text-sm">
             <span className="font-medium">Vaccination status</span>

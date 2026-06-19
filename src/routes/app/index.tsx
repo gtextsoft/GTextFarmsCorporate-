@@ -3,27 +3,30 @@ import { Link, createFileRoute, useRouteContext } from "@tanstack/react-router";
 import { SectionHeader } from "@/components/marketing/SectionHeader";
 import { getDashboardSummaryFn, getMyInvestmentsFn, getMyTransactionsFn } from "@/lib/api/wallet.functions";
 import { getInvestorActivityFeedFn } from "@/lib/api/field-reports.functions";
+import { getInvestorPerformanceFn } from "@/lib/api/investor.performance.functions";
 import { getMyNotificationsFn } from "@/lib/api/notifications.functions";
+import { InvestorPerformanceCharts } from "@/components/app/InvestorPerformanceCharts";
 import { formatNaira } from "@/lib/format";
 
 export const Route = createFileRoute("/app/")({
   head: () => ({ meta: [{ title: "Dashboard — GText Farms" }] }),
   loader: async () => {
-    const [summary, investments, activity, transactions, notifications] = await Promise.all([
+    const [summary, investments, activity, transactions, notifications, performance] = await Promise.all([
       getDashboardSummaryFn(),
       getMyInvestmentsFn(),
       getInvestorActivityFeedFn(),
       getMyTransactionsFn(),
       getMyNotificationsFn(),
+      getInvestorPerformanceFn(),
     ]);
-    return { summary, investments, activity, transactions, notifications };
+    return { summary, investments, activity, transactions, notifications, performance };
   },
   component: AppDashboard,
 });
 
 function AppDashboard() {
   const { user } = useRouteContext({ from: "__root__" });
-  const { summary, investments, activity, transactions, notifications } = Route.useLoaderData();
+  const { summary, investments, activity, transactions, notifications, performance } = Route.useLoaderData();
 
   const stats =
     "error" in summary
@@ -76,6 +79,26 @@ function AppDashboard() {
           )}
         </div>
 
+        {user &&
+          (user.kycStatus !== "verified" ||
+            !user.phone ||
+            !user.bankName) && (
+            <div className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm dark:border-amber-900/40 dark:bg-amber-950/30">
+              <p className="font-medium">Complete your profile</p>
+              <ul className="mt-2 list-inside list-disc text-muted-foreground">
+                {user.kycStatus !== "verified" && <li>Verify your identity (KYC)</li>}
+                {!user.phone && <li>Add a phone number for SMS alerts</li>}
+                {!user.bankName && <li>Add bank details for withdrawals</li>}
+              </ul>
+              <Link
+                to="/app/profile"
+                className="mt-3 inline-flex text-sm font-medium text-forest-deep hover:underline"
+              >
+                Go to profile →
+              </Link>
+            </div>
+          )}
+
         <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {[
             { label: "Total invested", value: formatNaira(stats.totalInvested) },
@@ -94,6 +117,23 @@ function AppDashboard() {
             </div>
           ))}
         </div>
+
+        {"error" in performance ? null : performance.portfolioAllocation.length > 0 && (
+          <div className="mt-10">
+            <div className="flex items-center justify-between gap-4">
+              <h3 className="font-display text-2xl">Farm performance</h3>
+              <Link
+                to="/app/performance"
+                className="text-sm font-medium text-forest-deep hover:underline"
+              >
+                Full charts
+              </Link>
+            </div>
+            <div className="mt-4">
+              <InvestorPerformanceCharts data={performance} compact />
+            </div>
+          </div>
+        )}
 
         <div className="mt-10 grid gap-10 lg:grid-cols-2">
           <div>

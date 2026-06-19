@@ -46,7 +46,7 @@ function PrivacyPage() {
         <LegalSection title="6. Your rights">
           <p>
             You may request access, correction, or deletion of your personal data subject to
-            legal retention requirements. Contact privacy@henhouse.ng to exercise your rights.
+            legal retention requirements. Contact invest@gtextfarms.ng to exercise your rights.
           </p>
         </LegalSection>
         <LegalSection title="7. Data retention">

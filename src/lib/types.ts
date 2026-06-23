@@ -1,10 +1,23 @@
 export type UserRole = "investor" | "admin" | "field_officer" | "super_admin";
 export type KycStatus = "pending" | "submitted" | "verified" | "rejected";
 
+export type MembershipStatus =
+  | "registered"
+  | "email_verified"
+  | "provisional_member"
+  | "full_member"
+  | "payment_pending"
+  | "funded"
+  | "active_investor";
+
+export type IdDocumentType = "nin" | "passport" | "voter_card" | "drivers_licence" | "other";
+
 export interface SafeUser {
   id: string;
   email: string;
   fullName: string;
+  firstName?: string;
+  lastName?: string;
   phone?: string;
   role: UserRole;
   kycStatus: KycStatus;
@@ -16,6 +29,30 @@ export interface SafeUser {
   accountName?: string;
   kycRejectionReason?: string;
   createdAt?: string;
+  cooperativeMember?: boolean;
+  membershipNumber?: string;
+  membershipStatus?: MembershipStatus;
+  emailVerified?: boolean;
+  profileCompletedAt?: string;
+  dateOfBirth?: string;
+  gender?: string;
+  nationality?: string;
+  idType?: IdDocumentType;
+  idNumber?: string;
+  occupation?: string;
+  employer?: string;
+  admissionDate?: string;
+  bylawsAcceptedAt?: string;
+  nextOfKin?: {
+    fullName?: string;
+    relationship?: string;
+    address?: string;
+    phone?: string;
+  };
+}
+
+export interface CoopMemberRow extends SafeUser {
+  createdAt: string;
 }
 
 export interface SessionUser {

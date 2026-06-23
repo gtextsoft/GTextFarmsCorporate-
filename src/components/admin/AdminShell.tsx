@@ -63,6 +63,10 @@ const navGroups: { label: string; items: NavItem[] }[] = [
     items: [{ to: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true }],
   },
   {
+    label: "Co-operative",
+    items: [{ to: "/admin/cooperative/members", label: "Members", icon: Shield }],
+  },
+  {
     label: "Operations",
     items: [
       { to: "/admin/investors", label: "Investors", icon: Users },

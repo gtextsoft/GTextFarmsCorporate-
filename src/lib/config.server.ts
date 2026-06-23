@@ -26,6 +26,7 @@ export function getServerConfig() {
     kycApiKey: process.env.KYC_API_KEY,
     resendApiKey: process.env.RESEND_API_KEY,
     formspreeFormId: process.env.FORMSPREE_FORM_ID,
+    coopMembershipStart: process.env.COOP_MEMBERSHIP_START,
     termiiApiKey: process.env.TERMII_API_KEY,
     termiiSenderId: process.env.TERMII_SENDER_ID,
   };

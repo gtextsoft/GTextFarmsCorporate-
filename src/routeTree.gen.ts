@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as FieldRouteRouteImport } from './routes/field/route'
+import { Route as CoOperativeRouteRouteImport } from './routes/co-operative/route'
 import { Route as AppRouteRouteImport } from './routes/app/route'
 import { Route as AdminRouteRouteImport } from './routes/admin/route'
 import { Route as IndexRouteImport } from './routes/index'
@@ -22,6 +23,7 @@ import { Route as NewsIndexRouteImport } from './routes/news/index'
 import { Route as GalleryIndexRouteImport } from './routes/gallery/index'
 import { Route as FieldIndexRouteImport } from './routes/field/index'
 import { Route as FarmsIndexRouteImport } from './routes/farms/index'
+import { Route as CoOperativeIndexRouteImport } from './routes/co-operative/index'
 import { Route as AppIndexRouteImport } from './routes/app/index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as OpportunitiesCycleIdRouteImport } from './routes/opportunities/$cycleId'
@@ -30,7 +32,14 @@ import { Route as LegalTermsRouteImport } from './routes/legal/terms'
 import { Route as LegalRiskRouteImport } from './routes/legal/risk'
 import { Route as LegalPrivacyRouteImport } from './routes/legal/privacy'
 import { Route as LegalInvestmentAgreementRouteImport } from './routes/legal/investment-agreement'
+import { Route as LegalCooperativeBylawsRouteImport } from './routes/legal/cooperative-bylaws'
 import { Route as FarmsFarmSlugRouteImport } from './routes/farms/$farmSlug'
+import { Route as CoOperativeVerifyEmailRouteImport } from './routes/co-operative/verify-email'
+import { Route as CoOperativeVerifyRouteImport } from './routes/co-operative/verify'
+import { Route as CoOperativeRegisterRouteImport } from './routes/co-operative/register'
+import { Route as CoOperativeLoginRouteImport } from './routes/co-operative/login'
+import { Route as CoOperativeDashboardRouteImport } from './routes/co-operative/dashboard'
+import { Route as CoOperativeCompleteProfileRouteImport } from './routes/co-operative/complete-profile'
 import { Route as AuthSignUpRouteImport } from './routes/auth/sign-up'
 import { Route as AuthSignInRouteImport } from './routes/auth/sign-in'
 import { Route as AuthResetPasswordRouteImport } from './routes/auth/reset-password'
@@ -81,6 +90,7 @@ import { Route as AdminFaqNewRouteImport } from './routes/admin/faq/new'
 import { Route as AdminFaqFaqIdRouteImport } from './routes/admin/faq/$faqId'
 import { Route as AdminCyclesNewRouteImport } from './routes/admin/cycles/new'
 import { Route as AdminCyclesCycleSlugRouteImport } from './routes/admin/cycles/$cycleSlug'
+import { Route as AdminCooperativeMembersIndexRouteImport } from './routes/admin/cooperative/members/index'
 import { Route as FieldReportsReportIdViewRouteImport } from './routes/field/reports/$reportId/view'
 import { Route as AppReportsTransactionIdReceiptRouteImport } from './routes/app/reports/$transactionId/receipt'
 import { Route as AppInvestmentsInvestmentIdCertificateRouteImport } from './routes/app/investments/$investmentId/certificate'
@@ -98,6 +108,11 @@ const AboutRoute = AboutRouteImport.update({
 const FieldRouteRoute = FieldRouteRouteImport.update({
   id: '/field',
   path: '/field',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CoOperativeRouteRoute = CoOperativeRouteRouteImport.update({
+  id: '/co-operative',
+  path: '/co-operative',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AppRouteRoute = AppRouteRouteImport.update({
@@ -150,6 +165,11 @@ const FarmsIndexRoute = FarmsIndexRouteImport.update({
   path: '/farms/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CoOperativeIndexRoute = CoOperativeIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => CoOperativeRouteRoute,
+} as any)
 const AppIndexRoute = AppIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -191,11 +211,47 @@ const LegalInvestmentAgreementRoute =
     path: '/legal/investment-agreement',
     getParentRoute: () => rootRouteImport,
   } as any)
+const LegalCooperativeBylawsRoute = LegalCooperativeBylawsRouteImport.update({
+  id: '/legal/cooperative-bylaws',
+  path: '/legal/cooperative-bylaws',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FarmsFarmSlugRoute = FarmsFarmSlugRouteImport.update({
   id: '/farms/$farmSlug',
   path: '/farms/$farmSlug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CoOperativeVerifyEmailRoute = CoOperativeVerifyEmailRouteImport.update({
+  id: '/verify-email',
+  path: '/verify-email',
+  getParentRoute: () => CoOperativeRouteRoute,
+} as any)
+const CoOperativeVerifyRoute = CoOperativeVerifyRouteImport.update({
+  id: '/verify',
+  path: '/verify',
+  getParentRoute: () => CoOperativeRouteRoute,
+} as any)
+const CoOperativeRegisterRoute = CoOperativeRegisterRouteImport.update({
+  id: '/register',
+  path: '/register',
+  getParentRoute: () => CoOperativeRouteRoute,
+} as any)
+const CoOperativeLoginRoute = CoOperativeLoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => CoOperativeRouteRoute,
+} as any)
+const CoOperativeDashboardRoute = CoOperativeDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => CoOperativeRouteRoute,
+} as any)
+const CoOperativeCompleteProfileRoute =
+  CoOperativeCompleteProfileRouteImport.update({
+    id: '/complete-profile',
+    path: '/complete-profile',
+    getParentRoute: () => CoOperativeRouteRoute,
+  } as any)
 const AuthSignUpRoute = AuthSignUpRouteImport.update({
   id: '/auth/sign-up',
   path: '/auth/sign-up',
@@ -448,6 +504,12 @@ const AdminCyclesCycleSlugRoute = AdminCyclesCycleSlugRouteImport.update({
   path: '/cycles/$cycleSlug',
   getParentRoute: () => AdminRouteRoute,
 } as any)
+const AdminCooperativeMembersIndexRoute =
+  AdminCooperativeMembersIndexRouteImport.update({
+    id: '/cooperative/members/',
+    path: '/cooperative/members/',
+    getParentRoute: () => AdminRouteRoute,
+  } as any)
 const FieldReportsReportIdViewRoute =
   FieldReportsReportIdViewRouteImport.update({
     id: '/view',
@@ -471,6 +533,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteRouteWithChildren
   '/app': typeof AppRouteRouteWithChildren
+  '/co-operative': typeof CoOperativeRouteRouteWithChildren
   '/field': typeof FieldRouteRouteWithChildren
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
@@ -481,7 +544,14 @@ export interface FileRoutesByFullPath {
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/auth/sign-in': typeof AuthSignInRoute
   '/auth/sign-up': typeof AuthSignUpRoute
+  '/co-operative/complete-profile': typeof CoOperativeCompleteProfileRoute
+  '/co-operative/dashboard': typeof CoOperativeDashboardRoute
+  '/co-operative/login': typeof CoOperativeLoginRoute
+  '/co-operative/register': typeof CoOperativeRegisterRoute
+  '/co-operative/verify': typeof CoOperativeVerifyRoute
+  '/co-operative/verify-email': typeof CoOperativeVerifyEmailRoute
   '/farms/$farmSlug': typeof FarmsFarmSlugRoute
+  '/legal/cooperative-bylaws': typeof LegalCooperativeBylawsRoute
   '/legal/investment-agreement': typeof LegalInvestmentAgreementRoute
   '/legal/privacy': typeof LegalPrivacyRoute
   '/legal/risk': typeof LegalRiskRoute
@@ -490,6 +560,7 @@ export interface FileRoutesByFullPath {
   '/opportunities/$cycleId': typeof OpportunitiesCycleIdRoute
   '/admin/': typeof AdminIndexRoute
   '/app/': typeof AppIndexRoute
+  '/co-operative/': typeof CoOperativeIndexRoute
   '/farms/': typeof FarmsIndexRoute
   '/field/': typeof FieldIndexRoute
   '/gallery/': typeof GalleryIndexRoute
@@ -543,6 +614,7 @@ export interface FileRoutesByFullPath {
   '/app/investments/$investmentId/certificate': typeof AppInvestmentsInvestmentIdCertificateRoute
   '/app/reports/$transactionId/receipt': typeof AppReportsTransactionIdReceiptRoute
   '/field/reports/$reportId/view': typeof FieldReportsReportIdViewRoute
+  '/admin/cooperative/members/': typeof AdminCooperativeMembersIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -555,7 +627,14 @@ export interface FileRoutesByTo {
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/auth/sign-in': typeof AuthSignInRoute
   '/auth/sign-up': typeof AuthSignUpRoute
+  '/co-operative/complete-profile': typeof CoOperativeCompleteProfileRoute
+  '/co-operative/dashboard': typeof CoOperativeDashboardRoute
+  '/co-operative/login': typeof CoOperativeLoginRoute
+  '/co-operative/register': typeof CoOperativeRegisterRoute
+  '/co-operative/verify': typeof CoOperativeVerifyRoute
+  '/co-operative/verify-email': typeof CoOperativeVerifyEmailRoute
   '/farms/$farmSlug': typeof FarmsFarmSlugRoute
+  '/legal/cooperative-bylaws': typeof LegalCooperativeBylawsRoute
   '/legal/investment-agreement': typeof LegalInvestmentAgreementRoute
   '/legal/privacy': typeof LegalPrivacyRoute
   '/legal/risk': typeof LegalRiskRoute
@@ -564,6 +643,7 @@ export interface FileRoutesByTo {
   '/opportunities/$cycleId': typeof OpportunitiesCycleIdRoute
   '/admin': typeof AdminIndexRoute
   '/app': typeof AppIndexRoute
+  '/co-operative': typeof CoOperativeIndexRoute
   '/farms': typeof FarmsIndexRoute
   '/field': typeof FieldIndexRoute
   '/gallery': typeof GalleryIndexRoute
@@ -617,12 +697,14 @@ export interface FileRoutesByTo {
   '/app/investments/$investmentId/certificate': typeof AppInvestmentsInvestmentIdCertificateRoute
   '/app/reports/$transactionId/receipt': typeof AppReportsTransactionIdReceiptRoute
   '/field/reports/$reportId/view': typeof FieldReportsReportIdViewRoute
+  '/admin/cooperative/members': typeof AdminCooperativeMembersIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteRouteWithChildren
   '/app': typeof AppRouteRouteWithChildren
+  '/co-operative': typeof CoOperativeRouteRouteWithChildren
   '/field': typeof FieldRouteRouteWithChildren
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
@@ -633,7 +715,14 @@ export interface FileRoutesById {
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/auth/sign-in': typeof AuthSignInRoute
   '/auth/sign-up': typeof AuthSignUpRoute
+  '/co-operative/complete-profile': typeof CoOperativeCompleteProfileRoute
+  '/co-operative/dashboard': typeof CoOperativeDashboardRoute
+  '/co-operative/login': typeof CoOperativeLoginRoute
+  '/co-operative/register': typeof CoOperativeRegisterRoute
+  '/co-operative/verify': typeof CoOperativeVerifyRoute
+  '/co-operative/verify-email': typeof CoOperativeVerifyEmailRoute
   '/farms/$farmSlug': typeof FarmsFarmSlugRoute
+  '/legal/cooperative-bylaws': typeof LegalCooperativeBylawsRoute
   '/legal/investment-agreement': typeof LegalInvestmentAgreementRoute
   '/legal/privacy': typeof LegalPrivacyRoute
   '/legal/risk': typeof LegalRiskRoute
@@ -642,6 +731,7 @@ export interface FileRoutesById {
   '/opportunities/$cycleId': typeof OpportunitiesCycleIdRoute
   '/admin/': typeof AdminIndexRoute
   '/app/': typeof AppIndexRoute
+  '/co-operative/': typeof CoOperativeIndexRoute
   '/farms/': typeof FarmsIndexRoute
   '/field/': typeof FieldIndexRoute
   '/gallery/': typeof GalleryIndexRoute
@@ -695,6 +785,7 @@ export interface FileRoutesById {
   '/app/investments/$investmentId/certificate': typeof AppInvestmentsInvestmentIdCertificateRoute
   '/app/reports/$transactionId/receipt': typeof AppReportsTransactionIdReceiptRoute
   '/field/reports/$reportId/view': typeof FieldReportsReportIdViewRoute
+  '/admin/cooperative/members/': typeof AdminCooperativeMembersIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -702,6 +793,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/app'
+    | '/co-operative'
     | '/field'
     | '/about'
     | '/contact'
@@ -712,7 +804,14 @@ export interface FileRouteTypes {
     | '/auth/reset-password'
     | '/auth/sign-in'
     | '/auth/sign-up'
+    | '/co-operative/complete-profile'
+    | '/co-operative/dashboard'
+    | '/co-operative/login'
+    | '/co-operative/register'
+    | '/co-operative/verify'
+    | '/co-operative/verify-email'
     | '/farms/$farmSlug'
+    | '/legal/cooperative-bylaws'
     | '/legal/investment-agreement'
     | '/legal/privacy'
     | '/legal/risk'
@@ -721,6 +820,7 @@ export interface FileRouteTypes {
     | '/opportunities/$cycleId'
     | '/admin/'
     | '/app/'
+    | '/co-operative/'
     | '/farms/'
     | '/field/'
     | '/gallery/'
@@ -774,6 +874,7 @@ export interface FileRouteTypes {
     | '/app/investments/$investmentId/certificate'
     | '/app/reports/$transactionId/receipt'
     | '/field/reports/$reportId/view'
+    | '/admin/cooperative/members/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -786,7 +887,14 @@ export interface FileRouteTypes {
     | '/auth/reset-password'
     | '/auth/sign-in'
     | '/auth/sign-up'
+    | '/co-operative/complete-profile'
+    | '/co-operative/dashboard'
+    | '/co-operative/login'
+    | '/co-operative/register'
+    | '/co-operative/verify'
+    | '/co-operative/verify-email'
     | '/farms/$farmSlug'
+    | '/legal/cooperative-bylaws'
     | '/legal/investment-agreement'
     | '/legal/privacy'
     | '/legal/risk'
@@ -795,6 +903,7 @@ export interface FileRouteTypes {
     | '/opportunities/$cycleId'
     | '/admin'
     | '/app'
+    | '/co-operative'
     | '/farms'
     | '/field'
     | '/gallery'
@@ -848,11 +957,13 @@ export interface FileRouteTypes {
     | '/app/investments/$investmentId/certificate'
     | '/app/reports/$transactionId/receipt'
     | '/field/reports/$reportId/view'
+    | '/admin/cooperative/members'
   id:
     | '__root__'
     | '/'
     | '/admin'
     | '/app'
+    | '/co-operative'
     | '/field'
     | '/about'
     | '/contact'
@@ -863,7 +974,14 @@ export interface FileRouteTypes {
     | '/auth/reset-password'
     | '/auth/sign-in'
     | '/auth/sign-up'
+    | '/co-operative/complete-profile'
+    | '/co-operative/dashboard'
+    | '/co-operative/login'
+    | '/co-operative/register'
+    | '/co-operative/verify'
+    | '/co-operative/verify-email'
     | '/farms/$farmSlug'
+    | '/legal/cooperative-bylaws'
     | '/legal/investment-agreement'
     | '/legal/privacy'
     | '/legal/risk'
@@ -872,6 +990,7 @@ export interface FileRouteTypes {
     | '/opportunities/$cycleId'
     | '/admin/'
     | '/app/'
+    | '/co-operative/'
     | '/farms/'
     | '/field/'
     | '/gallery/'
@@ -925,12 +1044,14 @@ export interface FileRouteTypes {
     | '/app/investments/$investmentId/certificate'
     | '/app/reports/$transactionId/receipt'
     | '/field/reports/$reportId/view'
+    | '/admin/cooperative/members/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRouteRoute: typeof AdminRouteRouteWithChildren
   AppRouteRoute: typeof AppRouteRouteWithChildren
+  CoOperativeRouteRoute: typeof CoOperativeRouteRouteWithChildren
   FieldRouteRoute: typeof FieldRouteRouteWithChildren
   AboutRoute: typeof AboutRoute
   ContactRoute: typeof ContactRoute
@@ -941,6 +1062,7 @@ export interface RootRouteChildren {
   AuthSignInRoute: typeof AuthSignInRoute
   AuthSignUpRoute: typeof AuthSignUpRoute
   FarmsFarmSlugRoute: typeof FarmsFarmSlugRoute
+  LegalCooperativeBylawsRoute: typeof LegalCooperativeBylawsRoute
   LegalInvestmentAgreementRoute: typeof LegalInvestmentAgreementRoute
   LegalPrivacyRoute: typeof LegalPrivacyRoute
   LegalRiskRoute: typeof LegalRiskRoute
@@ -977,6 +1099,13 @@ declare module '@tanstack/react-router' {
       path: '/field'
       fullPath: '/field'
       preLoaderRoute: typeof FieldRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/co-operative': {
+      id: '/co-operative'
+      path: '/co-operative'
+      fullPath: '/co-operative'
+      preLoaderRoute: typeof CoOperativeRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/app': {
@@ -1049,6 +1178,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FarmsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/co-operative/': {
+      id: '/co-operative/'
+      path: '/'
+      fullPath: '/co-operative/'
+      preLoaderRoute: typeof CoOperativeIndexRouteImport
+      parentRoute: typeof CoOperativeRouteRoute
+    }
     '/app/': {
       id: '/app/'
       path: '/'
@@ -1105,12 +1241,61 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LegalInvestmentAgreementRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/legal/cooperative-bylaws': {
+      id: '/legal/cooperative-bylaws'
+      path: '/legal/cooperative-bylaws'
+      fullPath: '/legal/cooperative-bylaws'
+      preLoaderRoute: typeof LegalCooperativeBylawsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/farms/$farmSlug': {
       id: '/farms/$farmSlug'
       path: '/farms/$farmSlug'
       fullPath: '/farms/$farmSlug'
       preLoaderRoute: typeof FarmsFarmSlugRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/co-operative/verify-email': {
+      id: '/co-operative/verify-email'
+      path: '/verify-email'
+      fullPath: '/co-operative/verify-email'
+      preLoaderRoute: typeof CoOperativeVerifyEmailRouteImport
+      parentRoute: typeof CoOperativeRouteRoute
+    }
+    '/co-operative/verify': {
+      id: '/co-operative/verify'
+      path: '/verify'
+      fullPath: '/co-operative/verify'
+      preLoaderRoute: typeof CoOperativeVerifyRouteImport
+      parentRoute: typeof CoOperativeRouteRoute
+    }
+    '/co-operative/register': {
+      id: '/co-operative/register'
+      path: '/register'
+      fullPath: '/co-operative/register'
+      preLoaderRoute: typeof CoOperativeRegisterRouteImport
+      parentRoute: typeof CoOperativeRouteRoute
+    }
+    '/co-operative/login': {
+      id: '/co-operative/login'
+      path: '/login'
+      fullPath: '/co-operative/login'
+      preLoaderRoute: typeof CoOperativeLoginRouteImport
+      parentRoute: typeof CoOperativeRouteRoute
+    }
+    '/co-operative/dashboard': {
+      id: '/co-operative/dashboard'
+      path: '/dashboard'
+      fullPath: '/co-operative/dashboard'
+      preLoaderRoute: typeof CoOperativeDashboardRouteImport
+      parentRoute: typeof CoOperativeRouteRoute
+    }
+    '/co-operative/complete-profile': {
+      id: '/co-operative/complete-profile'
+      path: '/complete-profile'
+      fullPath: '/co-operative/complete-profile'
+      preLoaderRoute: typeof CoOperativeCompleteProfileRouteImport
+      parentRoute: typeof CoOperativeRouteRoute
     }
     '/auth/sign-up': {
       id: '/auth/sign-up'
@@ -1462,6 +1647,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCyclesCycleSlugRouteImport
       parentRoute: typeof AdminRouteRoute
     }
+    '/admin/cooperative/members/': {
+      id: '/admin/cooperative/members/'
+      path: '/cooperative/members'
+      fullPath: '/admin/cooperative/members/'
+      preLoaderRoute: typeof AdminCooperativeMembersIndexRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
     '/field/reports/$reportId/view': {
       id: '/field/reports/$reportId/view'
       path: '/view'
@@ -1520,6 +1712,7 @@ interface AdminRouteRouteChildren {
   AdminStaffIndexRoute: typeof AdminStaffIndexRoute
   AdminTeamIndexRoute: typeof AdminTeamIndexRoute
   AdminWithdrawalsIndexRoute: typeof AdminWithdrawalsIndexRoute
+  AdminCooperativeMembersIndexRoute: typeof AdminCooperativeMembersIndexRoute
 }
 
 const AdminRouteRouteChildren: AdminRouteRouteChildren = {
@@ -1556,6 +1749,7 @@ const AdminRouteRouteChildren: AdminRouteRouteChildren = {
   AdminStaffIndexRoute: AdminStaffIndexRoute,
   AdminTeamIndexRoute: AdminTeamIndexRoute,
   AdminWithdrawalsIndexRoute: AdminWithdrawalsIndexRoute,
+  AdminCooperativeMembersIndexRoute: AdminCooperativeMembersIndexRoute,
 }
 
 const AdminRouteRouteWithChildren = AdminRouteRoute._addFileChildren(
@@ -1595,6 +1789,29 @@ const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(
   AppRouteRouteChildren,
 )
 
+interface CoOperativeRouteRouteChildren {
+  CoOperativeCompleteProfileRoute: typeof CoOperativeCompleteProfileRoute
+  CoOperativeDashboardRoute: typeof CoOperativeDashboardRoute
+  CoOperativeLoginRoute: typeof CoOperativeLoginRoute
+  CoOperativeRegisterRoute: typeof CoOperativeRegisterRoute
+  CoOperativeVerifyRoute: typeof CoOperativeVerifyRoute
+  CoOperativeVerifyEmailRoute: typeof CoOperativeVerifyEmailRoute
+  CoOperativeIndexRoute: typeof CoOperativeIndexRoute
+}
+
+const CoOperativeRouteRouteChildren: CoOperativeRouteRouteChildren = {
+  CoOperativeCompleteProfileRoute: CoOperativeCompleteProfileRoute,
+  CoOperativeDashboardRoute: CoOperativeDashboardRoute,
+  CoOperativeLoginRoute: CoOperativeLoginRoute,
+  CoOperativeRegisterRoute: CoOperativeRegisterRoute,
+  CoOperativeVerifyRoute: CoOperativeVerifyRoute,
+  CoOperativeVerifyEmailRoute: CoOperativeVerifyEmailRoute,
+  CoOperativeIndexRoute: CoOperativeIndexRoute,
+}
+
+const CoOperativeRouteRouteWithChildren =
+  CoOperativeRouteRoute._addFileChildren(CoOperativeRouteRouteChildren)
+
 interface FieldReportsReportIdRouteChildren {
   FieldReportsReportIdViewRoute: typeof FieldReportsReportIdViewRoute
 }
@@ -1628,6 +1845,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRouteRoute: AdminRouteRouteWithChildren,
   AppRouteRoute: AppRouteRouteWithChildren,
+  CoOperativeRouteRoute: CoOperativeRouteRouteWithChildren,
   FieldRouteRoute: FieldRouteRouteWithChildren,
   AboutRoute: AboutRoute,
   ContactRoute: ContactRoute,
@@ -1638,6 +1856,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthSignInRoute: AuthSignInRoute,
   AuthSignUpRoute: AuthSignUpRoute,
   FarmsFarmSlugRoute: FarmsFarmSlugRoute,
+  LegalCooperativeBylawsRoute: LegalCooperativeBylawsRoute,
   LegalInvestmentAgreementRoute: LegalInvestmentAgreementRoute,
   LegalPrivacyRoute: LegalPrivacyRoute,
   LegalRiskRoute: LegalRiskRoute,

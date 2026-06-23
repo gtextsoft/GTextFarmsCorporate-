@@ -23,11 +23,12 @@ import {
 import { getPublicFaqFn, getPublicGalleryFn, getPublicTeamFn } from "@/lib/api/content.functions";
 import { getPublicPerformanceFn } from "@/lib/api/performance.functions";
 import { brand, brandTitle } from "@/lib/brand";
+import { farms as fallbackFarms, opportunities as fallbackOpportunities } from "@/lib/mock-data";
 import { buildTrustBarStats } from "@/lib/platform-stats";
 
 export const Route = createFileRoute("/")({
   loader: async () => {
-    const [opportunityList, platformStats, farmList, performance, faqItems, teamMembers, galleryItems] =
+    const [opportunityListRaw, platformStats, farmList, performance, faqItems, teamMembers, galleryItems] =
       await Promise.all([
       listOpportunitiesFn(),
       getPlatformStatsFn(),
@@ -38,7 +39,11 @@ export const Route = createFileRoute("/")({
       getPublicGalleryFn(),
     ]);
 
-    const featuredFarm = farmList[0] ?? null;
+    const opportunityList =
+      opportunityListRaw.length > 0 ? opportunityListRaw : fallbackOpportunities;
+    const farms = farmList.length > 0 ? farmList : fallbackFarms;
+
+    const featuredFarm = farms[0] ?? null;
     const featuredCycle =
       (featuredFarm?.activeCycleSlug
         ? opportunityList.find((o) => o.slug === featuredFarm.activeCycleSlug)
@@ -95,7 +100,7 @@ function Landing() {
 
   return (
     <MarketingLayout>
-      {featuredCycle && <Hero featuredCycle={featuredCycle} />}
+      {featuredCycle ? <Hero featuredCycle={featuredCycle} /> : null}
       <TrustBar stats={trustBarStats} />
       <TrackRecord completedCycles={completedCycles} />
       <PayoutProof lastPayout={lastPayout} />

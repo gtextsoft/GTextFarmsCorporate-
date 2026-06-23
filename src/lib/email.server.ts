@@ -115,6 +115,58 @@ export async function sendFieldReportPublishedEmail(
   });
 }
 
+export async function sendCoopWelcomeVerifyEmail(email: string, fullName: string, verifyUrl: string) {
+  return sendEmail({
+    to: email,
+    subject: "Welcome to GText Farms Co-operative Society",
+    html: `
+      <p>Hi ${fullName},</p>
+      <p>Welcome to <strong>GText Farms Co-operative Society</strong>.</p>
+      <p>New participants must verify their email to become a member. Your membership number and bylaws will be sent after verification.</p>
+      <p><a href="${verifyUrl}">Verify your email address</a></p>
+      <p>This link expires in 24 hours.</p>
+    `,
+  });
+}
+
+export async function sendCoopMembershipEmail(
+  email: string,
+  fullName: string,
+  membershipNumber: string,
+  profileUrl: string,
+) {
+  const bylawsUrl = process.env.COOP_BYLAWS_URL ?? `${appUrl()}/legal/cooperative-bylaws`;
+
+  return sendEmail({
+    to: email,
+    subject: `Your co-operative membership number — ${membershipNumber}`,
+    html: `
+      <p>Hi ${fullName},</p>
+      <p>Your email has been verified. Welcome to <strong>GText Farms Co-operative Society</strong>.</p>
+      <p><strong>Membership number:</strong> <code>${membershipNumber}</code></p>
+      <p>Please review our <a href="${bylawsUrl}">co-operative bylaws</a>. Complete your member profile to become a full member and access investments.</p>
+      <p><a href="${profileUrl}">Complete your profile</a></p>
+    `,
+  });
+}
+
+export async function sendCoopProfileCompleteEmail(
+  email: string,
+  fullName: string,
+  dashboardUrl: string,
+) {
+  return sendEmail({
+    to: email,
+    subject: "You are now a full member of GText Farms Co-operative",
+    html: `
+      <p>Hi ${fullName},</p>
+      <p>Your member profile is complete. You are now a <strong>full member</strong> of GText Farms Co-operative Society.</p>
+      <p>Next step: fund your account to start investing in available poultry packages.</p>
+      <p><a href="${dashboardUrl}">Go to your dashboard</a></p>
+    `,
+  });
+}
+
 export async function sendContactInquiryEmail(inquiry: {
   name: string;
   email: string;

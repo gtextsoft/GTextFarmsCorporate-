@@ -57,7 +57,7 @@ export const brand = {
     "Investors fund verified poultry production cycles. GText Farms manages birds, feeding, vaccination, production, and sales — with transparent monitoring and realistic returns.",
 
   footerBlurb:
-    "A leading integrated agricultural company in Nigeria — farming, processing, consulting, and investment opportunities across poultry, vegetables, cassava, and palm oil.",
+    "A leading integrated agricultural company in Nigeria - farming, processing, consulting, and investment opportunities across poultry, vegetables, cassava, and palm oil.",
   location: "Nigeria",
   contact: {
     salesEmail: "sales@gtextfarms.ng",

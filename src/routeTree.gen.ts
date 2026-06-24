@@ -38,6 +38,7 @@ import { Route as CoOperativeVerifyEmailRouteImport } from './routes/co-operativ
 import { Route as CoOperativeVerifyRouteImport } from './routes/co-operative/verify'
 import { Route as CoOperativeRegisterRouteImport } from './routes/co-operative/register'
 import { Route as CoOperativeLoginRouteImport } from './routes/co-operative/login'
+import { Route as CoOperativeFundRouteImport } from './routes/co-operative/fund'
 import { Route as CoOperativeDashboardRouteImport } from './routes/co-operative/dashboard'
 import { Route as CoOperativeCompleteProfileRouteImport } from './routes/co-operative/complete-profile'
 import { Route as AuthSignUpRouteImport } from './routes/auth/sign-up'
@@ -74,6 +75,7 @@ import { Route as FieldReportsNewRouteImport } from './routes/field/reports/new'
 import { Route as FieldReportsReportIdRouteImport } from './routes/field/reports/$reportId'
 import { Route as AppInvestCycleIdRouteImport } from './routes/app/invest/$cycleId'
 import { Route as ApiWebhooksPaystackRouteImport } from './routes/api/webhooks/paystack'
+import { Route as ApiCoopUploadRouteImport } from './routes/api/coop/upload'
 import { Route as AdminTeamNewRouteImport } from './routes/admin/team/new'
 import { Route as AdminTeamMemberIdRouteImport } from './routes/admin/team/$memberId'
 import { Route as AdminProductsNewRouteImport } from './routes/admin/products/new'
@@ -90,6 +92,7 @@ import { Route as AdminFaqNewRouteImport } from './routes/admin/faq/new'
 import { Route as AdminFaqFaqIdRouteImport } from './routes/admin/faq/$faqId'
 import { Route as AdminCyclesNewRouteImport } from './routes/admin/cycles/new'
 import { Route as AdminCyclesCycleSlugRouteImport } from './routes/admin/cycles/$cycleSlug'
+import { Route as AdminCooperativePaymentsIndexRouteImport } from './routes/admin/cooperative/payments/index'
 import { Route as AdminCooperativeMembersIndexRouteImport } from './routes/admin/cooperative/members/index'
 import { Route as FieldReportsReportIdViewRouteImport } from './routes/field/reports/$reportId/view'
 import { Route as AppReportsTransactionIdReceiptRouteImport } from './routes/app/reports/$transactionId/receipt'
@@ -239,6 +242,11 @@ const CoOperativeRegisterRoute = CoOperativeRegisterRouteImport.update({
 const CoOperativeLoginRoute = CoOperativeLoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => CoOperativeRouteRoute,
+} as any)
+const CoOperativeFundRoute = CoOperativeFundRouteImport.update({
+  id: '/fund',
+  path: '/fund',
   getParentRoute: () => CoOperativeRouteRoute,
 } as any)
 const CoOperativeDashboardRoute = CoOperativeDashboardRouteImport.update({
@@ -422,6 +430,11 @@ const ApiWebhooksPaystackRoute = ApiWebhooksPaystackRouteImport.update({
   path: '/api/webhooks/paystack',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiCoopUploadRoute = ApiCoopUploadRouteImport.update({
+  id: '/api/coop/upload',
+  path: '/api/coop/upload',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminTeamNewRoute = AdminTeamNewRouteImport.update({
   id: '/team/new',
   path: '/team/new',
@@ -504,6 +517,12 @@ const AdminCyclesCycleSlugRoute = AdminCyclesCycleSlugRouteImport.update({
   path: '/cycles/$cycleSlug',
   getParentRoute: () => AdminRouteRoute,
 } as any)
+const AdminCooperativePaymentsIndexRoute =
+  AdminCooperativePaymentsIndexRouteImport.update({
+    id: '/cooperative/payments/',
+    path: '/cooperative/payments/',
+    getParentRoute: () => AdminRouteRoute,
+  } as any)
 const AdminCooperativeMembersIndexRoute =
   AdminCooperativeMembersIndexRouteImport.update({
     id: '/cooperative/members/',
@@ -546,6 +565,7 @@ export interface FileRoutesByFullPath {
   '/auth/sign-up': typeof AuthSignUpRoute
   '/co-operative/complete-profile': typeof CoOperativeCompleteProfileRoute
   '/co-operative/dashboard': typeof CoOperativeDashboardRoute
+  '/co-operative/fund': typeof CoOperativeFundRoute
   '/co-operative/login': typeof CoOperativeLoginRoute
   '/co-operative/register': typeof CoOperativeRegisterRoute
   '/co-operative/verify': typeof CoOperativeVerifyRoute
@@ -584,6 +604,7 @@ export interface FileRoutesByFullPath {
   '/admin/products/new': typeof AdminProductsNewRoute
   '/admin/team/$memberId': typeof AdminTeamMemberIdRoute
   '/admin/team/new': typeof AdminTeamNewRoute
+  '/api/coop/upload': typeof ApiCoopUploadRoute
   '/api/webhooks/paystack': typeof ApiWebhooksPaystackRoute
   '/app/invest/$cycleId': typeof AppInvestCycleIdRoute
   '/field/reports/$reportId': typeof FieldReportsReportIdRouteWithChildren
@@ -615,6 +636,7 @@ export interface FileRoutesByFullPath {
   '/app/reports/$transactionId/receipt': typeof AppReportsTransactionIdReceiptRoute
   '/field/reports/$reportId/view': typeof FieldReportsReportIdViewRoute
   '/admin/cooperative/members/': typeof AdminCooperativeMembersIndexRoute
+  '/admin/cooperative/payments/': typeof AdminCooperativePaymentsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -629,6 +651,7 @@ export interface FileRoutesByTo {
   '/auth/sign-up': typeof AuthSignUpRoute
   '/co-operative/complete-profile': typeof CoOperativeCompleteProfileRoute
   '/co-operative/dashboard': typeof CoOperativeDashboardRoute
+  '/co-operative/fund': typeof CoOperativeFundRoute
   '/co-operative/login': typeof CoOperativeLoginRoute
   '/co-operative/register': typeof CoOperativeRegisterRoute
   '/co-operative/verify': typeof CoOperativeVerifyRoute
@@ -667,6 +690,7 @@ export interface FileRoutesByTo {
   '/admin/products/new': typeof AdminProductsNewRoute
   '/admin/team/$memberId': typeof AdminTeamMemberIdRoute
   '/admin/team/new': typeof AdminTeamNewRoute
+  '/api/coop/upload': typeof ApiCoopUploadRoute
   '/api/webhooks/paystack': typeof ApiWebhooksPaystackRoute
   '/app/invest/$cycleId': typeof AppInvestCycleIdRoute
   '/field/reports/$reportId': typeof FieldReportsReportIdRouteWithChildren
@@ -698,6 +722,7 @@ export interface FileRoutesByTo {
   '/app/reports/$transactionId/receipt': typeof AppReportsTransactionIdReceiptRoute
   '/field/reports/$reportId/view': typeof FieldReportsReportIdViewRoute
   '/admin/cooperative/members': typeof AdminCooperativeMembersIndexRoute
+  '/admin/cooperative/payments': typeof AdminCooperativePaymentsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -717,6 +742,7 @@ export interface FileRoutesById {
   '/auth/sign-up': typeof AuthSignUpRoute
   '/co-operative/complete-profile': typeof CoOperativeCompleteProfileRoute
   '/co-operative/dashboard': typeof CoOperativeDashboardRoute
+  '/co-operative/fund': typeof CoOperativeFundRoute
   '/co-operative/login': typeof CoOperativeLoginRoute
   '/co-operative/register': typeof CoOperativeRegisterRoute
   '/co-operative/verify': typeof CoOperativeVerifyRoute
@@ -755,6 +781,7 @@ export interface FileRoutesById {
   '/admin/products/new': typeof AdminProductsNewRoute
   '/admin/team/$memberId': typeof AdminTeamMemberIdRoute
   '/admin/team/new': typeof AdminTeamNewRoute
+  '/api/coop/upload': typeof ApiCoopUploadRoute
   '/api/webhooks/paystack': typeof ApiWebhooksPaystackRoute
   '/app/invest/$cycleId': typeof AppInvestCycleIdRoute
   '/field/reports/$reportId': typeof FieldReportsReportIdRouteWithChildren
@@ -786,6 +813,7 @@ export interface FileRoutesById {
   '/app/reports/$transactionId/receipt': typeof AppReportsTransactionIdReceiptRoute
   '/field/reports/$reportId/view': typeof FieldReportsReportIdViewRoute
   '/admin/cooperative/members/': typeof AdminCooperativeMembersIndexRoute
+  '/admin/cooperative/payments/': typeof AdminCooperativePaymentsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -806,6 +834,7 @@ export interface FileRouteTypes {
     | '/auth/sign-up'
     | '/co-operative/complete-profile'
     | '/co-operative/dashboard'
+    | '/co-operative/fund'
     | '/co-operative/login'
     | '/co-operative/register'
     | '/co-operative/verify'
@@ -844,6 +873,7 @@ export interface FileRouteTypes {
     | '/admin/products/new'
     | '/admin/team/$memberId'
     | '/admin/team/new'
+    | '/api/coop/upload'
     | '/api/webhooks/paystack'
     | '/app/invest/$cycleId'
     | '/field/reports/$reportId'
@@ -875,6 +905,7 @@ export interface FileRouteTypes {
     | '/app/reports/$transactionId/receipt'
     | '/field/reports/$reportId/view'
     | '/admin/cooperative/members/'
+    | '/admin/cooperative/payments/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -889,6 +920,7 @@ export interface FileRouteTypes {
     | '/auth/sign-up'
     | '/co-operative/complete-profile'
     | '/co-operative/dashboard'
+    | '/co-operative/fund'
     | '/co-operative/login'
     | '/co-operative/register'
     | '/co-operative/verify'
@@ -927,6 +959,7 @@ export interface FileRouteTypes {
     | '/admin/products/new'
     | '/admin/team/$memberId'
     | '/admin/team/new'
+    | '/api/coop/upload'
     | '/api/webhooks/paystack'
     | '/app/invest/$cycleId'
     | '/field/reports/$reportId'
@@ -958,6 +991,7 @@ export interface FileRouteTypes {
     | '/app/reports/$transactionId/receipt'
     | '/field/reports/$reportId/view'
     | '/admin/cooperative/members'
+    | '/admin/cooperative/payments'
   id:
     | '__root__'
     | '/'
@@ -976,6 +1010,7 @@ export interface FileRouteTypes {
     | '/auth/sign-up'
     | '/co-operative/complete-profile'
     | '/co-operative/dashboard'
+    | '/co-operative/fund'
     | '/co-operative/login'
     | '/co-operative/register'
     | '/co-operative/verify'
@@ -1014,6 +1049,7 @@ export interface FileRouteTypes {
     | '/admin/products/new'
     | '/admin/team/$memberId'
     | '/admin/team/new'
+    | '/api/coop/upload'
     | '/api/webhooks/paystack'
     | '/app/invest/$cycleId'
     | '/field/reports/$reportId'
@@ -1045,6 +1081,7 @@ export interface FileRouteTypes {
     | '/app/reports/$transactionId/receipt'
     | '/field/reports/$reportId/view'
     | '/admin/cooperative/members/'
+    | '/admin/cooperative/payments/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -1075,6 +1112,7 @@ export interface RootRouteChildren {
   OpportunitiesIndexRoute: typeof OpportunitiesIndexRoute
   PerformanceIndexRoute: typeof PerformanceIndexRoute
   ProductsIndexRoute: typeof ProductsIndexRoute
+  ApiCoopUploadRoute: typeof ApiCoopUploadRoute
   ApiWebhooksPaystackRoute: typeof ApiWebhooksPaystackRoute
 }
 
@@ -1281,6 +1319,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/co-operative/login'
       preLoaderRoute: typeof CoOperativeLoginRouteImport
+      parentRoute: typeof CoOperativeRouteRoute
+    }
+    '/co-operative/fund': {
+      id: '/co-operative/fund'
+      path: '/fund'
+      fullPath: '/co-operative/fund'
+      preLoaderRoute: typeof CoOperativeFundRouteImport
       parentRoute: typeof CoOperativeRouteRoute
     }
     '/co-operative/dashboard': {
@@ -1535,6 +1580,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiWebhooksPaystackRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/coop/upload': {
+      id: '/api/coop/upload'
+      path: '/api/coop/upload'
+      fullPath: '/api/coop/upload'
+      preLoaderRoute: typeof ApiCoopUploadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/team/new': {
       id: '/admin/team/new'
       path: '/team/new'
@@ -1647,6 +1699,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCyclesCycleSlugRouteImport
       parentRoute: typeof AdminRouteRoute
     }
+    '/admin/cooperative/payments/': {
+      id: '/admin/cooperative/payments/'
+      path: '/cooperative/payments'
+      fullPath: '/admin/cooperative/payments/'
+      preLoaderRoute: typeof AdminCooperativePaymentsIndexRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
     '/admin/cooperative/members/': {
       id: '/admin/cooperative/members/'
       path: '/cooperative/members'
@@ -1713,6 +1772,7 @@ interface AdminRouteRouteChildren {
   AdminTeamIndexRoute: typeof AdminTeamIndexRoute
   AdminWithdrawalsIndexRoute: typeof AdminWithdrawalsIndexRoute
   AdminCooperativeMembersIndexRoute: typeof AdminCooperativeMembersIndexRoute
+  AdminCooperativePaymentsIndexRoute: typeof AdminCooperativePaymentsIndexRoute
 }
 
 const AdminRouteRouteChildren: AdminRouteRouteChildren = {
@@ -1750,6 +1810,7 @@ const AdminRouteRouteChildren: AdminRouteRouteChildren = {
   AdminTeamIndexRoute: AdminTeamIndexRoute,
   AdminWithdrawalsIndexRoute: AdminWithdrawalsIndexRoute,
   AdminCooperativeMembersIndexRoute: AdminCooperativeMembersIndexRoute,
+  AdminCooperativePaymentsIndexRoute: AdminCooperativePaymentsIndexRoute,
 }
 
 const AdminRouteRouteWithChildren = AdminRouteRoute._addFileChildren(
@@ -1792,6 +1853,7 @@ const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(
 interface CoOperativeRouteRouteChildren {
   CoOperativeCompleteProfileRoute: typeof CoOperativeCompleteProfileRoute
   CoOperativeDashboardRoute: typeof CoOperativeDashboardRoute
+  CoOperativeFundRoute: typeof CoOperativeFundRoute
   CoOperativeLoginRoute: typeof CoOperativeLoginRoute
   CoOperativeRegisterRoute: typeof CoOperativeRegisterRoute
   CoOperativeVerifyRoute: typeof CoOperativeVerifyRoute
@@ -1802,6 +1864,7 @@ interface CoOperativeRouteRouteChildren {
 const CoOperativeRouteRouteChildren: CoOperativeRouteRouteChildren = {
   CoOperativeCompleteProfileRoute: CoOperativeCompleteProfileRoute,
   CoOperativeDashboardRoute: CoOperativeDashboardRoute,
+  CoOperativeFundRoute: CoOperativeFundRoute,
   CoOperativeLoginRoute: CoOperativeLoginRoute,
   CoOperativeRegisterRoute: CoOperativeRegisterRoute,
   CoOperativeVerifyRoute: CoOperativeVerifyRoute,
@@ -1869,6 +1932,7 @@ const rootRouteChildren: RootRouteChildren = {
   OpportunitiesIndexRoute: OpportunitiesIndexRoute,
   PerformanceIndexRoute: PerformanceIndexRoute,
   ProductsIndexRoute: ProductsIndexRoute,
+  ApiCoopUploadRoute: ApiCoopUploadRoute,
   ApiWebhooksPaystackRoute: ApiWebhooksPaystackRoute,
 }
 export const routeTree = rootRouteImport

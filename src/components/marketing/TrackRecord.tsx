@@ -48,14 +48,16 @@ export function TrackRecord({ completedCycles }: { completedCycles: CompletedCyc
               <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
                 <div>
                   <dt className="text-xs text-muted-foreground">ROI projected</dt>
-                  <dd className="font-medium">{cycle.roiProjected}</dd>
+                  <dd className="font-numeric font-semibold">{cycle.roiProjected}</dd>
                 </div>
                 <div>
                   <dt className="text-xs text-muted-foreground">ROI delivered</dt>
-                  <dd className="font-semibold text-forest-deep">{cycle.roiDelivered}</dd>
+                  <dd className="font-numeric font-semibold text-forest-deep">{cycle.roiDelivered}</dd>
                 </div>
               </dl>
-              <p className="mt-3 text-xs text-muted-foreground">{cycle.investors} investors paid</p>
+              <p className="mt-3 text-xs text-muted-foreground">
+                <span className="font-numeric font-semibold text-foreground">{cycle.investors}</span> investors paid
+              </p>
             </article>
           ))}
         </div>

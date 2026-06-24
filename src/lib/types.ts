@@ -55,6 +55,29 @@ export interface CoopMemberRow extends SafeUser {
   createdAt: string;
 }
 
+export type ManualPaymentPurpose = "entrance_fee" | "investment_deposit";
+export type ManualPaymentStatus = "pending" | "approved" | "rejected";
+
+export interface CoopPaymentRow {
+  id: string;
+  purpose: ManualPaymentPurpose;
+  amount: number;
+  payerAccountName: string;
+  payerBankName: string;
+  transferReference?: string;
+  transferDate?: string;
+  receiptUrl: string;
+  status: ManualPaymentStatus;
+  reference: string;
+  rejectionReason?: string;
+  reviewedAt?: string;
+  createdAt: string;
+  // Member identity (populated for the admin queue)
+  memberName?: string;
+  memberEmail?: string;
+  membershipNumber?: string;
+}
+
 export interface SessionUser {
   userId: string;
   email: string;

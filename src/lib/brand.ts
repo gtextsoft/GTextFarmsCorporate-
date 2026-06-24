@@ -11,6 +11,11 @@ export const brand = {
   subheadline:
     "GText Farms combines modern farming, food processing, and agricultural investment opportunities to create sustainable food systems and profitable investments.",
 
+  /** Investment-led hero copy for the landing page — leads with returns + trust. */
+  investHeadline: "Real returns from real Nigerian farms.",
+  investSubheadline:
+    "Fund verified poultry cycles, follow them with weekly field reports, and get your principal plus ROI paid to your wallet at harvest.",
+
   mission:
     "To provide healthy agricultural products while creating wealth opportunities through sustainable farming.",
   vision: "To become Africa's most trusted agricultural ecosystem.",

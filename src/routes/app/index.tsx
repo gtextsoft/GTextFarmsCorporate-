@@ -113,7 +113,7 @@ function AppDashboard() {
               <div className="text-xs uppercase tracking-wide text-muted-foreground">
                 {card.label}
               </div>
-              <div className="mt-2 font-display text-3xl text-forest-deep">{card.value}</div>
+              <div className="mt-2 font-numeric text-3xl font-bold text-forest-deep">{card.value}</div>
             </div>
           ))}
         </div>
@@ -169,7 +169,7 @@ function AppDashboard() {
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className={txn.amount >= 0 ? "font-medium text-forest-deep" : ""}>
+                      <div className={txn.amount >= 0 ? "font-numeric font-semibold text-forest-deep" : "font-numeric font-semibold"}>
                         {txn.amount >= 0 ? "+" : ""}
                         {formatNaira(Math.abs(txn.amount))}
                       </div>
@@ -263,7 +263,7 @@ function AppDashboard() {
                   {recentInvestments.map((inv) => (
                     <tr key={inv.id}>
                       <td className="px-4 py-3 font-medium">{inv.cycleTitle}</td>
-                      <td className="px-4 py-3">{formatNaira(inv.amount)}</td>
+                      <td className="px-4 py-3 font-numeric font-semibold">{formatNaira(inv.amount)}</td>
                       <td className="hidden px-4 py-3 font-mono text-xs text-muted-foreground sm:table-cell">
                         {inv.certificateNumber}
                       </td>

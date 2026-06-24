@@ -1,7 +1,7 @@
-import { Link, Outlet, createFileRoute, redirect, useRouteContext } from "@tanstack/react-router";
+import { Link, createFileRoute, redirect, useRouteContext } from "@tanstack/react-router";
+import { FilePlus, FileText, Shield, User } from "lucide-react";
 
-import { Logo } from "@/components/marketing/Logo";
-import { signOutFn } from "@/lib/api/auth.functions";
+import { SidebarShell, type ShellNavItem } from "@/components/SidebarShell";
 
 function isFieldRole(role: string | undefined) {
   return role === "field_officer" || role === "admin" || role === "super_admin";
@@ -21,44 +21,37 @@ export const Route = createFileRoute("/field")({
 
 function FieldLayout() {
   const { user } = useRouteContext({ from: "__root__" });
+  const isAdmin = user?.role === "admin" || user?.role === "super_admin";
+
+  const navItems: ShellNavItem[] = [
+    { to: "/field", label: "My reports", icon: FileText, exact: true },
+    { to: "/field/profile", label: "Profile", icon: User },
+  ];
+
+  const footerItems: ShellNavItem[] = isAdmin
+    ? [{ to: "/admin", label: "Admin", icon: Shield }]
+    : [];
+
+  const headerRight = (
+    <Link
+      to="/field/reports/new"
+      className="inline-flex items-center gap-1.5 rounded-full bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground"
+    >
+      <FilePlus className="size-3.5" />
+      New report
+    </Link>
+  );
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <header className="border-b border-border bg-bone/40">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
-          <Link to="/field" className="flex items-center gap-2">
-            <Logo />
-            <span className="font-semibold">Field reports</span>
-          </Link>
-          <nav className="flex items-center gap-4 text-sm">
-            <Link to="/field" className="text-muted-foreground hover:text-foreground">
-              My reports
-            </Link>
-            <Link to="/field/profile" className="text-muted-foreground hover:text-foreground">
-              Profile
-            </Link>
-            <Link
-              to="/field/reports/new"
-              className="rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground"
-            >
-              New report
-            </Link>
-            {(user?.role === "admin" || user?.role === "super_admin") && (
-              <Link to="/admin" className="text-muted-foreground hover:text-foreground">
-                Admin
-              </Link>
-            )}
-            <button
-              type="button"
-              onClick={() => signOutFn()}
-              className="text-muted-foreground hover:text-foreground"
-            >
-              Sign out
-            </button>
-          </nav>
-        </div>
-      </header>
-      <Outlet />
-    </div>
+    <SidebarShell
+      homeTo="/field"
+      brandTitle="GText Farms"
+      brandSubtitle="Field portal"
+      navItems={navItems}
+      footerItems={footerItems}
+      headerTitle="Field reports"
+      userName={user?.fullName}
+      headerRight={headerRight}
+    />
   );
 }

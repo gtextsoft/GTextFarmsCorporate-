@@ -40,7 +40,7 @@ export function Team({ members }: { members?: TeamMember[] }) {
                 <div className="font-display text-2xl">{p.name}</div>
                 <div className="text-sm text-muted-foreground">{p.role}</div>
                 <p className="mt-1 text-xs font-medium text-forest-deep">
-                  {p.yearsExperience} years experience
+                  <span className="font-numeric font-semibold">{p.yearsExperience}</span> years experience
                 </p>
                 <p className="mt-3 text-sm text-muted-foreground">{p.bio}</p>
                 <ul className="mt-3 space-y-1">

@@ -78,7 +78,7 @@ function FarmProfilePage() {
                     <div className="text-xs uppercase tracking-wide text-muted-foreground">
                       {stat.label}
                     </div>
-                    <div className="mt-1 font-semibold">{stat.value}</div>
+                    <div className="mt-1 font-numeric text-lg font-bold text-forest-deep">{stat.value}</div>
                   </div>
                 ))}
               </div>
@@ -107,7 +107,7 @@ function FarmProfilePage() {
                     </div>
                     <div>
                       <dt className="text-muted-foreground">Cycles per year</dt>
-                      <dd className="font-medium">{farm.cyclesPerYear}</dd>
+                      <dd className="font-numeric font-semibold">{farm.cyclesPerYear}</dd>
                     </div>
                   </dl>
                 </div>

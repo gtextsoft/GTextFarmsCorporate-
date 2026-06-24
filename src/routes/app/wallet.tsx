@@ -64,7 +64,7 @@ function WalletPage() {
             <div className="text-xs uppercase tracking-wide text-muted-foreground">
               Available balance
             </div>
-            <div className="mt-2 font-display text-4xl text-forest-deep">
+            <div className="mt-2 font-numeric text-4xl font-bold text-forest-deep">
               {formatNaira(summary.availableBalance)}
             </div>
             <p className="mt-2 text-sm text-muted-foreground">
@@ -204,7 +204,7 @@ function WalletPage() {
                 <tbody className="divide-y divide-border bg-card">
                   {withdrawals.map((row) => (
                     <tr key={row.id}>
-                      <td className="px-4 py-3 font-medium">{formatNaira(row.amount)}</td>
+                      <td className="px-4 py-3 font-numeric font-semibold">{formatNaira(row.amount)}</td>
                       <td className="px-4 py-3 capitalize text-muted-foreground">{row.status}</td>
                       <td className="hidden px-4 py-3 text-muted-foreground sm:table-cell">
                         {row.bankName} {row.accountNumber}
@@ -250,7 +250,7 @@ function WalletPage() {
                     <tr key={txn.id}>
                       <td className="px-4 py-3 capitalize">{txn.type.replace("_", " ")}</td>
                       <td
-                        className={`px-4 py-3 font-medium ${txn.amount >= 0 ? "text-forest-deep" : "text-foreground"}`}
+                        className={`px-4 py-3 font-numeric font-semibold ${txn.amount >= 0 ? "text-forest-deep" : "text-foreground"}`}
                       >
                         {txn.amount >= 0 ? "+" : ""}
                         {formatNaira(Math.abs(txn.amount))}

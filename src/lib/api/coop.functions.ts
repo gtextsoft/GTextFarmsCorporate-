@@ -275,8 +275,8 @@ export const completeCoopProfileFn = createServerFn({ method: "POST" })
       return { error: "Not a co-operative member." as const };
     }
 
-    if (user.membershipStatus !== "provisional_member" && user.membershipStatus !== "full_member") {
-      return { error: "Verify your email before completing your profile." as const };
+    if (user.membershipStatus !== "provisional_member") {
+      return { error: "Your profile has already been completed." as const };
     }
 
     user.phone = storeNgPhone(data.phone) ?? data.phone;
@@ -303,17 +303,17 @@ export const completeCoopProfileFn = createServerFn({ method: "POST" })
     user.accountName = data.accountName.trim();
     user.bylawsAcceptedAt = new Date();
     user.profileCompletedAt = new Date();
-    user.admissionDate = new Date();
-    user.membershipStatus = "full_member";
+    // Full membership is gated on the entrance fee being paid + admin-confirmed.
+    user.membershipStatus = "payment_pending";
     await user.save();
 
-    const dashboardUrl = `${appUrl()}/co-operative/dashboard`;
+    const fundUrl = `${appUrl()}/co-operative/fund`;
     await notifySafe(
-      () => sendCoopProfileCompleteEmail(user.email, user.fullName, dashboardUrl),
+      () => sendCoopProfileCompleteEmail(user.email, user.fullName, fundUrl),
       "co-op profile complete email",
     );
 
-    throw redirect({ to: "/co-operative/dashboard" });
+    throw redirect({ to: "/co-operative/fund" });
   });
 
 export const listCoopMembersFn = createServerFn({ method: "GET" })
@@ -368,6 +368,8 @@ export const getCoopDashboardFn = createServerFn({ method: "GET" }).handler(asyn
   const { User } = await import("@/lib/models/user.model.server");
   const { Wallet } = await import("@/lib/models/wallet.model.server");
   const { Investment } = await import("@/lib/models/investment.model.server");
+  const { ManualPayment } = await import("@/lib/models/manual-payment.model.server");
+  const { getCoopEntranceFee } = await import("@/lib/config.server");
 
   await connectDB();
   const user = await User.findById(session.data.userId);
@@ -377,11 +379,20 @@ export const getCoopDashboardFn = createServerFn({ method: "GET" }).handler(asyn
 
   const wallet = await Wallet.findOne({ userId: user._id });
   const investments = await Investment.find({ userId: user._id });
+  const pendingPayments = await ManualPayment.find({ userId: user._id, status: "pending" });
+
+  const status = user.membershipStatus as MembershipStatus;
+  const entranceFeePaid =
+    status === "full_member" || status === "funded" || status === "active_investor";
 
   return {
     membershipNumber: user.membershipNumber,
-    membershipStatus: user.membershipStatus as MembershipStatus,
+    membershipStatus: status,
+    entranceFee: getCoopEntranceFee(),
+    entranceFeePaid,
     balance: wallet?.balance ?? 0,
+    withdrawable: 0,
+    pendingPayment: pendingPayments.reduce((sum, p) => sum + p.amount, 0),
     totalInvested: investments.reduce((sum, inv) => sum + inv.amount, 0),
     activeInvestments: investments.length,
   };

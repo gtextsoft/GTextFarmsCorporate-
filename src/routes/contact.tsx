@@ -107,7 +107,7 @@ function ContactPage() {
                 </div>
                 <div>
                   <dt className="font-medium">Phone</dt>
-                  <dd className="text-muted-foreground">{brand.contact.phone}</dd>
+                  <dd className="font-numeric text-muted-foreground">{brand.contact.phone}</dd>
                 </div>
                 <div>
                   <dt className="font-medium">Office</dt>

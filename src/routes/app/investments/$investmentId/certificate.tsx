@@ -69,10 +69,11 @@ function CertificatePage() {
             <Row label="Investor" value={investment.investorName} />
             <Row label="Email" value={investment.investorEmail} />
             <Row label="Cycle" value={investment.cycleTitle} />
-            <Row label="Principal invested" value={formatNaira(investment.amount)} />
+            <Row label="Principal invested" value={formatNaira(investment.amount)} numeric />
             <Row
               label="Projected return range"
               value={`${formatNaira(investment.expectedReturnMin)} – ${formatNaira(investment.expectedReturnMax)}`}
+              numeric
             />
             <Row label="Investment date" value={investedDate} />
             <Row label="Status" value={investment.status} />
@@ -90,11 +91,25 @@ function CertificatePage() {
   );
 }
 
-function Row({ label, value, mono }: { label: string; value: string; mono?: boolean }) {
+function Row({
+  label,
+  value,
+  mono,
+  numeric,
+}: {
+  label: string;
+  value: string;
+  mono?: boolean;
+  numeric?: boolean;
+}) {
   return (
     <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
       <span className="text-muted-foreground">{label}</span>
-      <span className={`font-medium ${mono ? "font-mono text-xs sm:text-sm" : ""}`}>{value}</span>
+      <span
+        className={`font-medium ${mono ? "font-mono text-xs sm:text-sm" : ""} ${numeric ? "font-numeric font-semibold" : ""}`}
+      >
+        {value}
+      </span>
     </div>
   );
 }

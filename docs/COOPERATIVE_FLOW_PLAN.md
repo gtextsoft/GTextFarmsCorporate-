@@ -2,8 +2,10 @@
 
 This document maps the client requirements (WhatsApp brief, legal documents, and dashboard references) onto a buildable system. It is grounded in what the app already has and what must be added.
 
-**Last updated:** June 2026  
+**Last updated:** June 2026 (decisions locked + build-status refresh)
 **Entry URL:** `gtextfarms.com/co-operative`
+
+> **Decisions locked (see §12):** membership numbers keep the `000032` 6-digit start; the **₦10,000 entrance fee gates full membership**; file storage is **Vercel Blob**; the **manual bank-transfer payment loop is the current build target**. Membership onboarding (register → verify → membership # → profile → hard gate → admin list) is **already built**; the manual-payment loop, entrance-fee gate, wallet buckets, memorandum consent, plot packages, farm records, and coop withdrawals are **not yet built**.
 
 ---
 
@@ -27,14 +29,16 @@ The public entry point: **`gtextfarms.com/co-operative`** (register / login).
 
 Every user progresses through explicit states. Nothing beyond registration works until the previous step is complete.
 
+> **Entrance-fee gate (locked decision):** profile completion alone does **not** grant full membership. After completing their profile the member must pay the **₦10,000 entrance fee** by bank transfer and have it confirmed by an admin. Only then do they become a `full_member`. Investment funding is a *second*, separate use of the same manual-payment mechanism (distinguished by `purpose`).
+
 ```mermaid
 stateDiagram-v2
     [*] --> Registered: Sign up (name, email, password)
-    Registered --> EmailVerified: Click verification link
-    EmailVerified --> ProvisionalMember: Membership # assigned + bylaws email
-    ProvisionalMember --> FullMember: Complete profile + sign bylaws
-    FullMember --> FundedPending: Submit bank payment + receipt
-    FundedPending --> Funded: Admin confirms payment (≤24hrs)
+    Registered --> ProvisionalMember: Click verify link (membership # assigned + bylaws email)
+    ProvisionalMember --> ProfileComplete: Complete profile + accept bylaws
+    ProfileComplete --> EntranceFeePending: Submit ₦10,000 entrance fee + receipt
+    EntranceFeePending --> FullMember: Admin confirms entrance fee (≤24hrs)
+    FullMember --> Funded: Fund investment account + admin confirms deposit
     Funded --> ActiveInvestor: Accept memorandum + invest in plots
     ActiveInvestor --> ActiveInvestor: Monthly returns credited to withdrawal balance
 ```
@@ -43,11 +47,13 @@ stateDiagram-v2
 |--------|------------|--------------|
 | `registered` | Verify-email page only | Everything else |
 | `email_verified` | Awaiting membership email | Dashboard, profile, payments |
-| `provisional_member` | Profile completion form | Investments, payments |
-| `full_member` | Payment page, legal docs | Investing until funded |
-| `payment_pending` | Payment status screen | Investing |
-| `funded` | Browse packages, accept memorandum | Investing until memorandum signed |
+| `provisional_member` | Profile completion form | Entrance fee, investments |
+| `payment_pending` | Entrance-fee payment + status screen, legal docs | Investing until fee confirmed |
+| `full_member` | Investment funding page, browse packages | Investing until funded + memorandum signed |
+| `funded` | Accept memorandum, invest | Investing until memorandum signed |
 | `active_investor` | Full dashboard, invest, withdraw | — |
+
+> **Status reuse:** the existing `membershipStatus` enum already defines `payment_pending` / `funded` / `active_investor`. The entrance-fee gate reuses `payment_pending` (profile done, fee unconfirmed) → `full_member` (fee confirmed). No new statuses required.
 
 **Hard gate rule:** Middleware on `/co-operative/app/*` redirects to the next required step if status is incomplete.
 
@@ -467,20 +473,23 @@ For safe `000032` increment under concurrency.
 
 | Requirement | Current build | Work needed |
 |-------------|---------------|-------------|
-| `/co-operative` URL | ❌ `/auth/*` | New route group + branding |
-| Register (name, email, password) | ✅ `/auth/sign-up` | Split first/last name; co-op copy |
-| Email verification | ❌ | Token flow + emails |
-| Membership # `000032+` | ❌ | Counter + assignment on verify |
-| Profile completion gate | ⚠️ Soft KYC banner | Hard middleware + full form |
-| Next of kin, ID uploads | ⚠️ BVN/NIN only | Expand KYC + file storage |
-| Manual bank + receipt | ❌ Paystack only | DepositRequest + upload + admin queue |
-| 24hr confirmation message | ❌ | UI copy + admin SLA |
-| Invest after payment approved | ❌ Instant wallet | Gate on approved deposits |
-| Plot-based packages | ❌ Custom amount | CoopPackage model |
-| Memorandum tick-boxes | ❌ | InvestmentConsent flow |
-| Investment balance vs withdrawal | ❌ Single balance | Split wallet buckets |
-| Admin farm records | ⚠️ Field reports (weekly) | Monthly summary admin CRUD + charts |
-| Legal documents | ⚠️ Generic agreement page | Co-op specific PDFs/pages |
+| `/co-operative` URL | ✅ Built (route group + branding) | — |
+| Register (first/last name, email, password) | ✅ Built (`/co-operative/register`) | — |
+| Email verification | ✅ Built (token flow + welcome emails) | — |
+| Membership # `000032+` | ✅ Built (counter + assign on verify) | — |
+| Profile completion gate | ✅ Built (hard gate + full subscription form) | — |
+| Next of kin, ID fields | ✅ Built (fields + URL storage) | Wire real **file upload** (Vercel Blob) |
+| **₦10,000 entrance-fee gate** | ✅ Built (`payment_pending → full_member` on admin confirm) | — |
+| **Manual bank + receipt** | ✅ Built (`ManualPayment` model + Vercel Blob upload + `/co-operative/fund`) | — |
+| **24hr confirmation message** | ✅ Built (member copy + admin queue) | — |
+| **Credit investable balance on confirm** | ✅ Built (admin approve → `creditWallet`) | — |
+| **Plot-based packages** | ❌ Custom amount | `CoopPackage` model |
+| **Memorandum tick-boxes** | ❌ | `InvestmentConsent` flow |
+| **Withdrawable balance (separate bucket)** | ❌ Single balance | Split wallet buckets |
+| **Admin farm records (monthly)** | ⚠️ Field reports (weekly) | Monthly summary admin CRUD + member charts |
+| Legal documents | ⚠️ Generic agreement page | Co-op specific PDFs / bylaws PDF attachment |
+
+> **Build slice DONE (this iteration):** the **manual bank-transfer payment loop** — `ManualPayment` model, **Vercel Blob** receipt upload, member `/co-operative/fund` page, admin `/admin/cooperative/payments` confirmation queue, the **entrance-fee gate** (`completeCoopProfileFn` now sets `payment_pending`; entrance-fee approval flips to `full_member`), wallet crediting on deposit approval, and the status-aware dashboard. **Next slices:** memorandum consent → plot packages → farm records → withdrawable bucket + monthly withdrawals.
 
 ---
 
@@ -580,15 +589,23 @@ These should be available as:
 
 ---
 
-## 12. Open decisions (confirm with client)
+## 12. Decisions
 
-1. **Profile approval** — Auto “full member” on submit, or admin must approve admission?
-2. **Paystack** — Keep as optional fast top-up, or manual bank only?
-3. **Plot pricing** — Fixed packages (₦500k/plot) or flexible amounts within a cycle?
-4. **Returns** — Admin manually credits monthly returns, or calculated from farm records?
-5. **Withdrawal window** — Any day, or fixed monthly dates?
-6. **File storage** — Supabase Storage, Cloudinary, or S3?
-7. **Legal docs** — PDF upload by admin, or full HTML pages in app?
+**Locked (June 2026):**
+
+1. **Membership number** — keep the existing `000032` start with **6-digit padding** (`COOP_MEMBERSHIP_START=32`). The later "start at 00004" message is **not** adopted.
+2. **Entrance fee** — full membership is **gated on paying the ₦10,000 entrance fee** (bank transfer + admin confirmation). Profile completion is necessary but not sufficient.
+3. **File storage** — **Vercel Blob** (`BLOB_READ_WRITE_TOKEN`). Receipts, ID documents, passport photos.
+4. **First build slice** — the **manual bank-transfer payment loop** (entrance fee + investment funding share one mechanism via a `purpose` field).
+
+**Still open (confirm with client, not blocking the current slice):**
+
+- **Paystack** — keep as optional fast top-up for cooperative members, or manual bank only?
+- **Plot pricing** — fixed packages (e.g. ₦500k/plot) or flexible amounts within a cycle?
+- **Returns** — admin manually credits monthly returns, or calculated from farm records?
+- **Withdrawal window** — any day, or fixed monthly dates?
+- **Legal docs** — admin-uploaded PDFs, or in-app HTML pages with version tracking?
+- **Rice farming** — original WhatsApp PRD lists Rice prominently; absent from the build. In scope?
 
 ---
 
@@ -596,17 +613,17 @@ These should be available as:
 
 ```env
 # Co-operative membership
-COOP_MEMBERSHIP_START=32
+COOP_MEMBERSHIP_START=32          # default 32 → 000032 (6-digit)
+COOP_ENTRANCE_FEE=10000          # default 10000
 COOP_BYLAWS_URL=https://...
 
-# Manual payment bank details (or admin UI)
+# Manual payment bank details (shown to members on /co-operative/fund)
 COOP_BANK_ACCOUNT_NAME=
 COOP_BANK_NAME=
 COOP_BANK_ACCOUNT_NUMBER=
 
-# File uploads
-STORAGE_PROVIDER=supabase|s3|cloudinary
-# ... provider-specific keys
+# File uploads — Vercel Blob (locked decision)
+BLOB_READ_WRITE_TOKEN=           # required for receipt / ID uploads
 
 # Email (existing)
 RESEND_API_KEY=

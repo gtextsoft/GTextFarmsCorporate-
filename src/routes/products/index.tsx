@@ -108,7 +108,7 @@ function ProductsPage() {
                         <h3 className="font-semibold">{product.name}</h3>
                         <p className="mt-2 text-sm text-muted-foreground">{product.description}</p>
                         <p className="mt-3 text-xs font-medium text-forest-deep">
-                          Pricing: {product.unit}
+                          Pricing: <span className="font-numeric font-semibold">{product.unit}</span>
                         </p>
                         <Link
                           to="/contact"

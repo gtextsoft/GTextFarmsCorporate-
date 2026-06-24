@@ -85,7 +85,7 @@ function InvestCheckoutPage() {
             <div className="mt-4 grid gap-3 text-sm">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Expected return</span>
-                <span className="font-medium">
+                <span className="font-numeric font-semibold">
                   {formatNaira(result.expectedReturnMin)} – {formatNaira(result.expectedReturnMax)}
                 </span>
               </div>
@@ -113,7 +113,7 @@ function InvestCheckoutPage() {
 
         <div className="mt-6 rounded-xl bg-secondary px-4 py-3 text-sm">
           Wallet balance:{" "}
-          <span className="font-semibold text-forest-deep">
+          <span className="font-numeric font-semibold text-forest-deep">
             {formatNaira(wallet.availableBalance)}
           </span>
           {wallet.availableBalance < min && (
@@ -175,11 +175,11 @@ function InvestCheckoutPage() {
             <dl className="space-y-3 text-sm">
               <div className="flex justify-between">
                 <dt className="text-muted-foreground">Amount</dt>
-                <dd className="font-semibold">{formatNaira(parsedAmount)}</dd>
+                <dd className="font-numeric font-semibold">{formatNaira(parsedAmount)}</dd>
               </div>
               <div className="flex justify-between">
                 <dt className="text-muted-foreground">Expected return</dt>
-                <dd>
+                <dd className="font-numeric font-semibold">
                   {formatNaira(expectedMin)} – {formatNaira(expectedMax)}
                 </dd>
               </div>
@@ -189,7 +189,7 @@ function InvestCheckoutPage() {
               </div>
               <div className="flex justify-between border-t border-border pt-3">
                 <dt className="text-muted-foreground">Balance after</dt>
-                <dd className="font-semibold">
+                <dd className="font-numeric font-semibold">
                   {formatNaira(wallet.availableBalance - parsedAmount)}
                 </dd>
               </div>

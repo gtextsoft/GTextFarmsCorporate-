@@ -18,23 +18,14 @@ export function Nav() {
           <Link to="/" hash="how" className="hover:text-foreground">
             How it works
           </Link>
+          <Link to="/opportunities" className="hover:text-foreground">
+            Opportunities
+          </Link>
           <Link to="/performance" className="hover:text-foreground">
             Track record
           </Link>
-          <Link to="/products" className="hover:text-foreground">
-            Products
-          </Link>
-          <Link to="/gallery" className="hover:text-foreground">
-            Gallery
-          </Link>
-          <Link to="/news" className="hover:text-foreground">
-            News
-          </Link>
           <Link to="/farms" className="hover:text-foreground">
             Live farms
-          </Link>
-          <Link to="/opportunities" className="hover:text-foreground">
-            Opportunities
           </Link>
           <Link to="/" hash="faq" className="hover:text-foreground">
             FAQ

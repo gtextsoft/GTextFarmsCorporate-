@@ -46,7 +46,7 @@ export function PayoutProof({ lastPayout }: { lastPayout: PayoutRecord | null })
                 <div className="text-xs uppercase tracking-wide text-muted-foreground">
                   {stat.label}
                 </div>
-                <div className="mt-1 font-display text-2xl text-forest-deep">{stat.value}</div>
+                <div className="mt-1 font-numeric text-2xl font-bold text-forest-deep">{stat.value}</div>
               </div>
             ))}
           </div>

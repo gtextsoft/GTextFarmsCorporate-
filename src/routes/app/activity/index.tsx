@@ -68,19 +68,19 @@ function ActivityPage() {
                     {report.mortalityRate != null && (
                       <div>
                         <dt className="text-muted-foreground">Mortality</dt>
-                        <dd className="font-semibold text-forest-deep">{report.mortalityRate}%</dd>
+                        <dd className="font-numeric font-semibold text-forest-deep">{report.mortalityRate}%</dd>
                       </div>
                     )}
                     {report.fcr != null && (
                       <div>
                         <dt className="text-muted-foreground">FCR</dt>
-                        <dd className="font-semibold">{report.fcr}</dd>
+                        <dd className="font-numeric font-semibold">{report.fcr}</dd>
                       </div>
                     )}
                     {report.birdCount != null && (
                       <div>
                         <dt className="text-muted-foreground">Birds</dt>
-                        <dd className="font-semibold">{report.birdCount.toLocaleString()}</dd>
+                        <dd className="font-numeric font-semibold">{report.birdCount.toLocaleString()}</dd>
                       </div>
                     )}
                   </dl>

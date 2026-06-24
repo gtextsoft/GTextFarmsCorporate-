@@ -64,7 +64,10 @@ const navGroups: { label: string; items: NavItem[] }[] = [
   },
   {
     label: "Co-operative",
-    items: [{ to: "/admin/cooperative/members", label: "Members", icon: Shield }],
+    items: [
+      { to: "/admin/cooperative/members", label: "Members", icon: Shield },
+      { to: "/admin/cooperative/payments", label: "Payments", icon: CircleDollarSign },
+    ],
   },
   {
     label: "Operations",

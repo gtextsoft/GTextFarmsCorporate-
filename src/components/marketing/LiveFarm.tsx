@@ -13,7 +13,7 @@ interface LiveFarmProps {
 
 export function LiveFarm({ farm, journal }: LiveFarmProps) {
   return (
-    <section id="farms" className="px-6 py-24">
+    <section id="farms" className="bg-card px-6 py-24">
       <div className="mx-auto max-w-7xl">
         <SectionHeader
           eyebrow="Live farm"

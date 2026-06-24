@@ -6,7 +6,7 @@ import type { Opportunity } from "@/lib/mock-data";
 
 export function OpportunityCard({ opportunity: o }: { opportunity: Opportunity }) {
   return (
-    <article className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-soft transition hover:-translate-y-0.5 hover:shadow-lifted">
+    <article className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-soft ring-1 ring-border/40 transition hover:-translate-y-0.5 hover:shadow-lifted">
       <div className="relative aspect-[16/11] overflow-hidden">
         <img
           src={o.img}
@@ -38,8 +38,8 @@ export function OpportunityCard({ opportunity: o }: { opportunity: Opportunity }
 
         <div className="mt-5">
           <div className="flex justify-between text-xs text-muted-foreground">
-            <span>{o.raised} raised</span>
-            <span>{o.target} target</span>
+            <span><span className="font-numeric font-semibold text-foreground">{o.raised}</span> raised</span>
+            <span><span className="font-numeric font-semibold">{o.target}</span> target</span>
           </div>
           <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-muted">
             <div

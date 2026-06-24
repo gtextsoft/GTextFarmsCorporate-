@@ -128,7 +128,7 @@ function FarmCard({
                   <div className="text-[10px] uppercase tracking-wide text-muted-foreground">
                     {stat.label}
                   </div>
-                  <div className="text-sm font-semibold">{stat.value}</div>
+                  <div className="font-numeric text-sm font-semibold">{stat.value}</div>
                 </div>
               ))}
             </div>

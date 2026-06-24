@@ -9,11 +9,7 @@ function appUrl() {
   ).replace(/\/$/, "");
 }
 
-export async function sendEmail(params: {
-  to: string;
-  subject: string;
-  html: string;
-}) {
+export async function sendEmail(params: { to: string; subject: string; html: string }) {
   const { resendApiKey } = getServerConfig();
   if (!resendApiKey) {
     console.warn(`[email] RESEND_API_KEY not set. Would send to ${params.to}: ${params.subject}`);
@@ -115,7 +111,11 @@ export async function sendFieldReportPublishedEmail(
   });
 }
 
-export async function sendCoopWelcomeVerifyEmail(email: string, fullName: string, verifyUrl: string) {
+export async function sendCoopWelcomeVerifyEmail(
+  email: string,
+  fullName: string,
+  verifyUrl: string,
+) {
   return sendEmail({
     to: email,
     subject: "Welcome to GText Farms Co-operative Society",
@@ -153,16 +153,83 @@ export async function sendCoopMembershipEmail(
 export async function sendCoopProfileCompleteEmail(
   email: string,
   fullName: string,
-  dashboardUrl: string,
+  fundUrl: string,
 ) {
+  return sendEmail({
+    to: email,
+    subject: "Profile complete — pay your entrance fee to become a full member",
+    html: `
+      <p>Hi ${fullName},</p>
+      <p>Your member profile is complete. One step remains to become a <strong>full member</strong> of GText Farms Co-operative Society: pay the <strong>₦10,000 membership entrance fee</strong> by bank transfer and upload your receipt.</p>
+      <p>An administrator will confirm your payment within 24 hours.</p>
+      <p><a href="${fundUrl}">Pay your entrance fee</a></p>
+    `,
+  });
+}
+
+export async function sendCoopPaymentReceivedEmail(
+  email: string,
+  fullName: string,
+  amount: number,
+  purposeLabel: string,
+) {
+  return sendEmail({
+    to: email,
+    subject: `Payment received — ${purposeLabel}`,
+    html: `
+      <p>Hi ${fullName},</p>
+      <p>We have received your ${purposeLabel.toLowerCase()} of <strong>${formatNaira(amount)}</strong> and your uploaded receipt.</p>
+      <p>Confirmation can take up to <strong>24 hours</strong>. We will email you once an administrator approves it.</p>
+      <p><a href="${appUrl()}/co-operative/dashboard">View your dashboard</a></p>
+    `,
+  });
+}
+
+export async function sendCoopEntranceFeeApprovedEmail(email: string, fullName: string) {
   return sendEmail({
     to: email,
     subject: "You are now a full member of GText Farms Co-operative",
     html: `
       <p>Hi ${fullName},</p>
-      <p>Your member profile is complete. You are now a <strong>full member</strong> of GText Farms Co-operative Society.</p>
-      <p>Next step: fund your account to start investing in available poultry packages.</p>
-      <p><a href="${dashboardUrl}">Go to your dashboard</a></p>
+      <p>Your ₦10,000 membership entrance fee has been confirmed. You are now a <strong>full member</strong> of GText Farms Co-operative Society.</p>
+      <p>Next step: fund your investment account and choose an investment package.</p>
+      <p><a href="${appUrl()}/co-operative/dashboard">Go to your dashboard</a></p>
+    `,
+  });
+}
+
+export async function sendCoopDepositApprovedEmail(
+  email: string,
+  fullName: string,
+  amount: number,
+) {
+  return sendEmail({
+    to: email,
+    subject: `Payment confirmed — ${formatNaira(amount)} available for investment`,
+    html: `
+      <p>Hi ${fullName},</p>
+      <p>Your payment of <strong>${formatNaira(amount)}</strong> has been confirmed and credited to your investment balance.</p>
+      <p>You can now invest in available poultry packages.</p>
+      <p><a href="${appUrl()}/co-operative/dashboard">Go to your dashboard</a></p>
+    `,
+  });
+}
+
+export async function sendCoopPaymentRejectedEmail(
+  email: string,
+  fullName: string,
+  amount: number,
+  reason: string,
+) {
+  return sendEmail({
+    to: email,
+    subject: `Payment could not be confirmed — ${formatNaira(amount)}`,
+    html: `
+      <p>Hi ${fullName},</p>
+      <p>We were unable to confirm your payment of <strong>${formatNaira(amount)}</strong>.</p>
+      <p><strong>Reason:</strong> ${reason}</p>
+      <p>Please review the details and submit your payment again.</p>
+      <p><a href="${appUrl()}/co-operative/fund">Resubmit payment</a></p>
     `,
   });
 }
@@ -194,10 +261,7 @@ export async function sendContactInquiryEmail(inquiry: {
   });
 }
 
-export async function notifySafe(
-  fn: () => Promise<unknown>,
-  label: string,
-) {
+export async function notifySafe(fn: () => Promise<unknown>, label: string) {
   try {
     await fn();
   } catch (err) {

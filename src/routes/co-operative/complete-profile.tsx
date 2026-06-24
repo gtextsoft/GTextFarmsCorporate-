@@ -9,7 +9,8 @@ import { nigerianBanks, nigerianStates } from "@/lib/nigeria-data";
 
 export const Route = createFileRoute("/co-operative/complete-profile")({
   beforeLoad: ({ context }) => {
-    if (context.user?.membershipStatus === "full_member") {
+    const status = context.user?.membershipStatus;
+    if (status && status !== "provisional_member") {
       throw redirect({ to: "/co-operative/dashboard" });
     }
   },
@@ -31,7 +32,7 @@ function CompleteProfilePage() {
         <SectionHeader
           eyebrow="Full membership"
           title="Complete your member profile."
-          sub="Submit your personal, identification, next of kin, and bank details to become a full member of the co-operative."
+          sub="Submit your personal, identification, next of kin, and bank details. The final step to full membership is paying the ₦10,000 entrance fee."
         />
 
         {user?.membershipNumber && (
@@ -352,7 +353,7 @@ function CompleteProfilePage() {
             disabled={pending}
             className="w-full rounded-full bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-60"
           >
-            {pending ? "Submitting…" : "Submit profile & become full member"}
+            {pending ? "Submitting…" : "Submit profile & continue to payment"}
           </button>
         </form>
       </div>

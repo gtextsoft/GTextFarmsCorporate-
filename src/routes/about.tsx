@@ -78,7 +78,7 @@ function AboutPage() {
             <div className="mt-16 grid grid-cols-2 gap-6 md:grid-cols-4">
               {platformStats.map((stat) => (
                 <div key={stat.label} className="text-center">
-                  <div className="font-display text-4xl text-forest-deep">{stat.value}</div>
+                  <div className="font-numeric text-4xl font-bold text-forest-deep">{stat.value}</div>
                   <div className="mt-1 text-sm text-muted-foreground">{stat.label}</div>
                 </div>
               ))}

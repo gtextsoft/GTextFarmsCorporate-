@@ -31,3 +31,19 @@ export function getServerConfig() {
     termiiSenderId: process.env.TERMII_SENDER_ID,
   };
 }
+
+/** Co-operative entrance fee, in Naira. Gates full membership. */
+export function getCoopEntranceFee(): number {
+  const raw = process.env.COOP_ENTRANCE_FEE;
+  const parsed = raw ? Number.parseInt(raw, 10) : 10_000;
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : 10_000;
+}
+
+/** GText Farms bank details shown to members for manual bank-transfer payments. */
+export function getCoopBankDetails() {
+  return {
+    accountName: process.env.COOP_BANK_ACCOUNT_NAME ?? "GText Farms Co-operative Society",
+    bankName: process.env.COOP_BANK_NAME ?? "—",
+    accountNumber: process.env.COOP_BANK_ACCOUNT_NUMBER ?? "—",
+  };
+}

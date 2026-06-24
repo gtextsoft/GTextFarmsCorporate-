@@ -50,7 +50,7 @@ function PerformancePage() {
                 <div className="text-xs uppercase tracking-wide text-muted-foreground">
                   {stat.label}
                 </div>
-                <div className="mt-2 font-display text-3xl text-forest-deep">{stat.value}</div>
+                <div className="mt-2 font-numeric text-3xl font-bold text-forest-deep">{stat.value}</div>
               </div>
             ))}
           </div>
@@ -87,14 +87,14 @@ function PerformancePage() {
                         <td className="hidden px-4 py-3 text-muted-foreground sm:table-cell">
                           {cycle.farmName}
                         </td>
-                        <td className="px-4 py-3">{cycle.roiProjected}</td>
-                        <td className="px-4 py-3 font-semibold text-forest-deep">
+                        <td className="px-4 py-3 font-numeric">{cycle.roiProjected}</td>
+                        <td className="px-4 py-3 font-numeric font-semibold text-forest-deep">
                           {cycle.roiDelivered}
                         </td>
-                        <td className="hidden px-4 py-3 text-muted-foreground md:table-cell">
+                        <td className="hidden px-4 py-3 font-numeric text-muted-foreground md:table-cell">
                           {cycle.investors}
                         </td>
-                        <td className="px-4 py-3 text-muted-foreground">{cycle.completedDate}</td>
+                        <td className="px-4 py-3 font-numeric text-muted-foreground">{cycle.completedDate}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -108,8 +108,8 @@ function PerformancePage() {
               <h2 className="font-display text-3xl">Platform at a glance</h2>
               <div className="mt-6 grid grid-cols-2 gap-4 md:grid-cols-4">
                 {platformStats.map((s) => (
-                  <div key={s.label} className="rounded-xl border border-border bg-card p-4">
-                    <div className="font-display text-2xl text-forest-deep">{s.value}</div>
+                  <div key={s.label} className="rounded-xl border border-border bg-card p-4 shadow-soft">
+                    <div className="font-numeric text-2xl font-bold text-forest-deep">{s.value}</div>
                     <div className="mt-1 text-xs text-muted-foreground">{s.label}</div>
                   </div>
                 ))}

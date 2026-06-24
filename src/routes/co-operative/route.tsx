@@ -1,5 +1,7 @@
 import { Link, Outlet, createFileRoute, redirect, useRouteContext } from "@tanstack/react-router";
+import { CircleDollarSign, LayoutDashboard } from "lucide-react";
 
+import { SidebarShell, type ShellNavItem } from "@/components/SidebarShell";
 import { Logo } from "@/components/marketing/Logo";
 import { COOP_PUBLIC_PATHS, getCoopRequiredPath, isCoopOnboardingComplete } from "@/lib/coop-membership";
 import { signOutFn } from "@/lib/api/auth.functions";
@@ -44,6 +46,32 @@ function CoopLayout() {
   const { user } = useRouteContext({ from: "__root__" });
   const showNav = user?.cooperativeMember && isCoopOnboardingComplete(user.membershipStatus);
 
+  if (showNav) {
+    const navItems: ShellNavItem[] = [
+      { to: "/co-operative/dashboard", label: "Dashboard", icon: LayoutDashboard, exact: true },
+      { to: "/co-operative/fund", label: "Fund account", icon: CircleDollarSign },
+    ];
+
+    const headerRight = user?.membershipNumber ? (
+      <span className="rounded-full bg-forest/10 px-3 py-1 text-xs font-medium text-forest-deep">
+        #{user.membershipNumber}
+      </span>
+    ) : undefined;
+
+    return (
+      <SidebarShell
+        homeTo="/co-operative/dashboard"
+        brandTitle="GText Co-operative"
+        brandSubtitle="Member portal"
+        navItems={navItems}
+        headerTitle="Member dashboard"
+        userName={user?.fullName}
+        headerRight={headerRight}
+      />
+    );
+  }
+
+  // Onboarding / auth states keep a lightweight header (no portal nav yet).
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="border-b border-border bg-bone/40">
@@ -52,25 +80,7 @@ function CoopLayout() {
             <Logo />
             <span className="font-semibold">GText Co-operative</span>
           </Link>
-          {showNav ? (
-            <nav className="flex flex-wrap items-center gap-4 text-sm">
-              <Link to="/co-operative/dashboard" className="text-muted-foreground hover:text-foreground">
-                Dashboard
-              </Link>
-              {user?.membershipNumber && (
-                <span className="rounded-full bg-forest/10 px-3 py-1 text-xs font-medium text-forest-deep">
-                  #{user.membershipNumber}
-                </span>
-              )}
-              <button
-                type="button"
-                onClick={() => signOutFn()}
-                className="text-muted-foreground hover:text-foreground"
-              >
-                Sign out
-              </button>
-            </nav>
-          ) : user ? (
+          {user ? (
             <button
               type="button"
               onClick={() => signOutFn()}

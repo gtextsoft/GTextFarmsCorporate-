@@ -11,7 +11,7 @@ export function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-lg bg-secondary p-2.5">
       <div className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</div>
-      <div className="mt-0.5 text-sm font-semibold">{value}</div>
+      <div className="mt-0.5 font-numeric text-sm font-bold">{value}</div>
     </div>
   );
 }
@@ -37,7 +37,7 @@ export function Field({
   return (
     <div>
       <div className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</div>
-      <div className={`mt-0.5 font-semibold ${accent ? "text-forest-deep" : ""}`}>{value}</div>
+      <div className={`mt-0.5 font-numeric text-base font-bold ${accent ? "text-forest-deep" : ""}`}>{value}</div>
     </div>
   );
 }

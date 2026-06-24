@@ -4,23 +4,18 @@ import { CTA } from "@/components/marketing/CTA";
 import { FAQ } from "@/components/marketing/FAQ";
 import { GalleryPreview } from "@/components/marketing/GalleryPreview";
 import { Hero } from "@/components/marketing/Hero";
-import { HowInvestmentsWork } from "@/components/marketing/HowInvestmentsWork";
 import { HowItWorks } from "@/components/marketing/HowItWorks";
 import { LiveFarm } from "@/components/marketing/LiveFarm";
 import { MarketingLayout } from "@/components/marketing/MarketingLayout";
 import { OpportunitiesSection } from "@/components/marketing/OpportunitiesSection";
-import { PayoutProof } from "@/components/marketing/PayoutProof";
-import { Reports } from "@/components/marketing/Reports";
-import { Team } from "@/components/marketing/Team";
 import { TrackRecord } from "@/components/marketing/TrackRecord";
 import { TrustBar } from "@/components/marketing/TrustBar";
-import { WhatWeDo } from "@/components/marketing/WhatWeDo";
 import {
   getPlatformStatsFn,
   listFarmsFn,
   listOpportunitiesFn,
 } from "@/lib/api/cycles.functions";
-import { getPublicFaqFn, getPublicGalleryFn, getPublicTeamFn } from "@/lib/api/content.functions";
+import { getPublicFaqFn, getPublicGalleryFn } from "@/lib/api/content.functions";
 import { getPublicPerformanceFn } from "@/lib/api/performance.functions";
 import { brand, brandTitle } from "@/lib/brand";
 import { farms as fallbackFarms, opportunities as fallbackOpportunities } from "@/lib/mock-data";
@@ -28,14 +23,13 @@ import { buildTrustBarStats } from "@/lib/platform-stats";
 
 export const Route = createFileRoute("/")({
   loader: async () => {
-    const [opportunityListRaw, platformStats, farmList, performance, faqItems, teamMembers, galleryItems] =
+    const [opportunityListRaw, platformStats, farmList, performance, faqItems, galleryItems] =
       await Promise.all([
       listOpportunitiesFn(),
       getPlatformStatsFn(),
       listFarmsFn(),
       getPublicPerformanceFn(),
       getPublicFaqFn(),
-      getPublicTeamFn(),
       getPublicGalleryFn(),
     ]);
 
@@ -59,9 +53,7 @@ export const Route = createFileRoute("/")({
       featuredJournal: featuredCycle?.journal ?? [],
       featuredCycle,
       completedCycles: performance.completedCycles,
-      lastPayout: performance.lastPayout,
       faqItems,
-      teamMembers,
       galleryItems,
     };
   },
@@ -92,9 +84,7 @@ function Landing() {
     featuredJournal,
     featuredCycle,
     completedCycles,
-    lastPayout,
     faqItems,
-    teamMembers,
     galleryItems,
   } = Route.useLoaderData();
 
@@ -102,16 +92,11 @@ function Landing() {
     <MarketingLayout>
       {featuredCycle ? <Hero featuredCycle={featuredCycle} /> : null}
       <TrustBar stats={trustBarStats} />
+      <OpportunitiesSection opportunities={opportunities} limit={3} />
       <TrackRecord completedCycles={completedCycles} />
-      <PayoutProof lastPayout={lastPayout} />
       <HowItWorks />
       {featuredFarm && <LiveFarm farm={featuredFarm} journal={featuredJournal} />}
-      <OpportunitiesSection opportunities={opportunities} limit={3} />
-      <Reports />
       <GalleryPreview items={galleryItems} />
-      <HowInvestmentsWork />
-      <WhatWeDo />
-      <Team members={teamMembers} />
       <FAQ items={faqItems} />
       <CTA />
     </MarketingLayout>

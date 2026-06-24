@@ -34,12 +34,11 @@ export function Hero({ featuredCycle }: { featuredCycle: Opportunity }) {
               </span>
 
               <h1 className="mt-6 text-balance font-display text-5xl leading-[0.95] sm:text-6xl md:text-7xl">
-                {brand.headline}
+                {brand.investHeadline}
               </h1>
 
               <p className="mt-6 max-w-xl text-base text-primary-foreground/80 sm:text-lg">
-                {brand.subheadline} Start with our {brand.investmentProgram} - weekly field reports,
-                transparent unit economics, and realistic returns from real production.
+                {brand.investSubheadline}
               </p>
 
               <div className="mt-8 flex flex-wrap items-center gap-3">
@@ -76,7 +75,7 @@ export function Hero({ featuredCycle }: { featuredCycle: Opportunity }) {
                     Live · {featuredCycle.location}
                   </div>
                   <span className="rounded-full bg-accent/30 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-forest-deep">
-                    {featuredCycle.filled}% funded
+                    <span className="font-numeric">{featuredCycle.filled}%</span> funded
                   </span>
                 </div>
 
@@ -93,8 +92,8 @@ export function Hero({ featuredCycle }: { featuredCycle: Opportunity }) {
                   />
                 </div>
                 <div className="mt-2 flex justify-between text-xs text-muted-foreground">
-                  <span>{featuredCycle.raised} raised</span>
-                  <span>of {featuredCycle.target} target</span>
+                  <span><span className="font-numeric font-semibold text-foreground">{featuredCycle.raised}</span> raised</span>
+                  <span>of <span className="font-numeric font-semibold">{featuredCycle.target}</span> target</span>
                 </div>
 
                 <div className="mt-5 grid grid-cols-3 gap-3">

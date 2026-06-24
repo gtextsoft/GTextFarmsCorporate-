@@ -108,8 +108,10 @@ function OpportunityDetailPage() {
                         <p className="mt-2 text-sm text-muted-foreground">{entry.body}</p>
                         {entry.mortalityRate != null && (
                           <p className="mt-2 text-xs font-medium text-forest-deep">
-                            Mortality: {entry.mortalityRate}%
-                            {entry.fcr != null ? ` · FCR: ${entry.fcr}` : ""}
+                            Mortality: <span className="font-numeric font-semibold">{entry.mortalityRate}%</span>
+                            {entry.fcr != null ? (
+                              <> · FCR: <span className="font-numeric font-semibold">{entry.fcr}</span></>
+                            ) : null}
                           </p>
                         )}
                       </li>
@@ -153,9 +155,10 @@ function OpportunityDetailPage() {
                 <div className="text-xs uppercase tracking-wide text-muted-foreground">
                   Funding progress
                 </div>
-                <div className="mt-2 font-display text-3xl">{cycle.filled}%</div>
+                <div className="mt-2 font-numeric text-3xl font-bold">{cycle.filled}%</div>
                 <div className="mt-1 text-sm text-muted-foreground">
-                  {cycle.raised} raised of {cycle.target}
+                  <span className="font-numeric font-semibold text-foreground">{cycle.raised}</span> raised of{" "}
+                  <span className="font-numeric font-semibold text-foreground">{cycle.target}</span>
                 </div>
                 <div className="mt-4 h-2 overflow-hidden rounded-full bg-secondary">
                   <div

@@ -83,8 +83,9 @@ function TransactionReceiptPage() {
             <Row
               label="Amount"
               value={`${receipt.amount >= 0 ? "+" : "−"}${formatNaira(Math.abs(receipt.amount))}`}
+              numeric
             />
-            <Row label="Balance after" value={formatNaira(receipt.balanceAfter)} />
+            <Row label="Balance after" value={formatNaira(receipt.balanceAfter)} numeric />
             {receipt.investmentTitle && <Row label="Cycle" value={receipt.investmentTitle} />}
             <Row label="Status" value={receipt.status} />
             <Row label="Date & time" value={date} />
@@ -100,11 +101,23 @@ function TransactionReceiptPage() {
   );
 }
 
-function Row({ label, value, mono }: { label: string; value: string; mono?: boolean }) {
+function Row({
+  label,
+  value,
+  mono,
+  numeric,
+}: {
+  label: string;
+  value: string;
+  mono?: boolean;
+  numeric?: boolean;
+}) {
   return (
     <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
       <span className="text-muted-foreground">{label}</span>
-      <span className={`font-medium capitalize ${mono ? "font-mono text-xs sm:text-sm" : ""}`}>
+      <span
+        className={`font-medium capitalize ${mono ? "font-mono text-xs sm:text-sm" : ""} ${numeric ? "font-numeric font-semibold" : ""}`}
+      >
         {value}
       </span>
     </div>

@@ -25,16 +25,26 @@ export async function connectDB() {
   }
 
   if (!global.__mongooseConn) {
-    global.__mongooseConn = mongoose.connect(mongodbUri, {
-      bufferCommands: false,
-      // Avoids IPv4/IPv6 auto-selection issues on Windows that surface as
-      // ERR_SSL_TLSV1_ALERT_INTERNAL_ERROR during Atlas TLS handshake.
-      autoSelectFamily: false,
-      serverSelectionTimeoutMS: 15_000,
-    });
+    global.__mongooseConn = mongoose
+      .connect(mongodbUri, {
+        bufferCommands: false,
+        serverSelectionTimeoutMS: 10_000,
+        // Windows dev only — on Linux (Vercel) this can hurt Atlas connectivity.
+        ...(process.platform === "win32" ? { autoSelectFamily: false } : {}),
+      })
+      .catch((err) => {
+        global.__mongooseConn = undefined;
+        throw err;
+      });
   }
 
-  await global.__mongooseConn;
+  try {
+    await global.__mongooseConn;
+  } catch (err) {
+    global.__mongooseConn = undefined;
+    throw err;
+  }
+
   return mongoose;
 }
 

@@ -133,6 +133,17 @@ export const signUpFn = createServerFn({ method: "POST" })
     throw redirect({ to: "/auth/kyc" });
   });
 
+function dbUnavailableMessage(err: unknown): string {
+  const msg = err instanceof Error ? err.message : String(err);
+  if (msg.includes("MONGODB_URI is not set")) {
+    return "Server database is not configured. Contact support.";
+  }
+  if (msg.includes("MongooseServerSelectionError") || msg.includes("Could not connect")) {
+    return "Cannot reach the database right now. Please try again in a minute.";
+  }
+  return "Something went wrong. Please try again.";
+}
+
 export const signInFn = createServerFn({ method: "POST" })
   .validator(signInSchema)
   .handler(async ({ data }) => {
@@ -140,7 +151,12 @@ export const signInFn = createServerFn({ method: "POST" })
     const { User } = await import("@/lib/models/user.model.server");
     const { useAppSession } = await import("@/lib/session.server");
 
-    await connectDB();
+    try {
+      await connectDB();
+    } catch (err) {
+      console.error("[signInFn] database connection failed:", err);
+      return { error: dbUnavailableMessage(err) };
+    }
 
     const user = await User.findOne({ email: data.email.toLowerCase() }).select(
       "+passwordHash",

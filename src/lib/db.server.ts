@@ -27,6 +27,10 @@ export async function connectDB() {
   if (!global.__mongooseConn) {
     global.__mongooseConn = mongoose.connect(mongodbUri, {
       bufferCommands: false,
+      // Avoids IPv4/IPv6 auto-selection issues on Windows that surface as
+      // ERR_SSL_TLSV1_ALERT_INTERNAL_ERROR during Atlas TLS handshake.
+      autoSelectFamily: false,
+      serverSelectionTimeoutMS: 15_000,
     });
   }
 

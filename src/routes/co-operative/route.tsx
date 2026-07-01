@@ -1,15 +1,24 @@
 import { Link, Outlet, createFileRoute, redirect, useRouteContext } from "@tanstack/react-router";
-import { CircleDollarSign, LayoutDashboard } from "lucide-react";
 
-import { SidebarShell, type ShellNavItem } from "@/components/SidebarShell";
 import { Logo } from "@/components/marketing/Logo";
-import { COOP_PUBLIC_PATHS, getCoopRequiredPath, isCoopOnboardingComplete } from "@/lib/coop-membership";
-import { signOutFn } from "@/lib/api/auth.functions";
+import { useSignOut } from "@/hooks/use-sign-out";
+import {
+  COOP_PUBLIC_PATHS,
+  getCoopMemberHomePath,
+  getCoopRequiredPath,
+  isCoopOnboardingComplete,
+} from "@/lib/coop-membership";
 
 export const Route = createFileRoute("/co-operative")({
   beforeLoad: ({ context, location }) => {
     const user = context.user;
     const path = location.pathname;
+
+    if (path === "/co-operative/dashboard" || path.startsWith("/co-operative/dashboard/")) {
+      throw redirect({
+        to: user ? getCoopMemberHomePath(user) : "/co-operative/login",
+      });
+    }
 
     if (!user) {
       const isPublic = COOP_PUBLIC_PATHS.some(
@@ -36,7 +45,7 @@ export const Route = createFileRoute("/co-operative")({
     }
 
     if (onboardingDone && (path === "/co-operative/register" || path === "/co-operative/login")) {
-      throw redirect({ to: "/co-operative/dashboard" });
+      throw redirect({ to: getCoopMemberHomePath(user) });
     }
   },
   component: CoopLayout,
@@ -44,34 +53,8 @@ export const Route = createFileRoute("/co-operative")({
 
 function CoopLayout() {
   const { user } = useRouteContext({ from: "__root__" });
-  const showNav = user?.cooperativeMember && isCoopOnboardingComplete(user.membershipStatus);
+  const { signOut, pending: signingOut } = useSignOut();
 
-  if (showNav) {
-    const navItems: ShellNavItem[] = [
-      { to: "/co-operative/dashboard", label: "Dashboard", icon: LayoutDashboard, exact: true },
-      { to: "/co-operative/fund", label: "Fund account", icon: CircleDollarSign },
-    ];
-
-    const headerRight = user?.membershipNumber ? (
-      <span className="rounded-full bg-forest/10 px-3 py-1 text-xs font-medium text-forest-deep">
-        #{user.membershipNumber}
-      </span>
-    ) : undefined;
-
-    return (
-      <SidebarShell
-        homeTo="/co-operative/dashboard"
-        brandTitle="GText Co-operative"
-        brandSubtitle="Member portal"
-        navItems={navItems}
-        headerTitle="Member dashboard"
-        userName={user?.fullName}
-        headerRight={headerRight}
-      />
-    );
-  }
-
-  // Onboarding / auth states keep a lightweight header (no portal nav yet).
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="border-b border-border bg-bone/40">
@@ -81,13 +64,24 @@ function CoopLayout() {
             <span className="font-semibold">GText Co-operative</span>
           </Link>
           {user ? (
-            <button
-              type="button"
-              onClick={() => signOutFn()}
-              className="text-sm text-muted-foreground hover:text-foreground"
-            >
-              Sign out
-            </button>
+            <div className="flex items-center gap-3">
+              {isCoopOnboardingComplete(user.membershipStatus) ? (
+                <Link
+                  to="/app"
+                  className="text-sm text-muted-foreground hover:text-foreground"
+                >
+                  Investor portal
+                </Link>
+              ) : null}
+              <button
+                type="button"
+                onClick={() => void signOut()}
+                disabled={signingOut}
+                className="text-sm text-muted-foreground hover:text-foreground disabled:opacity-60"
+              >
+                {signingOut ? "Signing out…" : "Sign out"}
+              </button>
+            </div>
           ) : (
             <div className="flex gap-3 text-sm">
               <Link to="/co-operative/login" className="text-muted-foreground hover:text-foreground">

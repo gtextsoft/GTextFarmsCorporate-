@@ -40,7 +40,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { signOutFn } from "@/lib/api/auth.functions";
+import { useSignOut } from "@/hooks/use-sign-out";
 
 type QueueCounts = {
   submittedKyc: number;
@@ -182,6 +182,8 @@ export function AdminShell({
   userName?: string;
   queue: QueueCounts;
 }) {
+  const { signOut, pending: signingOut } = useSignOut();
+
   return (
     <SidebarProvider>
       <Sidebar collapsible="offcanvas">
@@ -220,11 +222,12 @@ export function AdminShell({
             </FooterLink>
             <SidebarMenuItem>
               <SidebarMenuButton
-                onClick={() => signOutFn()}
+                onClick={() => void signOut()}
+                disabled={signingOut}
                 className="text-muted-foreground hover:text-destructive"
               >
                 <LogOut />
-                <span>Sign out</span>
+                <span>{signingOut ? "Signing out…" : "Sign out"}</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>

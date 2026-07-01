@@ -1,15 +1,16 @@
-import { Link, createFileRoute, redirect } from "@tanstack/react-router";
+import { Link, createFileRoute, redirect, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
-import { isRedirect } from "@tanstack/react-router";
 
 import { SectionHeader } from "@/components/marketing/SectionHeader";
 import { coopRegisterFn } from "@/lib/api/coop.functions";
+import { getCoopMemberHomePath } from "@/lib/coop-membership";
+import { handleClientRedirect } from "@/lib/client-redirect";
 
 export const Route = createFileRoute("/co-operative/register")({
   beforeLoad: ({ context }) => {
     if (context.user?.cooperativeMember) {
-      throw redirect({ to: "/co-operative/dashboard" });
+      throw redirect({ to: getCoopMemberHomePath(context.user) });
     }
   },
   head: () => ({ meta: [{ title: "Register — GText Co-operative" }] }),
@@ -17,6 +18,7 @@ export const Route = createFileRoute("/co-operative/register")({
 });
 
 function CoopRegisterPage() {
+  const router = useRouter();
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -51,7 +53,7 @@ function CoopRegisterPage() {
                 toast.error(result.error);
               }
             } catch (err) {
-              if (isRedirect(err)) throw err;
+              if (await handleClientRedirect(router, err)) return;
               toast.error("Something went wrong. Please try again.");
             } finally {
               setPending(false);

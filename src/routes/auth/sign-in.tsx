@@ -1,10 +1,11 @@
-import { Link, createFileRoute, redirect, isRedirect } from "@tanstack/react-router";
+import { Link, createFileRoute, redirect, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
 
 import { MarketingLayout } from "@/components/marketing/MarketingLayout";
 import { SectionHeader } from "@/components/marketing/SectionHeader";
 import { signInFn } from "@/lib/api/auth.functions";
+import { handleClientRedirect } from "@/lib/client-redirect";
 
 export const Route = createFileRoute("/auth/sign-in")({
   beforeLoad: ({ context }) => {
@@ -25,6 +26,7 @@ export const Route = createFileRoute("/auth/sign-in")({
 });
 
 function SignInPage() {
+  const router = useRouter();
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -57,7 +59,7 @@ function SignInPage() {
                   toast.error(result.error);
                 }
               } catch (err) {
-                if (isRedirect(err)) throw err;
+                if (await handleClientRedirect(router, err)) return;
                 console.error(err);
                 toast.error("Something went wrong. Please try again.");
               } finally {

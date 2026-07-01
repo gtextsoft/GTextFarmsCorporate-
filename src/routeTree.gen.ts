@@ -39,7 +39,6 @@ import { Route as CoOperativeVerifyRouteImport } from './routes/co-operative/ver
 import { Route as CoOperativeRegisterRouteImport } from './routes/co-operative/register'
 import { Route as CoOperativeLoginRouteImport } from './routes/co-operative/login'
 import { Route as CoOperativeFundRouteImport } from './routes/co-operative/fund'
-import { Route as CoOperativeDashboardRouteImport } from './routes/co-operative/dashboard'
 import { Route as CoOperativeCompleteProfileRouteImport } from './routes/co-operative/complete-profile'
 import { Route as AuthSignUpRouteImport } from './routes/auth/sign-up'
 import { Route as AuthSignInRouteImport } from './routes/auth/sign-in'
@@ -54,6 +53,7 @@ import { Route as AppProfileIndexRouteImport } from './routes/app/profile/index'
 import { Route as AppPerformanceIndexRouteImport } from './routes/app/performance/index'
 import { Route as AppNotificationsIndexRouteImport } from './routes/app/notifications/index'
 import { Route as AppInvestmentsIndexRouteImport } from './routes/app/investments/index'
+import { Route as AppInvestIndexRouteImport } from './routes/app/invest/index'
 import { Route as AppActivityIndexRouteImport } from './routes/app/activity/index'
 import { Route as AdminWithdrawalsIndexRouteImport } from './routes/admin/withdrawals/index'
 import { Route as AdminTeamIndexRouteImport } from './routes/admin/team/index'
@@ -97,6 +97,7 @@ import { Route as AdminCooperativeMembersIndexRouteImport } from './routes/admin
 import { Route as FieldReportsReportIdViewRouteImport } from './routes/field/reports/$reportId/view'
 import { Route as AppReportsTransactionIdReceiptRouteImport } from './routes/app/reports/$transactionId/receipt'
 import { Route as AppInvestmentsInvestmentIdCertificateRouteImport } from './routes/app/investments/$investmentId/certificate'
+import { Route as AppInvestOpportunityCycleSlugRouteImport } from './routes/app/invest/opportunity/$cycleSlug'
 
 const ContactRoute = ContactRouteImport.update({
   id: '/contact',
@@ -249,11 +250,6 @@ const CoOperativeFundRoute = CoOperativeFundRouteImport.update({
   path: '/fund',
   getParentRoute: () => CoOperativeRouteRoute,
 } as any)
-const CoOperativeDashboardRoute = CoOperativeDashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
-  getParentRoute: () => CoOperativeRouteRoute,
-} as any)
 const CoOperativeCompleteProfileRoute =
   CoOperativeCompleteProfileRouteImport.update({
     id: '/complete-profile',
@@ -323,6 +319,11 @@ const AppNotificationsIndexRoute = AppNotificationsIndexRouteImport.update({
 const AppInvestmentsIndexRoute = AppInvestmentsIndexRouteImport.update({
   id: '/investments/',
   path: '/investments/',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+const AppInvestIndexRoute = AppInvestIndexRouteImport.update({
+  id: '/invest/',
+  path: '/invest/',
   getParentRoute: () => AppRouteRoute,
 } as any)
 const AppActivityIndexRoute = AppActivityIndexRouteImport.update({
@@ -547,6 +548,12 @@ const AppInvestmentsInvestmentIdCertificateRoute =
     path: '/investments/$investmentId/certificate',
     getParentRoute: () => AppRouteRoute,
   } as any)
+const AppInvestOpportunityCycleSlugRoute =
+  AppInvestOpportunityCycleSlugRouteImport.update({
+    id: '/invest/opportunity/$cycleSlug',
+    path: '/invest/opportunity/$cycleSlug',
+    getParentRoute: () => AppRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -564,7 +571,6 @@ export interface FileRoutesByFullPath {
   '/auth/sign-in': typeof AuthSignInRoute
   '/auth/sign-up': typeof AuthSignUpRoute
   '/co-operative/complete-profile': typeof CoOperativeCompleteProfileRoute
-  '/co-operative/dashboard': typeof CoOperativeDashboardRoute
   '/co-operative/fund': typeof CoOperativeFundRoute
   '/co-operative/login': typeof CoOperativeLoginRoute
   '/co-operative/register': typeof CoOperativeRegisterRoute
@@ -626,12 +632,14 @@ export interface FileRoutesByFullPath {
   '/admin/team/': typeof AdminTeamIndexRoute
   '/admin/withdrawals/': typeof AdminWithdrawalsIndexRoute
   '/app/activity/': typeof AppActivityIndexRoute
+  '/app/invest/': typeof AppInvestIndexRoute
   '/app/investments/': typeof AppInvestmentsIndexRoute
   '/app/notifications/': typeof AppNotificationsIndexRoute
   '/app/performance/': typeof AppPerformanceIndexRoute
   '/app/profile/': typeof AppProfileIndexRoute
   '/app/reports/': typeof AppReportsIndexRoute
   '/field/profile/': typeof FieldProfileIndexRoute
+  '/app/invest/opportunity/$cycleSlug': typeof AppInvestOpportunityCycleSlugRoute
   '/app/investments/$investmentId/certificate': typeof AppInvestmentsInvestmentIdCertificateRoute
   '/app/reports/$transactionId/receipt': typeof AppReportsTransactionIdReceiptRoute
   '/field/reports/$reportId/view': typeof FieldReportsReportIdViewRoute
@@ -650,7 +658,6 @@ export interface FileRoutesByTo {
   '/auth/sign-in': typeof AuthSignInRoute
   '/auth/sign-up': typeof AuthSignUpRoute
   '/co-operative/complete-profile': typeof CoOperativeCompleteProfileRoute
-  '/co-operative/dashboard': typeof CoOperativeDashboardRoute
   '/co-operative/fund': typeof CoOperativeFundRoute
   '/co-operative/login': typeof CoOperativeLoginRoute
   '/co-operative/register': typeof CoOperativeRegisterRoute
@@ -712,12 +719,14 @@ export interface FileRoutesByTo {
   '/admin/team': typeof AdminTeamIndexRoute
   '/admin/withdrawals': typeof AdminWithdrawalsIndexRoute
   '/app/activity': typeof AppActivityIndexRoute
+  '/app/invest': typeof AppInvestIndexRoute
   '/app/investments': typeof AppInvestmentsIndexRoute
   '/app/notifications': typeof AppNotificationsIndexRoute
   '/app/performance': typeof AppPerformanceIndexRoute
   '/app/profile': typeof AppProfileIndexRoute
   '/app/reports': typeof AppReportsIndexRoute
   '/field/profile': typeof FieldProfileIndexRoute
+  '/app/invest/opportunity/$cycleSlug': typeof AppInvestOpportunityCycleSlugRoute
   '/app/investments/$investmentId/certificate': typeof AppInvestmentsInvestmentIdCertificateRoute
   '/app/reports/$transactionId/receipt': typeof AppReportsTransactionIdReceiptRoute
   '/field/reports/$reportId/view': typeof FieldReportsReportIdViewRoute
@@ -741,7 +750,6 @@ export interface FileRoutesById {
   '/auth/sign-in': typeof AuthSignInRoute
   '/auth/sign-up': typeof AuthSignUpRoute
   '/co-operative/complete-profile': typeof CoOperativeCompleteProfileRoute
-  '/co-operative/dashboard': typeof CoOperativeDashboardRoute
   '/co-operative/fund': typeof CoOperativeFundRoute
   '/co-operative/login': typeof CoOperativeLoginRoute
   '/co-operative/register': typeof CoOperativeRegisterRoute
@@ -803,12 +811,14 @@ export interface FileRoutesById {
   '/admin/team/': typeof AdminTeamIndexRoute
   '/admin/withdrawals/': typeof AdminWithdrawalsIndexRoute
   '/app/activity/': typeof AppActivityIndexRoute
+  '/app/invest/': typeof AppInvestIndexRoute
   '/app/investments/': typeof AppInvestmentsIndexRoute
   '/app/notifications/': typeof AppNotificationsIndexRoute
   '/app/performance/': typeof AppPerformanceIndexRoute
   '/app/profile/': typeof AppProfileIndexRoute
   '/app/reports/': typeof AppReportsIndexRoute
   '/field/profile/': typeof FieldProfileIndexRoute
+  '/app/invest/opportunity/$cycleSlug': typeof AppInvestOpportunityCycleSlugRoute
   '/app/investments/$investmentId/certificate': typeof AppInvestmentsInvestmentIdCertificateRoute
   '/app/reports/$transactionId/receipt': typeof AppReportsTransactionIdReceiptRoute
   '/field/reports/$reportId/view': typeof FieldReportsReportIdViewRoute
@@ -833,7 +843,6 @@ export interface FileRouteTypes {
     | '/auth/sign-in'
     | '/auth/sign-up'
     | '/co-operative/complete-profile'
-    | '/co-operative/dashboard'
     | '/co-operative/fund'
     | '/co-operative/login'
     | '/co-operative/register'
@@ -895,12 +904,14 @@ export interface FileRouteTypes {
     | '/admin/team/'
     | '/admin/withdrawals/'
     | '/app/activity/'
+    | '/app/invest/'
     | '/app/investments/'
     | '/app/notifications/'
     | '/app/performance/'
     | '/app/profile/'
     | '/app/reports/'
     | '/field/profile/'
+    | '/app/invest/opportunity/$cycleSlug'
     | '/app/investments/$investmentId/certificate'
     | '/app/reports/$transactionId/receipt'
     | '/field/reports/$reportId/view'
@@ -919,7 +930,6 @@ export interface FileRouteTypes {
     | '/auth/sign-in'
     | '/auth/sign-up'
     | '/co-operative/complete-profile'
-    | '/co-operative/dashboard'
     | '/co-operative/fund'
     | '/co-operative/login'
     | '/co-operative/register'
@@ -981,12 +991,14 @@ export interface FileRouteTypes {
     | '/admin/team'
     | '/admin/withdrawals'
     | '/app/activity'
+    | '/app/invest'
     | '/app/investments'
     | '/app/notifications'
     | '/app/performance'
     | '/app/profile'
     | '/app/reports'
     | '/field/profile'
+    | '/app/invest/opportunity/$cycleSlug'
     | '/app/investments/$investmentId/certificate'
     | '/app/reports/$transactionId/receipt'
     | '/field/reports/$reportId/view'
@@ -1009,7 +1021,6 @@ export interface FileRouteTypes {
     | '/auth/sign-in'
     | '/auth/sign-up'
     | '/co-operative/complete-profile'
-    | '/co-operative/dashboard'
     | '/co-operative/fund'
     | '/co-operative/login'
     | '/co-operative/register'
@@ -1071,12 +1082,14 @@ export interface FileRouteTypes {
     | '/admin/team/'
     | '/admin/withdrawals/'
     | '/app/activity/'
+    | '/app/invest/'
     | '/app/investments/'
     | '/app/notifications/'
     | '/app/performance/'
     | '/app/profile/'
     | '/app/reports/'
     | '/field/profile/'
+    | '/app/invest/opportunity/$cycleSlug'
     | '/app/investments/$investmentId/certificate'
     | '/app/reports/$transactionId/receipt'
     | '/field/reports/$reportId/view'
@@ -1328,13 +1341,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CoOperativeFundRouteImport
       parentRoute: typeof CoOperativeRouteRoute
     }
-    '/co-operative/dashboard': {
-      id: '/co-operative/dashboard'
-      path: '/dashboard'
-      fullPath: '/co-operative/dashboard'
-      preLoaderRoute: typeof CoOperativeDashboardRouteImport
-      parentRoute: typeof CoOperativeRouteRoute
-    }
     '/co-operative/complete-profile': {
       id: '/co-operative/complete-profile'
       path: '/complete-profile'
@@ -1431,6 +1437,13 @@ declare module '@tanstack/react-router' {
       path: '/investments'
       fullPath: '/app/investments/'
       preLoaderRoute: typeof AppInvestmentsIndexRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/app/invest/': {
+      id: '/app/invest/'
+      path: '/invest'
+      fullPath: '/app/invest/'
+      preLoaderRoute: typeof AppInvestIndexRouteImport
       parentRoute: typeof AppRouteRoute
     }
     '/app/activity/': {
@@ -1734,6 +1747,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppInvestmentsInvestmentIdCertificateRouteImport
       parentRoute: typeof AppRouteRoute
     }
+    '/app/invest/opportunity/$cycleSlug': {
+      id: '/app/invest/opportunity/$cycleSlug'
+      path: '/invest/opportunity/$cycleSlug'
+      fullPath: '/app/invest/opportunity/$cycleSlug'
+      preLoaderRoute: typeof AppInvestOpportunityCycleSlugRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
   }
 }
 
@@ -1822,11 +1842,13 @@ interface AppRouteRouteChildren {
   AppIndexRoute: typeof AppIndexRoute
   AppInvestCycleIdRoute: typeof AppInvestCycleIdRoute
   AppActivityIndexRoute: typeof AppActivityIndexRoute
+  AppInvestIndexRoute: typeof AppInvestIndexRoute
   AppInvestmentsIndexRoute: typeof AppInvestmentsIndexRoute
   AppNotificationsIndexRoute: typeof AppNotificationsIndexRoute
   AppPerformanceIndexRoute: typeof AppPerformanceIndexRoute
   AppProfileIndexRoute: typeof AppProfileIndexRoute
   AppReportsIndexRoute: typeof AppReportsIndexRoute
+  AppInvestOpportunityCycleSlugRoute: typeof AppInvestOpportunityCycleSlugRoute
   AppInvestmentsInvestmentIdCertificateRoute: typeof AppInvestmentsInvestmentIdCertificateRoute
   AppReportsTransactionIdReceiptRoute: typeof AppReportsTransactionIdReceiptRoute
 }
@@ -1836,11 +1858,13 @@ const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppIndexRoute: AppIndexRoute,
   AppInvestCycleIdRoute: AppInvestCycleIdRoute,
   AppActivityIndexRoute: AppActivityIndexRoute,
+  AppInvestIndexRoute: AppInvestIndexRoute,
   AppInvestmentsIndexRoute: AppInvestmentsIndexRoute,
   AppNotificationsIndexRoute: AppNotificationsIndexRoute,
   AppPerformanceIndexRoute: AppPerformanceIndexRoute,
   AppProfileIndexRoute: AppProfileIndexRoute,
   AppReportsIndexRoute: AppReportsIndexRoute,
+  AppInvestOpportunityCycleSlugRoute: AppInvestOpportunityCycleSlugRoute,
   AppInvestmentsInvestmentIdCertificateRoute:
     AppInvestmentsInvestmentIdCertificateRoute,
   AppReportsTransactionIdReceiptRoute: AppReportsTransactionIdReceiptRoute,
@@ -1852,7 +1876,6 @@ const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(
 
 interface CoOperativeRouteRouteChildren {
   CoOperativeCompleteProfileRoute: typeof CoOperativeCompleteProfileRoute
-  CoOperativeDashboardRoute: typeof CoOperativeDashboardRoute
   CoOperativeFundRoute: typeof CoOperativeFundRoute
   CoOperativeLoginRoute: typeof CoOperativeLoginRoute
   CoOperativeRegisterRoute: typeof CoOperativeRegisterRoute
@@ -1863,7 +1886,6 @@ interface CoOperativeRouteRouteChildren {
 
 const CoOperativeRouteRouteChildren: CoOperativeRouteRouteChildren = {
   CoOperativeCompleteProfileRoute: CoOperativeCompleteProfileRoute,
-  CoOperativeDashboardRoute: CoOperativeDashboardRoute,
   CoOperativeFundRoute: CoOperativeFundRoute,
   CoOperativeLoginRoute: CoOperativeLoginRoute,
   CoOperativeRegisterRoute: CoOperativeRegisterRoute,

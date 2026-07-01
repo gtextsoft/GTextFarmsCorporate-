@@ -46,6 +46,7 @@ const userSchema = new Schema(
     },
     emailVerified: { type: Boolean, default: false },
     emailVerificationTokenHash: { type: String, select: false },
+    emailVerificationCode: { type: String, select: false },
     emailVerificationExpires: { type: Date, select: false },
     profileCompletedAt: Date,
     admissionDate: Date,

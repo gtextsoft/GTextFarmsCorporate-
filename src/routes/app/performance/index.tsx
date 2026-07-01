@@ -36,7 +36,7 @@ function PerformancePage() {
           <div className="mt-10 rounded-2xl border border-border bg-card p-8 text-center shadow-soft">
             <p className="text-muted-foreground">Invest in a cycle to track farm performance here.</p>
             <Link
-              to="/opportunities"
+              to="/app/invest"
               className="mt-4 inline-flex rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
             >
               Browse opportunities

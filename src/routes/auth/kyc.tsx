@@ -35,7 +35,7 @@ function KycPage() {
           <SectionHeader
             eyebrow="Identity verification"
             title="Complete your KYC."
-            sub="Required before you can invest. We verify BVN/NIN through licensed partners and never store raw identifiers in plain text."
+            sub="Required before you can invest. Our team reviews your submission manually and we never store raw identifiers in plain text."
           />
 
           {isSubmitted ? (

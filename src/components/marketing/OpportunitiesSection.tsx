@@ -29,10 +29,10 @@ export function OpportunitiesSection({
           />
           {showViewAll && (
             <Link
-              to="/opportunities"
+              to="/auth/sign-in"
               className="inline-flex items-center gap-1.5 text-sm font-medium text-forest-deep hover:underline"
             >
-              View all opportunities <ArrowUpRight className="size-4" />
+              Sign in to invest <ArrowUpRight className="size-4" />
             </Link>
           )}
         </div>

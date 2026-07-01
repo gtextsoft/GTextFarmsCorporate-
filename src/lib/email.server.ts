@@ -58,7 +58,7 @@ export async function sendKycApprovedEmail(email: string, fullName: string) {
     html: `
       <p>Hi ${fullName},</p>
       <p>Your identity verification has been approved. You can now fund your wallet and invest in open cycles.</p>
-      <p><a href="${appUrl()}/app/wallet">Fund wallet</a> · <a href="${appUrl()}/opportunities">Browse opportunities</a></p>
+      <p><a href="${appUrl()}/app/wallet">Fund wallet</a> · <a href="${appUrl()}/app/invest">Browse opportunities</a></p>
     `,
   });
 }
@@ -180,7 +180,7 @@ export async function sendCoopPaymentReceivedEmail(
       <p>Hi ${fullName},</p>
       <p>We have received your ${purposeLabel.toLowerCase()} of <strong>${formatNaira(amount)}</strong> and your uploaded receipt.</p>
       <p>Confirmation can take up to <strong>24 hours</strong>. We will email you once an administrator approves it.</p>
-      <p><a href="${appUrl()}/co-operative/dashboard">View your dashboard</a></p>
+      <p><a href="${appUrl()}/app">Open investor portal</a></p>
     `,
   });
 }
@@ -193,7 +193,7 @@ export async function sendCoopEntranceFeeApprovedEmail(email: string, fullName: 
       <p>Hi ${fullName},</p>
       <p>Your ₦10,000 membership entrance fee has been confirmed. You are now a <strong>full member</strong> of GText Farms Co-operative Society.</p>
       <p>Next step: fund your investment account and choose an investment package.</p>
-      <p><a href="${appUrl()}/co-operative/dashboard">Go to your dashboard</a></p>
+      <p><a href="${appUrl()}/app">Open investor portal</a></p>
     `,
   });
 }
@@ -210,7 +210,7 @@ export async function sendCoopDepositApprovedEmail(
       <p>Hi ${fullName},</p>
       <p>Your payment of <strong>${formatNaira(amount)}</strong> has been confirmed and credited to your investment balance.</p>
       <p>You can now invest in available poultry packages.</p>
-      <p><a href="${appUrl()}/co-operative/dashboard">Go to your dashboard</a></p>
+      <p><a href="${appUrl()}/app">Open investor portal</a></p>
     `,
   });
 }

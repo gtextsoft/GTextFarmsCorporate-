@@ -1,4 +1,4 @@
-import { getServerConfig } from "@/lib/config.server";
+import { getServerConfig, isStrongSessionSecret } from "@/lib/config.server";
 
 export type EnvCheckResult = {
   ok: boolean;
@@ -18,11 +18,10 @@ export function checkEnvironment(): EnvCheckResult {
     },
     {
       name: "SESSION_SECRET",
-      ok: Boolean(config.sessionSecret && config.sessionSecret.length >= 32),
-      detail:
-        config.sessionSecret && config.sessionSecret.length < 32
-          ? "Must be at least 32 characters"
-          : undefined,
+      ok: isStrongSessionSecret(config.sessionSecret),
+      detail: isStrongSessionSecret(config.sessionSecret)
+        ? undefined
+        : "Must be a unique random value of at least 32 characters (placeholder/default rejected)",
     },
     {
       name: "APP_URL",

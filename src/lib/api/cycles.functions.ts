@@ -7,6 +7,14 @@ import { withDatabase } from "@/lib/with-database";
 
 const PLATFORM_SUCCESS_RATE = "96%";
 
+async function requireInvestorSession() {
+  const { useAppSession } = await import("@/lib/session.server");
+  const session = await useAppSession();
+  if (!session.data.userId) return { error: "Unauthorized" as const };
+  return { userId: session.data.userId };
+}
+
+/** Public marketing preview — summary fields only, no full financial breakdown page. */
 export const listOpportunitiesFn = createServerFn({ method: "GET" }).handler(
   async (): Promise<Opportunity[]> =>
     withDatabase(async () => {
@@ -16,15 +24,32 @@ export const listOpportunitiesFn = createServerFn({ method: "GET" }).handler(
     }, []),
 );
 
+/** Authenticated investor browse — full cycle data for the portal invest pages. */
+export const listInvestOpportunitiesFn = createServerFn({ method: "GET" }).handler(
+  async (): Promise<Opportunity[] | { error: string }> => {
+    const auth = await requireInvestorSession();
+    if ("error" in auth) return auth;
+
+    return withDatabase(async () => {
+      const { Cycle } = await import("@/lib/models/cycle.model.server");
+      const docs = await Cycle.find({ published: true }).sort({ createdAt: -1 }).lean();
+      return docs.map(mapCycleDoc);
+    }, []);
+  },
+);
+
 export const getOpportunityFn = createServerFn({ method: "GET" })
   .validator(z.object({ slug: z.string().min(1) }))
-  .handler(async ({ data }): Promise<Opportunity | null> =>
-    withDatabase(async () => {
+  .handler(async ({ data }): Promise<Opportunity | null | { error: string }> => {
+    const auth = await requireInvestorSession();
+    if ("error" in auth) return auth;
+
+    return withDatabase(async () => {
       const { Cycle } = await import("@/lib/models/cycle.model.server");
       const doc = await Cycle.findOne({ slug: data.slug, published: true }).lean();
       return doc ? mapCycleDoc(doc) : null;
-    }, null),
-  );
+    }, null);
+  });
 
 export const listFarmsFn = createServerFn({ method: "GET" }).handler(
   async (): Promise<FarmType[]> =>

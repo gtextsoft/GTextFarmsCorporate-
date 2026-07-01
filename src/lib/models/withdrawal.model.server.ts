@@ -20,6 +20,13 @@ const withdrawalSchema = new Schema(
   { timestamps: true },
 );
 
+// At most one pending withdrawal per user — enforced at the DB so concurrent
+// requests cannot both create a pending row.
+withdrawalSchema.index(
+  { userId: 1, status: 1 },
+  { unique: true, partialFilterExpression: { status: "pending" } },
+);
+
 export type WithdrawalDocument = InferSchemaType<typeof withdrawalSchema> & {
   _id: mongoose.Types.ObjectId;
 };

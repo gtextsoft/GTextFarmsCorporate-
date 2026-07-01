@@ -134,7 +134,7 @@ function AdminAnalyticsPage() {
                   <XAxis dataKey="name" tick={{ fontSize: 12 }} />
                   <YAxis unit="%" tick={{ fontSize: 12 }} />
                   <Tooltip formatter={(value: number) => [`${value}%`, "Mortality"]} />
-                  <Bar dataKey="mortality" fill="hsl(var(--forest))" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="mortality" fill="var(--forest)" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>

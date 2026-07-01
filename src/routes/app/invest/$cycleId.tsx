@@ -18,10 +18,14 @@ export const Route = createFileRoute("/app/invest/$cycleId")({
     }
   },
   loader: async ({ params }) => {
-    const [cycle, wallet] = await Promise.all([
+    const [cycleResult, wallet] = await Promise.all([
       getOpportunityFn({ data: { slug: params.cycleId } }),
       getWalletSummaryFn(),
     ]);
+    if (cycleResult && typeof cycleResult === "object" && "error" in cycleResult) {
+      throw redirect({ to: "/auth/sign-in" });
+    }
+    const cycle = cycleResult as Opportunity | null;
     if (!cycle) throw notFound();
     if ("error" in wallet) {
       return { cycle, wallet: { balance: 0, availableBalance: 0 } };
@@ -159,8 +163,8 @@ function InvestCheckoutPage() {
               Review investment
             </button>
             <Link
-              to="/opportunities/$cycleId"
-              params={{ cycleId }}
+              to="/app/invest/opportunity/$cycleSlug"
+              params={{ cycleSlug: cycleId }}
               className="flex w-full items-center justify-center gap-1 text-sm text-muted-foreground hover:text-foreground"
             >
               Back to opportunity

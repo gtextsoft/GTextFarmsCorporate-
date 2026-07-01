@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import type { Types } from "mongoose";
 import { z } from "zod";
 
 import { formatNaira, generateReference } from "@/lib/format";
@@ -121,10 +122,13 @@ export const confirmInvestmentFn = createServerFn({ method: "POST" })
     const auth = await requireVerifiedInvestor();
     if ("error" in auth) return { error: auth.error };
 
+    const mongoose = (await import("mongoose")).default;
     const { connectDB } = await import("@/lib/db.server");
     const { Cycle } = await import("@/lib/models/cycle.model.server");
     const { Investment } = await import("@/lib/models/investment.model.server");
-    const { debitWalletForInvestment, newTxnReference } = await import("@/lib/wallet.server");
+    const { Wallet } = await import("@/lib/models/wallet.model.server");
+    const { Transaction } = await import("@/lib/models/transaction.model.server");
+    const { getOrCreateWallet, newTxnReference } = await import("@/lib/wallet.server");
 
     await connectDB();
     const cycle = await Cycle.findOne({ slug: data.cycleSlug, published: true, status: "funding" });
@@ -150,97 +154,156 @@ export const confirmInvestmentFn = createServerFn({ method: "POST" })
     const certificateNumber = generateReference("INV");
     const txnRef = newTxnReference();
 
+    // Ensure the wallet exists before the transaction (avoids an upsert race inside it).
+    await getOrCreateWallet(auth.userId);
+
+    const userOid = new mongoose.Types.ObjectId(auth.userId);
+    const session = await mongoose.startSession();
+    let investmentId: Types.ObjectId | undefined;
     try {
-      const investment = await Investment.create({
-        userId: auth.userId,
-        cycleId: cycle._id,
+      await session.withTransaction(async () => {
+        // Atomic debit — the conditional balance filter (schema `min` does not run
+        // on `$inc`) is what prevents double-spend and negative balances.
+        const debited = await Wallet.findOneAndUpdate(
+          { userId: userOid, balance: { $gte: data.amount } },
+          { $inc: { balance: -data.amount } },
+          { new: true, session },
+        );
+        if (!debited) throw new Error("INSUFFICIENT_FUNDS");
+
+        // Atomic cycle funding — rejects any amount that would exceed the target.
+        const fundedCycle = await Cycle.findOneAndUpdate(
+          {
+            _id: cycle._id,
+            status: "funding",
+            $expr: { $lte: [{ $add: ["$raisedAmount", data.amount] }, "$targetAmount"] },
+          },
+          { $inc: { raisedAmount: data.amount } },
+          { new: true, session },
+        );
+        if (!fundedCycle) throw new Error("CYCLE_UNAVAILABLE");
+
+        // Keep derived display fields consistent with the new raisedAmount.
+        const newRaised = fundedCycle.raisedAmount ?? 0;
+        const filled = fundedCycle.targetAmount
+          ? Math.min(100, Math.round((newRaised / fundedCycle.targetAmount) * 100))
+          : fundedCycle.filled;
+        await Cycle.updateOne(
+          { _id: cycle._id },
+          { $set: { filled, raised: `₦${(newRaised / 1_000_000).toFixed(1)}M` } },
+          { session },
+        );
+
+        const [created] = await Investment.create(
+          [
+            {
+              userId: auth.userId,
+              cycleId: cycle._id,
+              cycleSlug: cycle.slug,
+              cycleTitle: cycle.title,
+              amount: data.amount,
+              status: "confirmed",
+              certificateNumber,
+              expectedReturnMin,
+              expectedReturnMax,
+              investedAt: new Date(),
+            },
+          ],
+          { session },
+        );
+        investmentId = created._id;
+
+        await Transaction.create(
+          [
+            {
+              walletId: debited._id,
+              userId: debited.userId,
+              type: "investment",
+              amount: -data.amount,
+              balanceAfter: debited.balance,
+              status: "completed",
+              reference: txnRef,
+              investmentId: created._id,
+            },
+          ],
+          { session },
+        );
+      });
+    } catch (err) {
+      const code = (err as { code?: number })?.code;
+      const message = err instanceof Error ? err.message : "";
+      if (message === "INSUFFICIENT_FUNDS") {
+        return { error: "Insufficient wallet balance. Fund your wallet first." };
+      }
+      if (message === "CYCLE_UNAVAILABLE") {
+        return { error: "This cycle is full or no longer open for investment." };
+      }
+      if (code === 11000) {
+        return { error: "You have already invested in this cycle." };
+      }
+      return { error: message || "Investment failed" };
+    } finally {
+      await session.endSession();
+    }
+
+    // Side effects run only after the transaction commits.
+    const newInvestmentId = investmentId!.toString();
+    const { User } = await import("@/lib/models/user.model.server");
+    const { writeAuditLog } = await import("@/lib/audit.server");
+    const { notifySafe, sendInvestmentConfirmedEmail } = await import("@/lib/email.server");
+
+    const investor = await User.findById(auth.userId);
+    if (investor) {
+      await notifySafe(
+        () =>
+          sendInvestmentConfirmedEmail(
+            investor.email,
+            investor.fullName,
+            cycle.title,
+            data.amount,
+            certificateNumber,
+          ),
+        "investment-confirmed",
+      );
+      const { createNotification, notifySafe: notify } = await import("@/lib/notifications.server");
+      await notify(
+        () =>
+          createNotification({
+            userId: auth.userId,
+            type: "investment",
+            title: "Investment confirmed",
+            body: `Your ${formatNaira(data.amount)} investment in ${cycle.title} is confirmed.`,
+            link: `/app/investments/${newInvestmentId}/certificate`,
+            metadata: { certificateNumber, cycleSlug: cycle.slug },
+          }),
+        "investment-notification",
+      );
+    }
+
+    await writeAuditLog({
+      actorId: auth.userId,
+      actorEmail: auth.email,
+      action: "investment.create",
+      entityType: "investment",
+      entityId: newInvestmentId,
+      details: {
         cycleSlug: cycle.slug,
-        cycleTitle: cycle.title,
         amount: data.amount,
-        status: "confirmed",
         certificateNumber,
+      },
+    });
+
+    return {
+      success: true as const,
+      investment: {
+        id: newInvestmentId,
+        certificateNumber,
+        amount: data.amount,
+        cycleTitle: cycle.title,
         expectedReturnMin,
         expectedReturnMax,
-        investedAt: new Date(),
-      });
-
-      await debitWalletForInvestment({
-        userId: auth.userId,
-        amount: data.amount,
-        investmentId: investment._id,
-        reference: txnRef,
-      });
-
-      cycle.raisedAmount = (cycle.raisedAmount ?? 0) + data.amount;
-      cycle.filled = cycle.targetAmount
-        ? Math.min(100, Math.round((cycle.raisedAmount / cycle.targetAmount) * 100))
-        : cycle.filled;
-      cycle.raised = `₦${(cycle.raisedAmount / 1_000_000).toFixed(1)}M`;
-      await cycle.save();
-
-      const { User } = await import("@/lib/models/user.model.server");
-      const { writeAuditLog } = await import("@/lib/audit.server");
-      const { notifySafe, sendInvestmentConfirmedEmail } = await import("@/lib/email.server");
-
-      const investor = await User.findById(auth.userId);
-      if (investor) {
-        await notifySafe(
-          () =>
-            sendInvestmentConfirmedEmail(
-              investor.email,
-              investor.fullName,
-              cycle.title,
-              data.amount,
-              certificateNumber,
-            ),
-          "investment-confirmed",
-        );
-        const { createNotification, notifySafe: notify } = await import(
-          "@/lib/notifications.server"
-        );
-        await notify(
-          () =>
-            createNotification({
-              userId: auth.userId,
-              type: "investment",
-              title: "Investment confirmed",
-              body: `Your ${formatNaira(data.amount)} investment in ${cycle.title} is confirmed.`,
-              link: `/app/investments/${investment._id.toString()}/certificate`,
-              metadata: { certificateNumber, cycleSlug: cycle.slug },
-            }),
-          "investment-notification",
-        );
-      }
-
-      await writeAuditLog({
-        actorId: auth.userId,
-        actorEmail: auth.email,
-        action: "investment.create",
-        entityType: "investment",
-        entityId: investment._id.toString(),
-        details: {
-          cycleSlug: cycle.slug,
-          amount: data.amount,
-          certificateNumber,
-        },
-      });
-
-      return {
-        success: true as const,
-        investment: {
-          id: investment._id.toString(),
-          certificateNumber,
-          amount: data.amount,
-          cycleTitle: cycle.title,
-          expectedReturnMin,
-          expectedReturnMax,
-        },
-      };
-    } catch (err) {
-      return {
-        error: err instanceof Error ? err.message : "Investment failed",
-      };
-    }
+      },
+    };
   });
 
 export const getMyInvestmentsFn = createServerFn({ method: "GET" }).handler(async () => {

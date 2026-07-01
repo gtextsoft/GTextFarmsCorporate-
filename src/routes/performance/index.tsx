@@ -119,7 +119,7 @@ function PerformancePage() {
 
           <div className="mt-10 text-center">
             <Link
-              to="/opportunities"
+              to="/auth/sign-in"
               className="inline-flex rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground"
             >
               Browse open opportunities

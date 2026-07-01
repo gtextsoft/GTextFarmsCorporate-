@@ -43,7 +43,7 @@ export function Hero({ featuredCycle }: { featuredCycle: Opportunity }) {
 
               <div className="mt-8 flex flex-wrap items-center gap-3">
                 <Link
-                  to="/opportunities"
+                  to="/auth/sign-in"
                   className="inline-flex items-center gap-2 rounded-full bg-accent px-5 py-3 text-sm font-semibold text-accent-foreground transition hover:opacity-90"
                 >
                   Start investing
@@ -115,8 +115,8 @@ export function Hero({ featuredCycle }: { featuredCycle: Opportunity }) {
                 )}
 
                 <Link
-                  to="/opportunities/$cycleId"
-                  params={{ cycleId: featuredCycle.slug }}
+                  to="/app/invest/opportunity/$cycleSlug"
+                  params={{ cycleSlug: featuredCycle.slug }}
                   className="mt-5 inline-flex w-full items-center justify-center gap-1.5 rounded-full bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground"
                 >
                   View opportunity

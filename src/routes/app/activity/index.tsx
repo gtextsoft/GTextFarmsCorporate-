@@ -32,7 +32,7 @@ function ActivityPage() {
         {feed.length === 0 ? (
           <p className="mt-10 text-sm text-muted-foreground">
             No published reports yet for your cycles.{" "}
-            <Link to="/opportunities" className="font-medium text-forest-deep hover:underline">
+            <Link to="/app/invest" className="font-medium text-forest-deep hover:underline">
               Browse opportunities
             </Link>
             .
@@ -101,8 +101,8 @@ function ActivityPage() {
                 )}
 
                 <Link
-                  to="/opportunities/$cycleId"
-                  params={{ cycleId: report.cycleSlug }}
+                  to="/app/invest/opportunity/$cycleSlug"
+                  params={{ cycleSlug: report.cycleSlug }}
                   className="mt-4 inline-flex text-sm font-medium text-forest-deep hover:underline"
                 >
                   View cycle →

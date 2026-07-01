@@ -114,8 +114,8 @@ function FarmProfilePage() {
 
                 {activeCycle && (
                   <Link
-                    to="/opportunities/$cycleId"
-                    params={{ cycleId: activeCycle.slug }}
+                    to="/app/invest/opportunity/$cycleSlug"
+                    params={{ cycleSlug: activeCycle.slug }}
                     className="inline-flex w-full items-center justify-center gap-1.5 rounded-full bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground"
                   >
                     Invest in active cycle

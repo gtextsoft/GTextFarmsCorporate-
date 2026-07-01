@@ -9,8 +9,6 @@ export const COOP_PUBLIC_PATHS = [
   "/co-operative/verify",
 ] as const;
 
-export const COOP_PROFILE_PATH = "/co-operative/complete-profile";
-
 export function formatMembershipNumber(n: number): string {
   return String(n).padStart(6, "0");
 }
@@ -31,7 +29,7 @@ export function getCoopRequiredPath(user: Pick<SafeUser, "cooperativeMember" | "
     case "email_verified":
       return "/co-operative/verify-email";
     case "provisional_member":
-      return COOP_PROFILE_PATH;
+      return "/co-operative/complete-profile";
     case "full_member":
     case "payment_pending":
     case "funded":
@@ -44,6 +42,20 @@ export function getCoopRequiredPath(user: Pick<SafeUser, "cooperativeMember" | "
 
 export function isCoopOnboardingComplete(status: MembershipStatus | undefined): boolean {
   return status === "full_member" || status === "payment_pending" || status === "funded" || status === "active_investor";
+}
+
+/** Where co-operative members land after sign-in when no onboarding step is required. */
+export function getCoopMemberHomePath(
+  user: Pick<SafeUser, "membershipStatus">,
+): string {
+  switch (user.membershipStatus) {
+    case "provisional_member":
+      return "/co-operative/complete-profile";
+    case "payment_pending":
+      return "/co-operative/fund";
+    default:
+      return "/app";
+  }
 }
 
 export const MEMBERSHIP_STATUS_LABELS: Record<MembershipStatus, string> = {

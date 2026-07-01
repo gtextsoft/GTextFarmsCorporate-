@@ -11,7 +11,7 @@ const steps = [
   {
     icon: <Wallet className="size-5" />,
     title: "Fund your wallet",
-    body: "Top up by bank transfer or card. KYC takes under 3 minutes with BVN/NIN.",
+    body: "Top up by bank transfer or card. Submit your BVN/NIN once for our team to review.",
   },
   {
     icon: <Activity className="size-5" />,

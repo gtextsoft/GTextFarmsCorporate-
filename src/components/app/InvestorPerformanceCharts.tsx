@@ -19,10 +19,10 @@ import { formatNaira } from "@/lib/format";
 import type { InvestorPerformanceData } from "@/lib/api/investor.performance.functions";
 
 const CHART_COLORS = [
-  "hsl(var(--forest))",
-  "hsl(var(--accent))",
-  "hsl(38 70% 50%)",
-  "hsl(210 40% 45%)",
+  "var(--forest)",
+  "var(--accent)",
+  "var(--clay)",
+  "var(--gold)",
 ];
 
 type Props = {
@@ -106,7 +106,7 @@ export function InvestorPerformanceCharts({ data, compact = false }: Props) {
                 <Line
                   type="monotone"
                   dataKey="rate"
-                  stroke="hsl(var(--forest))"
+                  stroke="var(--forest)"
                   strokeWidth={2}
                   dot={{ r: 4 }}
                 />
@@ -130,7 +130,7 @@ export function InvestorPerformanceCharts({ data, compact = false }: Props) {
                       <XAxis dataKey="week" tick={{ fontSize: 12 }} />
                       <YAxis tick={{ fontSize: 12 }} domain={[0, "auto"]} />
                       <Tooltip />
-                      <Bar dataKey="fcr" fill="hsl(var(--forest))" radius={[4, 4, 0, 0]} />
+                      <Bar dataKey="fcr" fill="var(--forest)" radius={[4, 4, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
@@ -148,7 +148,7 @@ export function InvestorPerformanceCharts({ data, compact = false }: Props) {
                       <XAxis dataKey="week" tick={{ fontSize: 12 }} />
                       <YAxis tick={{ fontSize: 12 }} />
                       <Tooltip formatter={(value: number) => [`${value} crates`, "Output"]} />
-                      <Bar dataKey="crates" fill="hsl(var(--accent))" radius={[4, 4, 0, 0]} />
+                      <Bar dataKey="crates" fill="var(--accent)" radius={[4, 4, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>

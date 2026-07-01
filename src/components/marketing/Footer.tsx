@@ -7,7 +7,7 @@ const footerLinks = {
   Product: [
     { label: "Products", to: "/products" as const },
     { label: "Gallery", to: "/gallery" as const },
-    { label: "Opportunities", to: "/opportunities" as const },
+    { label: "Opportunities", to: "/app/invest" as const },
     { label: "Track record", to: "/performance" as const },
     { label: "Live farms", to: "/farms" as const },
     { label: "Reports", to: "/" as const, hash: "farms" as const },

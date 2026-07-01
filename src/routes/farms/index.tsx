@@ -150,8 +150,8 @@ function FarmCard({
             </Link>
             {activeCycle && (
               <Link
-                to="/opportunities/$cycleId"
-                params={{ cycleId: activeCycle.slug }}
+                to="/app/invest/opportunity/$cycleSlug"
+                params={{ cycleSlug: activeCycle.slug }}
                 className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground"
               >
                 View active cycle

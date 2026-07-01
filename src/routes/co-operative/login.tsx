@@ -1,15 +1,17 @@
-import { Link, createFileRoute, redirect } from "@tanstack/react-router";
+import { Link, createFileRoute, redirect, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
-import { isRedirect } from "@tanstack/react-router";
 
 import { SectionHeader } from "@/components/marketing/SectionHeader";
 import { coopSignInFn } from "@/lib/api/coop.functions";
+import { getCoopMemberHomePath, isCoopOnboardingComplete } from "@/lib/coop-membership";
+import { handleClientRedirect } from "@/lib/client-redirect";
 
 export const Route = createFileRoute("/co-operative/login")({
   beforeLoad: ({ context }) => {
-    if (context.user?.cooperativeMember && context.user.membershipStatus === "full_member") {
-      throw redirect({ to: "/co-operative/dashboard" });
+    const user = context.user;
+    if (user?.cooperativeMember && isCoopOnboardingComplete(user.membershipStatus)) {
+      throw redirect({ to: getCoopMemberHomePath(user) });
     }
   },
   head: () => ({ meta: [{ title: "Sign In — GText Co-operative" }] }),
@@ -17,6 +19,7 @@ export const Route = createFileRoute("/co-operative/login")({
 });
 
 function CoopLoginPage() {
+  const router = useRouter();
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -48,7 +51,7 @@ function CoopLoginPage() {
                 toast.error(result.error);
               }
             } catch (err) {
-              if (isRedirect(err)) throw err;
+              if (await handleClientRedirect(router, err)) return;
               toast.error("Something went wrong. Please try again.");
             } finally {
               setPending(false);

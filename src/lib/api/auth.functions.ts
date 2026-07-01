@@ -177,12 +177,18 @@ export const signInFn = createServerFn({ method: "POST" })
     throw redirect({ to: "/app" });
   });
 
-export const signOutFn = createServerFn({ method: "POST" }).handler(async () => {
-  const { useAppSession } = await import("@/lib/session.server");
-  const session = await useAppSession();
-  await session.clear();
-  throw redirect({ to: "/" });
+const signOutSchema = z.object({
+  redirectTo: z.string().optional(),
 });
+
+export const signOutFn = createServerFn({ method: "POST" })
+  .validator(signOutSchema)
+  .handler(async ({ data }) => {
+    const { useAppSession } = await import("@/lib/session.server");
+    const session = await useAppSession();
+    await session.clear();
+    throw redirect({ to: data.redirectTo ?? "/" });
+  });
 
 export const submitKycFn = createServerFn({ method: "POST" })
   .validator(kycSchema)
@@ -194,13 +200,12 @@ export const submitKycFn = createServerFn({ method: "POST" })
     }
 
     const { connectDB } = await import("@/lib/db.server");
-    const { getServerConfig } = await import("@/lib/config.server");
+    const { getDataPepper } = await import("@/lib/config.server");
     const { hashSensitive } = await import("@/lib/auth-utils.server");
     const { User } = await import("@/lib/models/user.model.server");
 
     await connectDB();
-    const { sessionSecret } = getServerConfig();
-    const pepper = sessionSecret ?? "dev-only-change-me-32-chars-min!!";
+    const pepper = getDataPepper();
 
     const user = await User.findById(session.data.userId).select("+bvnHash +ninHash");
     if (!user) {
@@ -301,7 +306,7 @@ export const requestPasswordResetFn = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { createHash, randomBytes } = await import("node:crypto");
     const { connectDB } = await import("@/lib/db.server");
-    const { getServerConfig } = await import("@/lib/config.server");
+    const { getDataPepper } = await import("@/lib/config.server");
     const { User } = await import("@/lib/models/user.model.server");
     const { sendPasswordResetEmail } = await import("@/lib/email.server");
 
@@ -315,8 +320,7 @@ export const requestPasswordResetFn = createServerFn({ method: "POST" })
     }
 
     const token = randomBytes(32).toString("hex");
-    const { sessionSecret } = getServerConfig();
-    const pepper = sessionSecret ?? "dev-only-change-me-32-chars-min!!";
+    const pepper = getDataPepper();
     user.passwordResetTokenHash = createHash("sha256")
       .update(`${pepper}:${token}`)
       .digest("hex");
@@ -341,12 +345,11 @@ export const resetPasswordFn = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { createHash } = await import("node:crypto");
     const { connectDB } = await import("@/lib/db.server");
-    const { getServerConfig } = await import("@/lib/config.server");
+    const { getDataPepper } = await import("@/lib/config.server");
     const { User } = await import("@/lib/models/user.model.server");
 
     await connectDB();
-    const { sessionSecret } = getServerConfig();
-    const pepper = sessionSecret ?? "dev-only-change-me-32-chars-min!!";
+    const pepper = getDataPepper();
     const tokenHash = createHash("sha256").update(`${pepper}:${data.token}`).digest("hex");
 
     const user = await User.findOne({

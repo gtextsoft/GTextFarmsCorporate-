@@ -58,6 +58,7 @@ const KYC_PREVIEW_LIMIT = 5;
 const PAYOUT_PREVIEW_LIMIT = 5;
 const REPORT_PREVIEW_LIMIT = 3;
 const INQUIRY_PREVIEW_LIMIT = 7;
+const FUNDING_PREVIEW_LIMIT = 5;
 
 export const getAdminDashboardFn = createServerFn({ method: "GET" }).handler(async () => {
   const auth = await requireAdminSession();

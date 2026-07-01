@@ -1,8 +1,15 @@
 import { Leaf } from "lucide-react";
 
-export function Logo() {
+import { cn } from "@/lib/utils";
+
+export function Logo({ className }: { className?: string }) {
   return (
-    <span className="grid size-8 place-items-center rounded-full bg-primary text-primary-foreground">
+    <span
+      className={cn(
+        "grid size-8 place-items-center rounded-full bg-primary text-primary-foreground",
+        className,
+      )}
+    >
       <Leaf className="size-4" />
     </span>
   );

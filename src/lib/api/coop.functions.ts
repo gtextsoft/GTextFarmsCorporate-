@@ -4,9 +4,9 @@ import bcrypt from "bcryptjs";
 import { randomBytes } from "node:crypto";
 import { z } from "zod";
 
-import { getCoopRequiredPath } from "@/lib/coop-membership";
+import { getCoopMemberHomePath, getCoopRequiredPath } from "@/lib/coop-membership";
 import { isValidNgPhone, storeNgPhone } from "@/lib/phone";
-import type { CoopMemberRow, MembershipStatus } from "@/lib/types";
+import type { CoopMemberRow } from "@/lib/types";
 
 function appUrl() {
   return (
@@ -15,29 +15,78 @@ function appUrl() {
   ).replace(/\/$/, "");
 }
 
-async function createVerificationToken(userId: string) {
-  const { getServerConfig } = await import("@/lib/config.server");
+function createVerificationCode(): string {
+  return String(Math.floor(100_000 + Math.random() * 900_000));
+}
+
+async function createVerificationCredentials(userId: string) {
+  const { getDataPepper } = await import("@/lib/config.server");
   const { hashToken } = await import("@/lib/auth-utils.server");
   const { User } = await import("@/lib/models/user.model.server");
 
   const token = randomBytes(32).toString("hex");
-  const { sessionSecret } = getServerConfig();
-  const pepper = sessionSecret ?? "dev-only-change-me-32-chars-min!!";
+  const code = createVerificationCode();
+  const pepper = getDataPepper();
 
   await User.findByIdAndUpdate(userId, {
     emailVerificationTokenHash: hashToken(token, pepper),
+    emailVerificationCode: code,
     emailVerificationExpires: new Date(Date.now() + 24 * 60 * 60 * 1000),
   });
 
-  return `${appUrl()}/co-operative/verify?token=${token}`;
+  return {
+    verifyUrl: `${appUrl()}/co-operative/verify?token=${token}`,
+    code,
+  };
 }
 
 async function sendVerificationEmail(user: { _id: { toString(): string }; email: string; fullName: string }) {
-  const verifyUrl = await createVerificationToken(user._id.toString());
+  const { verifyUrl, code } = await createVerificationCredentials(user._id.toString());
   const { sendCoopWelcomeVerifyEmail } = await import("@/lib/email.server");
 
-  console.info(`[coop] Verification link for ${user.email}: ${verifyUrl}`);
+  console.info(`[coop] Verification for ${user.email} — link: ${verifyUrl} — code: ${code}`);
   await sendCoopWelcomeVerifyEmail(user.email, user.fullName, verifyUrl);
+}
+
+async function finalizeCoopEmailVerification(userId: string) {
+  const { connectDB } = await import("@/lib/db.server");
+  const { assignNextMembershipNumber } = await import("@/lib/coop-membership.server");
+  const { User } = await import("@/lib/models/user.model.server");
+  const { notifySafe, sendCoopMembershipEmail } = await import("@/lib/email.server");
+  const { useAppSession } = await import("@/lib/session.server");
+
+  await connectDB();
+  const user = await User.findById(userId);
+  if (!user?.cooperativeMember) {
+    return { error: "Not a co-operative member." as const };
+  }
+
+  if (!user.emailVerified) {
+    const membershipNumber = await assignNextMembershipNumber();
+    user.membershipNumber = membershipNumber;
+    user.emailVerified = true;
+    user.membershipStatus = "provisional_member";
+    user.emailVerificationTokenHash = undefined;
+    user.emailVerificationCode = undefined;
+    user.emailVerificationExpires = undefined;
+    await user.save();
+
+    const profileUrl = `${appUrl()}/co-operative/complete-profile`;
+    await notifySafe(
+      () => sendCoopMembershipEmail(user.email, user.fullName, membershipNumber, profileUrl),
+      "co-op membership email",
+    );
+  }
+
+  const session = await useAppSession();
+  await session.update({
+    userId: user._id.toString(),
+    email: user.email,
+    role: user.role,
+    kycStatus: user.kycStatus,
+  });
+
+  throw redirect({ to: "/co-operative/complete-profile" });
 }
 
 const coopRegisterSchema = z
@@ -172,7 +221,7 @@ export const coopSignInFn = createServerFn({ method: "POST" })
 
     const safe = toSafeUser(user);
     const required = getCoopRequiredPath(safe);
-    throw redirect({ to: required ?? "/co-operative/dashboard" });
+    throw redirect({ to: required ?? getCoopMemberHomePath(safe) });
   });
 
 export const resendCoopVerificationFn = createServerFn({ method: "POST" }).handler(async () => {
@@ -184,6 +233,7 @@ export const resendCoopVerificationFn = createServerFn({ method: "POST" }).handl
 
   const { connectDB } = await import("@/lib/db.server");
   const { User } = await import("@/lib/models/user.model.server");
+  const { shouldExposeCoopVerificationLink } = await import("@/lib/config.server");
 
   await connectDB();
   const user = await User.findById(session.data.userId);
@@ -195,27 +245,104 @@ export const resendCoopVerificationFn = createServerFn({ method: "POST" }).handl
     return { error: "Your email is already verified." as const };
   }
 
-  await sendVerificationEmail(user);
+  const credentials = await createVerificationCredentials(user._id.toString());
+  const { sendCoopWelcomeVerifyEmail } = await import("@/lib/email.server");
+  console.info(
+    `[coop] Verification for ${user.email} — link: ${credentials.verifyUrl} — code: ${credentials.code}`,
+  );
+  await sendCoopWelcomeVerifyEmail(user.email, user.fullName, credentials.verifyUrl);
+
+  if (shouldExposeCoopVerificationLink()) {
+    return { success: true as const, code: credentials.code };
+  }
   return { success: true as const };
 });
+
+/** Dev/staging: return a copyable verification code when email delivery is unavailable. */
+export const getCoopVerificationDevFn = createServerFn({ method: "GET" }).handler(async () => {
+  const { shouldExposeCoopVerificationLink } = await import("@/lib/config.server");
+  if (!shouldExposeCoopVerificationLink()) {
+    return { expose: false as const };
+  }
+
+  const { useAppSession } = await import("@/lib/session.server");
+  const session = await useAppSession();
+  if (!session.data.userId) {
+    return { expose: false as const };
+  }
+
+  const { connectDB } = await import("@/lib/db.server");
+  const { User } = await import("@/lib/models/user.model.server");
+
+  await connectDB();
+  const user = await User.findById(session.data.userId).select(
+    "+emailVerificationCode +emailVerificationExpires",
+  );
+  if (!user?.cooperativeMember || user.emailVerified) {
+    return { expose: false as const };
+  }
+
+  const expired =
+    !user.emailVerificationExpires || user.emailVerificationExpires.getTime() <= Date.now();
+  let code = user.emailVerificationCode;
+
+  if (!code || expired) {
+    const credentials = await createVerificationCredentials(user._id.toString());
+    code = credentials.code;
+  }
+
+  return { expose: true as const, code };
+});
+
+export const verifyCoopEmailByCodeFn = createServerFn({ method: "POST" })
+  .validator(z.object({ code: z.string().regex(/^\d{6}$/, "Enter the 6-digit code") }))
+  .handler(async ({ data }) => {
+    const { useAppSession } = await import("@/lib/session.server");
+    const session = await useAppSession();
+    if (!session.data.userId) {
+      return { error: "You must be signed in." as const };
+    }
+
+    const { connectDB } = await import("@/lib/db.server");
+    const { User } = await import("@/lib/models/user.model.server");
+
+    await connectDB();
+    const user = await User.findById(session.data.userId).select(
+      "+emailVerificationCode +emailVerificationExpires",
+    );
+
+    if (!user?.cooperativeMember) {
+      return { error: "Not a co-operative member." as const };
+    }
+
+    if (user.emailVerified) {
+      throw redirect({ to: "/co-operative/complete-profile" });
+    }
+
+    const expired =
+      !user.emailVerificationExpires || user.emailVerificationExpires.getTime() <= Date.now();
+    if (!user.emailVerificationCode || expired) {
+      return { error: "Your verification code has expired. Resend a new one." as const };
+    }
+
+    if (user.emailVerificationCode !== data.code) {
+      return { error: "Invalid verification code." as const };
+    }
+
+    return finalizeCoopEmailVerification(user._id.toString());
+  });
 
 export const verifyCoopEmailFn = createServerFn({ method: "GET" })
   .validator(z.object({ token: z.string().min(1) }))
   .handler(async ({ data }) => {
     const { connectDB } = await import("@/lib/db.server");
-    const { getServerConfig } = await import("@/lib/config.server");
+    const { getDataPepper } = await import("@/lib/config.server");
     const { hashToken } = await import("@/lib/auth-utils.server");
-    const { assignNextMembershipNumber } = await import("@/lib/coop-membership.server");
     const { User } = await import("@/lib/models/user.model.server");
-    const {
-      notifySafe,
-      sendCoopMembershipEmail,
-    } = await import("@/lib/email.server");
 
     await connectDB();
 
-    const { sessionSecret } = getServerConfig();
-    const pepper = sessionSecret ?? "dev-only-change-me-32-chars-min!!";
+    const pepper = getDataPepper();
     const tokenHash = hashToken(data.token, pepper);
 
     const user = await User.findOne({
@@ -228,32 +355,7 @@ export const verifyCoopEmailFn = createServerFn({ method: "GET" })
       return { error: "This verification link is invalid or has expired." as const };
     }
 
-    if (!user.emailVerified) {
-      const membershipNumber = await assignNextMembershipNumber();
-      user.membershipNumber = membershipNumber;
-      user.emailVerified = true;
-      user.membershipStatus = "provisional_member";
-      user.emailVerificationTokenHash = undefined;
-      user.emailVerificationExpires = undefined;
-      await user.save();
-
-      const profileUrl = `${appUrl()}/co-operative/complete-profile`;
-      await notifySafe(
-        () => sendCoopMembershipEmail(user.email, user.fullName, membershipNumber, profileUrl),
-        "co-op membership email",
-      );
-    }
-
-    const { useAppSession } = await import("@/lib/session.server");
-    const session = await useAppSession();
-    await session.update({
-      userId: user._id.toString(),
-      email: user.email,
-      role: user.role,
-      kycStatus: user.kycStatus,
-    });
-
-    throw redirect({ to: "/co-operative/complete-profile" });
+    return finalizeCoopEmailVerification(user._id.toString());
   });
 
 export const completeCoopProfileFn = createServerFn({ method: "POST" })
@@ -356,44 +458,3 @@ export const listCoopMembersFn = createServerFn({ method: "GET" })
       }),
     );
   });
-
-export const getCoopDashboardFn = createServerFn({ method: "GET" }).handler(async () => {
-  const { useAppSession } = await import("@/lib/session.server");
-  const session = await useAppSession();
-  if (!session.data.userId) {
-    return { error: "Unauthorized" as const };
-  }
-
-  const { connectDB } = await import("@/lib/db.server");
-  const { User } = await import("@/lib/models/user.model.server");
-  const { Wallet } = await import("@/lib/models/wallet.model.server");
-  const { Investment } = await import("@/lib/models/investment.model.server");
-  const { ManualPayment } = await import("@/lib/models/manual-payment.model.server");
-  const { getCoopEntranceFee } = await import("@/lib/config.server");
-
-  await connectDB();
-  const user = await User.findById(session.data.userId);
-  if (!user?.cooperativeMember) {
-    return { error: "Not a co-operative member." as const };
-  }
-
-  const wallet = await Wallet.findOne({ userId: user._id });
-  const investments = await Investment.find({ userId: user._id });
-  const pendingPayments = await ManualPayment.find({ userId: user._id, status: "pending" });
-
-  const status = user.membershipStatus as MembershipStatus;
-  const entranceFeePaid =
-    status === "full_member" || status === "funded" || status === "active_investor";
-
-  return {
-    membershipNumber: user.membershipNumber,
-    membershipStatus: status,
-    entranceFee: getCoopEntranceFee(),
-    entranceFeePaid,
-    balance: wallet?.balance ?? 0,
-    withdrawable: 0,
-    pendingPayment: pendingPayments.reduce((sum, p) => sum + p.amount, 0),
-    totalInvested: investments.reduce((sum, inv) => sum + inv.amount, 0),
-    activeInvestments: investments.length,
-  };
-});

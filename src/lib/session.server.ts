@@ -1,4 +1,4 @@
-import { getServerConfig } from "@/lib/config.server";
+import { getServerConfig, getSessionSecret } from "@/lib/config.server";
 import type { SessionUser } from "@/lib/types";
 
 import { useSession } from "@tanstack/react-start/server";
@@ -6,12 +6,8 @@ import { useSession } from "@tanstack/react-start/server";
 export const SESSION_NAME = "henhouse-session";
 
 export function getSessionConfig() {
-  const { sessionSecret, nodeEnv } = getServerConfig();
-  const password = sessionSecret ?? "dev-only-change-me-32-chars-min!!";
-
-  if (nodeEnv === "production" && !sessionSecret) {
-    throw new Error("SESSION_SECRET must be set in production.");
-  }
+  const { nodeEnv } = getServerConfig();
+  const password = getSessionSecret();
 
   return {
     name: SESSION_NAME,

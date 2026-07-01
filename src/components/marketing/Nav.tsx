@@ -18,7 +18,10 @@ export function Nav() {
           <Link to="/" hash="how" className="hover:text-foreground">
             How it works
           </Link>
-          <Link to="/opportunities" className="hover:text-foreground">
+          <Link
+            to={user ? "/app/invest" : "/auth/sign-in"}
+            className="hover:text-foreground"
+          >
             Opportunities
           </Link>
           <Link to="/performance" className="hover:text-foreground">
@@ -48,7 +51,7 @@ export function Nav() {
             </Link>
           )}
           <Link
-            to={user ? "/app" : "/opportunities"}
+            to={user ? "/app" : "/auth/sign-up"}
             className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition hover:opacity-90"
           >
             {user ? "My portfolio" : "Start investing"}

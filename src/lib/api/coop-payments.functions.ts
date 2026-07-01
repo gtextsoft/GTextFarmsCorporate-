@@ -207,6 +207,10 @@ export const reviewCoopPaymentFn = createServerFn({ method: "POST" })
       paymentId: z.string().min(1),
       action: z.enum(["approve", "reject"]),
       rejectionReason: z.string().optional(),
+      // The verified amount the admin confirms against the receipt when
+      // approving a deposit. The member-submitted amount is never trusted as
+      // the credit value.
+      approvedAmount: z.number().positive().optional(),
     }),
   )
   .handler(async ({ data }) => {
@@ -219,8 +223,26 @@ export const reviewCoopPaymentFn = createServerFn({ method: "POST" })
     if ("error" in auth) return { error: auth.error ?? "Forbidden" };
     await connectDB();
 
-    const payment = await ManualPayment.findById(data.paymentId);
-    if (!payment || payment.status !== "pending") {
+    const rejectionReason =
+      data.action === "reject"
+        ? data.rejectionReason?.trim() || "The payment could not be verified."
+        : undefined;
+
+    // Atomically claim the pending payment — only one reviewer wins, so the
+    // membership flip / credit / notifications below run exactly once.
+    const payment = await ManualPayment.findOneAndUpdate(
+      { _id: data.paymentId, status: "pending" },
+      {
+        $set: {
+          status: data.action === "approve" ? "approved" : "rejected",
+          reviewedAt: new Date(),
+          reviewedBy: auth.admin._id,
+          ...(rejectionReason ? { rejectionReason } : {}),
+        },
+      },
+      { new: true },
+    );
+    if (!payment) {
       return { error: "Payment not found or already reviewed." as const };
     }
 
@@ -237,13 +259,7 @@ export const reviewCoopPaymentFn = createServerFn({ method: "POST" })
     } = await import("@/lib/email.server");
 
     if (data.action === "reject") {
-      const reason = data.rejectionReason?.trim() || "The payment could not be verified.";
-      payment.status = "rejected";
-      payment.rejectionReason = reason;
-      payment.reviewedAt = new Date();
-      payment.reviewedBy = auth.admin._id;
-      await payment.save();
-
+      const reason = rejectionReason!;
       await notifySafe(
         () => sendCoopPaymentRejectedEmail(member.email, member.fullName, payment.amount, reason),
         "coop payment rejected email",
@@ -279,28 +295,43 @@ export const reviewCoopPaymentFn = createServerFn({ method: "POST" })
             type: "system",
             title: "You are now a full member",
             body: "Your entrance fee has been confirmed. You can now fund your investment account.",
-            link: "/co-operative/dashboard",
+            link: "/app",
           }),
         "coop entrance fee approved notification",
       );
     } else {
       const { creditWallet } = await import("@/lib/wallet.server");
-      // Deterministic reference → creditWallet's "already completed" guard makes
-      // this idempotent, so a double-approval can never double-credit.
-      await creditWallet({
-        userId: member._id.toString(),
-        amount: payment.amount,
-        type: "deposit",
-        reference: `COOP-${payment.reference}`,
-        metadata: { source: "coop_manual_payment", paymentReference: payment.reference },
-      });
+      // Credit the admin-verified amount, not the member-submitted figure.
+      const creditAmount = data.approvedAmount ?? payment.amount;
+      // creditWallet is idempotent on the deterministic reference. If it fails,
+      // revert the claim so the admin can retry rather than leaving the payment
+      // marked approved with no credit.
+      try {
+        await creditWallet({
+          userId: member._id.toString(),
+          amount: creditAmount,
+          type: "deposit",
+          reference: `COOP-${payment.reference}`,
+          metadata: {
+            source: "coop_manual_payment",
+            paymentReference: payment.reference,
+            claimedAmount: payment.amount,
+          },
+        });
+      } catch {
+        await ManualPayment.updateOne(
+          { _id: payment._id, status: "approved" },
+          { $set: { status: "pending" }, $unset: { reviewedAt: "", reviewedBy: "" } },
+        );
+        return { error: "Could not credit the payment. Please try again." as const };
+      }
       if (member.membershipStatus === "full_member") {
         member.membershipStatus = "funded";
         await member.save();
       }
 
       await notifySafe(
-        () => sendCoopDepositApprovedEmail(member.email, member.fullName, payment.amount),
+        () => sendCoopDepositApprovedEmail(member.email, member.fullName, creditAmount),
         "coop deposit approved email",
       );
       await notifyInApp(
@@ -310,16 +341,11 @@ export const reviewCoopPaymentFn = createServerFn({ method: "POST" })
             type: "deposit",
             title: "Payment confirmed",
             body: "Your payment has been credited to your investment balance.",
-            link: "/co-operative/dashboard",
+            link: "/app",
           }),
         "coop deposit approved notification",
       );
     }
-
-    payment.status = "approved";
-    payment.reviewedAt = new Date();
-    payment.reviewedBy = auth.admin._id;
-    await payment.save();
 
     return { success: true as const };
   });

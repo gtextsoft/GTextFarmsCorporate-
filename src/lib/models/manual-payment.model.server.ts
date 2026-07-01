@@ -30,6 +30,13 @@ const manualPaymentSchema = new Schema(
   { timestamps: true },
 );
 
+// At most one pending payment per (user, purpose) — stops a member queuing two
+// approvable payments of the same type concurrently.
+manualPaymentSchema.index(
+  { userId: 1, purpose: 1, status: 1 },
+  { unique: true, partialFilterExpression: { status: "pending" } },
+);
+
 export type ManualPaymentDocument = InferSchemaType<typeof manualPaymentSchema> & {
   _id: mongoose.Types.ObjectId;
   createdAt: Date;

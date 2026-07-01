@@ -46,12 +46,27 @@ function AdminCoopPaymentsPage() {
   const [selected, setSelected] = useState<CoopPaymentRow | null>(null);
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [rejectReason, setRejectReason] = useState("");
+  const [verifiedAmount, setVerifiedAmount] = useState("");
 
   const totalPending = payments
     .filter((p) => p.status === "pending")
     .reduce((sum, p) => sum + p.amount, 0);
 
+  function openPayment(row: CoopPaymentRow) {
+    setSelected(row);
+    setVerifiedAmount(String(row.amount));
+  }
+
   async function handleReview(paymentId: string, action: "approve" | "reject") {
+    let approvedAmount: number | undefined;
+    if (action === "approve" && selected?.purpose === "investment_deposit") {
+      approvedAmount = Number(verifiedAmount);
+      if (!Number.isFinite(approvedAmount) || approvedAmount <= 0) {
+        toast.error("Enter a valid amount to credit.");
+        return;
+      }
+    }
+
     setPendingId(paymentId);
     try {
       const result = await reviewCoopPaymentFn({
@@ -59,6 +74,7 @@ function AdminCoopPaymentsPage() {
           paymentId,
           action,
           rejectionReason: action === "reject" ? rejectReason : undefined,
+          approvedAmount,
         },
       });
       if (result && "error" in result) {
@@ -112,7 +128,7 @@ function AdminCoopPaymentsPage() {
       <AdminDataTable
         data={payments}
         getRowKey={(row) => row.id}
-        onRowClick={setSelected}
+        onRowClick={openPayment}
         emptyMessage="No payments to review."
         caption="Click a row to view the receipt and approve or reject."
         columns={[
@@ -228,6 +244,24 @@ function AdminCoopPaymentsPage() {
                   : []),
               ]}
             />
+            {selected.status === "pending" && selected.purpose === "investment_deposit" && (
+              <div>
+                <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                  Verified amount to credit (₦)
+                </label>
+                <input
+                  type="number"
+                  min={1}
+                  value={verifiedAmount}
+                  onChange={(e) => setVerifiedAmount(e.target.value)}
+                  className="mt-2 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                />
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Member entered {formatNaira(selected.amount)}. Confirm the real amount against the
+                  receipt before approving — this is what gets credited.
+                </p>
+              </div>
+            )}
             {selected.status === "pending" && (
               <div>
                 <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground">

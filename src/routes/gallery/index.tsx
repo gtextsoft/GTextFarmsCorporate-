@@ -6,7 +6,7 @@ import { CTA } from "@/components/marketing/CTA";
 import { MarketingLayout } from "@/components/marketing/MarketingLayout";
 import { SectionHeader } from "@/components/marketing/SectionHeader";
 import { getPublicGalleryFn } from "@/lib/api/content.functions";
-import { brand, brandTitle } from "@/lib/brand";
+import { buildPageHead } from "@/lib/seo";
 import {
   galleryCategoryLabels,
   type GalleryCategory,
@@ -28,15 +28,13 @@ const gallerySearchSchema = z.object({
 export const Route = createFileRoute("/gallery/")({
   validateSearch: gallerySearchSchema,
   loader: () => getPublicGalleryFn(),
-  head: () => ({
-    meta: [
-      { title: brandTitle("Gallery") },
-      {
-        name: "description",
-        content: `Photos from ${brand.name} poultry farms, vegetable blocks, cassava fields, palm processing, and harvest operations.`,
-      },
-    ],
-  }),
+  head: () =>
+    buildPageHead({
+      title: "Farm Gallery",
+      description:
+        "Photos from GText Farms operations across Nigeria — poultry houses, vegetable blocks, cassava fields, palm processing, harvests, and field teams.",
+      path: "/gallery",
+    }),
   component: GalleryPage,
 });
 

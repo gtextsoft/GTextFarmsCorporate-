@@ -6,7 +6,8 @@ import { z } from "zod";
 import { MarketingLayout } from "@/components/marketing/MarketingLayout";
 import { SectionHeader } from "@/components/marketing/SectionHeader";
 import { submitContactFn } from "@/lib/api/contact.functions";
-import { brand, brandTitle } from "@/lib/brand";
+import { brand } from "@/lib/brand";
+import { buildPageHead } from "@/lib/seo";
 import { catalogProducts } from "@/lib/catalog-data";
 
 const contactSearchSchema = z.object({
@@ -16,15 +17,13 @@ const contactSearchSchema = z.object({
 
 export const Route = createFileRoute("/contact")({
   validateSearch: contactSearchSchema,
-  head: () => ({
-    meta: [
-      { title: brandTitle("Contact") },
-      {
-        name: "description",
-        content: `Contact ${brand.name} for product quotes, bulk orders, investments, and partnerships.`,
-      },
-    ],
-  }),
+  head: () =>
+    buildPageHead({
+      title: "Contact",
+      description:
+        "Contact GText Farms in Lagos for poultry investment enquiries, farm-fresh produce quotes, bulk orders, partnerships, and careers. Victoria Island office — nationwide delivery.",
+      path: "/contact",
+    }),
   component: ContactPage,
 });
 

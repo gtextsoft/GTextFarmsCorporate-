@@ -1,4 +1,10 @@
 User-agent: *
 Allow: /
 
+Disallow: /admin/
+Disallow: /app/
+Disallow: /field/
+Disallow: /auth/
+Disallow: /api/
+
 Sitemap: /sitemap.xml

@@ -7,6 +7,7 @@ export type AdminQueueCounts = {
   submittedKyc: number;
   pendingWithdrawals: number;
   pendingReports: number;
+  unreadMessages: number;
 };
 
 export const getAdminQueueCountsFn = createServerFn({ method: "GET" }).handler(async () => {
@@ -18,15 +19,18 @@ export const getAdminQueueCountsFn = createServerFn({ method: "GET" }).handler(a
   const { User } = await import("@/lib/models/user.model.server");
   const { Withdrawal } = await import("@/lib/models/withdrawal.model.server");
   const { FieldReport } = await import("@/lib/models/field-report.model.server");
+  const { Message } = await import("@/lib/models/message.model.server");
 
   await connectDB();
 
-  const [newInquiries, submittedKyc, pendingWithdrawals, pendingReports] = await Promise.all([
-    ContactInquiry.countDocuments({ status: "new" }),
-    User.countDocuments({ role: "investor", kycStatus: "submitted" }),
-    Withdrawal.countDocuments({ status: "pending" }),
-    FieldReport.countDocuments({ status: "submitted" }),
-  ]);
+  const [newInquiries, submittedKyc, pendingWithdrawals, pendingReports, unreadMessages] =
+    await Promise.all([
+      ContactInquiry.countDocuments({ status: "new" }),
+      User.countDocuments({ role: "investor", kycStatus: "submitted" }),
+      Withdrawal.countDocuments({ status: "pending" }),
+      FieldReport.countDocuments({ status: "submitted" }),
+      Message.countDocuments({ senderRole: "investor", readByAdmin: false }),
+    ]);
 
-  return { newInquiries, submittedKyc, pendingWithdrawals, pendingReports };
+  return { newInquiries, submittedKyc, pendingWithdrawals, pendingReports, unreadMessages };
 });

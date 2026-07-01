@@ -9,6 +9,7 @@ import {
   Image,
   LayoutDashboard,
   LogOut,
+  Mail,
   MessageSquare,
   Newspaper,
   Package,
@@ -47,6 +48,7 @@ type QueueCounts = {
   newInquiries: number;
   pendingWithdrawals: number;
   pendingReports: number;
+  unreadMessages: number;
 } | null;
 
 type NavItem = {
@@ -72,6 +74,7 @@ const navGroups: { label: string; items: NavItem[] }[] = [
   {
     label: "Operations",
     items: [
+      { to: "/admin/messages", label: "Messages", icon: Mail },
       { to: "/admin/investors", label: "Investors", icon: Users },
       { to: "/admin/inquiries", label: "Inquiries", icon: MessageSquare },
       { to: "/admin/withdrawals", label: "Withdrawals", icon: CircleDollarSign },
@@ -115,6 +118,8 @@ const navGroups: { label: string; items: NavItem[] }[] = [
 function badgeForItem(to: string, queue: QueueCounts): number | undefined {
   if (!queue) return undefined;
   switch (to) {
+    case "/admin/messages":
+      return queue.unreadMessages || undefined;
     case "/admin/investors":
       return queue.submittedKyc || undefined;
     case "/admin/inquiries":

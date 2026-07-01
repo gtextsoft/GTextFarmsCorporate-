@@ -2,11 +2,9 @@ import { Link, createFileRoute, redirect, useRouteContext } from "@tanstack/reac
 import {
   CirclePlus,
   Coins,
-  FileText,
   Headphones,
   LayoutDashboard,
   Receipt,
-  Settings,
   Sprout,
   TrendingUp,
   User,
@@ -14,34 +12,67 @@ import {
   Wallet,
 } from "lucide-react";
 
-import { PortalShell, type PortalNavItem } from "@/components/portal/PortalShell";
-import { getUnreadNotificationCountFn } from "@/lib/api/notifications.functions";
+import { PortalShell, type PortalNavSection } from "@/components/portal/PortalShell";
+import { getUnreadMessageCountFn } from "@/lib/api/messages.functions";
+import {
+  getRecentNotificationsFn,
+  getUnreadNotificationCountFn,
+} from "@/lib/api/notifications.functions";
 
-const APP_NAV: PortalNavItem[] = [
-  { to: "/app", label: "Dashboard", icon: LayoutDashboard, exact: true },
-  { to: "/app/investments", label: "Investments", icon: Coins },
-  { to: "/app/wallet", label: "Wallet", icon: Wallet },
-  { to: "/app", label: "View Farm Live", icon: Video, hash: "cctv" },
-  { to: "/app/activity", label: "Farm Updates", icon: Sprout },
-  { to: "/app", label: "Reports", icon: FileText, hash: "performance" },
-  { to: "/app/reports", label: "Transactions", icon: Receipt },
-  { to: "/app/performance", label: "Performance", icon: TrendingUp },
-  { to: "/app/invest", label: "Invest", icon: CirclePlus },
-  { to: "/app/profile", label: "Profile", icon: User },
-  { to: "/app/profile", label: "Settings", icon: Settings },
-  { to: "/app", label: "Support", icon: Headphones, hash: "support" },
+const APP_NAV: PortalNavSection[] = [
+  {
+    items: [{ to: "/app", label: "Dashboard", icon: LayoutDashboard, exact: true }],
+  },
+  {
+    label: "Investments",
+    items: [
+      { to: "/app/invest", label: "Invest", icon: CirclePlus },
+      { to: "/app/investments", label: "My Investments", icon: Coins },
+      { to: "/app/performance", label: "Performance", icon: TrendingUp },
+    ],
+  },
+  {
+    label: "Wallet & Payments",
+    items: [
+      { to: "/app/wallet", label: "Wallet", icon: Wallet },
+      { to: "/app/reports", label: "Transactions", icon: Receipt },
+    ],
+  },
+  {
+    label: "Farm",
+    items: [
+      { to: "/app/activity", label: "Farm Updates", icon: Sprout },
+      { to: "/app/live", label: "View Farm Live", icon: Video },
+    ],
+  },
+  {
+    label: "Account",
+    items: [
+      { to: "/app/profile", label: "Profile", icon: User },
+      { to: "/app/support", label: "Support", icon: Headphones },
+    ],
+  },
 ];
 
+import { buildPageHead, privatePageHead } from "@/lib/seo";
+
 export const Route = createFileRoute("/app")({
+  head: () => privatePageHead("/app", "Investor Portal"),
   beforeLoad: ({ context }) => {
     if (!context.user) {
       throw redirect({ to: "/auth/sign-in" });
     }
   },
   loader: async () => {
-    const result = await getUnreadNotificationCountFn();
+    const [countResult, recent, messageCount] = await Promise.all([
+      getUnreadNotificationCountFn(),
+      getRecentNotificationsFn(),
+      getUnreadMessageCountFn(),
+    ]);
     return {
-      unreadNotifications: "error" in result ? 0 : result.count,
+      unreadNotifications: "error" in countResult ? 0 : countResult.count,
+      recentNotifications: "error" in recent ? [] : recent,
+      unreadMessages: "error" in messageCount ? 0 : messageCount.count,
     };
   },
   component: AppLayout,
@@ -49,7 +80,7 @@ export const Route = createFileRoute("/app")({
 
 function AppLayout() {
   const { user } = useRouteContext({ from: "__root__" });
-  const { unreadNotifications } = Route.useLoaderData();
+  const { unreadNotifications, recentNotifications, unreadMessages } = Route.useLoaderData();
 
   const navItems = APP_NAV;
 
@@ -63,7 +94,10 @@ function AppLayout() {
       userRole="Investor"
       headerSubtitle="GText Farms Africa — Investor Portal"
       notificationCount={unreadNotifications}
+      recentNotifications={recentNotifications}
       notificationTo="/app/notifications"
+      messageCount={unreadMessages}
+      messagesTo="/app/messages"
       headerAction={
         user?.kycStatus !== "verified" ? (
           <Link
@@ -77,6 +111,7 @@ function AppLayout() {
       menuItems={[
         { label: "Profile", to: "/app/profile" },
         { label: "Fund wallet", to: "/app/wallet" },
+        { label: "Support", to: "/app/support" },
       ]}
     />
   );

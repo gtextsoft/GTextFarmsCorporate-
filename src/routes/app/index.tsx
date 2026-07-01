@@ -30,7 +30,14 @@ function AppDashboard() {
 
   const stats =
     "error" in summary
-      ? { balance: 0, totalInvested: 0, activeInvestments: 0, totalReturns: 0 }
+      ? {
+          balance: 0,
+          availableBalance: 0,
+          totalInvested: 0,
+          activeInvestments: 0,
+          totalReturns: 0,
+          projectedMonthly: 0,
+        }
       : summary;
 
   return (

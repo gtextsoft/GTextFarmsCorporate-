@@ -33,21 +33,59 @@ export const getDashboardSummaryFn = createServerFn({ method: "GET" }).handler(a
   const session = await useAppSession();
   if (!session.data.userId) return { error: "Unauthorized" as const };
 
-  const { getWalletSummary } = await import("@/lib/wallet.server");
+  const userId = session.data.userId;
   try {
-    const summary = await getWalletSummary(session.data.userId);
+    const mongoose = (await import("mongoose")).default;
+    const { getWalletSummary } = await import("@/lib/wallet.server");
+    const { Transaction } = await import("@/lib/models/transaction.model.server");
+    const { Investment } = await import("@/lib/models/investment.model.server");
+    const { Cycle } = await import("@/lib/models/cycle.model.server");
+
+    const userOid = new mongoose.Types.ObjectId(userId);
+    const [summary, returnsAgg, activeInvestments] = await Promise.all([
+      getWalletSummary(userId),
+      Transaction.aggregate([
+        { $match: { userId: userOid, type: "return_payout", status: "completed" } },
+        { $group: { _id: null, total: { $sum: "$amount" } } },
+      ]),
+      Investment.find({ userId, status: { $in: ["confirmed", "active"] } })
+        .select("amount expectedReturnMin cycleId")
+        .lean(),
+    ]);
+
+    // Projected monthly profit = each active investment's expected profit spread
+    // evenly across its cycle's duration.
+    let projectedMonthly = 0;
+    if (activeInvestments.length > 0) {
+      const cycleIds = [...new Set(activeInvestments.map((inv) => String(inv.cycleId)))];
+      const cycles = await Cycle.find({ _id: { $in: cycleIds } })
+        .select("durationMonths")
+        .lean();
+      const monthsByCycle = new Map(cycles.map((c) => [String(c._id), c.durationMonths ?? 0]));
+      for (const inv of activeInvestments) {
+        const months = monthsByCycle.get(String(inv.cycleId)) ?? 0;
+        const profit = (inv.expectedReturnMin ?? 0) - inv.amount;
+        if (months > 0 && profit > 0) projectedMonthly += profit / months;
+      }
+      projectedMonthly = Math.round(projectedMonthly);
+    }
+
     return {
       balance: summary.balance,
+      availableBalance: summary.availableBalance,
       totalInvested: summary.totalInvested,
       activeInvestments: summary.activeInvestments,
-      totalReturns: 0,
+      totalReturns: returnsAgg[0]?.total ?? 0,
+      projectedMonthly,
     };
   } catch {
     return {
       balance: 0,
+      availableBalance: 0,
       totalInvested: 0,
       activeInvestments: 0,
       totalReturns: 0,
+      projectedMonthly: 0,
     };
   }
 });
@@ -313,21 +351,36 @@ export const getMyInvestmentsFn = createServerFn({ method: "GET" }).handler(asyn
 
   return withDatabase(async () => {
     const { Investment } = await import("@/lib/models/investment.model.server");
+    const { Cycle } = await import("@/lib/models/cycle.model.server");
     const investments = await Investment.find({ userId: session.data.userId })
       .sort({ investedAt: -1 })
       .lean();
 
-    return investments.map((inv) => ({
-      id: inv._id.toString(),
-      cycleSlug: inv.cycleSlug,
-      cycleTitle: inv.cycleTitle,
-      amount: inv.amount,
-      status: inv.status,
-      certificateNumber: inv.certificateNumber,
-      expectedReturnMin: inv.expectedReturnMin,
-      expectedReturnMax: inv.expectedReturnMax,
-      investedAt: inv.investedAt?.toISOString() ?? "",
-    }));
+    const cycleIds = [...new Set(investments.map((inv) => inv.cycleId.toString()))];
+    const cycles = await Cycle.find({ _id: { $in: cycleIds } }).lean();
+    const cycleById = new Map(cycles.map((c) => [c._id.toString(), c]));
+
+    return investments.map((inv) => {
+      const cycle = cycleById.get(inv.cycleId.toString());
+      return {
+        id: inv._id.toString(),
+        cycleSlug: inv.cycleSlug,
+        cycleTitle: inv.cycleTitle,
+        amount: inv.amount,
+        status: inv.status,
+        certificateNumber: inv.certificateNumber,
+        expectedReturnMin: inv.expectedReturnMin ?? 0,
+        expectedReturnMax: inv.expectedReturnMax ?? 0,
+        actualReturn: inv.actualReturn,
+        investedAt: inv.investedAt?.toISOString() ?? "",
+        completedAt: inv.completedAt?.toISOString() ?? "",
+        cycleStatus: cycle?.status ?? "active",
+        farmName: cycle?.farmName ?? "",
+        location: cycle?.location ?? "",
+        duration: cycle?.duration ?? "",
+        roi: cycle?.roi ?? "",
+      };
+    });
   }, []);
 });
 
@@ -341,6 +394,7 @@ export const getInvestmentDetailFn = createServerFn({ method: "GET" })
     return withDatabase(async () => {
       const { Investment } = await import("@/lib/models/investment.model.server");
       const { User } = await import("@/lib/models/user.model.server");
+      const { Cycle } = await import("@/lib/models/cycle.model.server");
 
       const inv = await Investment.findOne({
         _id: data.investmentId,
@@ -348,9 +402,14 @@ export const getInvestmentDetailFn = createServerFn({ method: "GET" })
       }).lean();
       if (!inv) return { error: "Not found." as const };
 
-      const user = await User.findById(session.data.userId).lean();
+      const [user, cycle] = await Promise.all([
+        User.findById(session.data.userId).lean(),
+        Cycle.findById(inv.cycleId).lean(),
+      ]);
 
       return {
+        id: inv._id.toString(),
+        cycleSlug: inv.cycleSlug,
         certificateNumber: inv.certificateNumber ?? "",
         investorName: user?.fullName ?? "",
         investorEmail: user?.email ?? "",
@@ -358,8 +417,15 @@ export const getInvestmentDetailFn = createServerFn({ method: "GET" })
         amount: inv.amount,
         expectedReturnMin: inv.expectedReturnMin ?? 0,
         expectedReturnMax: inv.expectedReturnMax ?? 0,
+        actualReturn: inv.actualReturn,
         investedAt: inv.investedAt?.toISOString() ?? "",
+        completedAt: inv.completedAt?.toISOString() ?? "",
         status: inv.status,
+        cycleStatus: cycle?.status ?? "active",
+        farmName: cycle?.farmName ?? "",
+        location: cycle?.location ?? "",
+        duration: cycle?.duration ?? "",
+        roi: cycle?.roi ?? "",
       };
     }, { error: "Not found." as const });
   });
@@ -371,10 +437,24 @@ export const getMyTransactionsFn = createServerFn({ method: "GET" }).handler(asy
 
   return withDatabase(async () => {
     const { Transaction } = await import("@/lib/models/transaction.model.server");
+    const { Investment } = await import("@/lib/models/investment.model.server");
     const txns = await Transaction.find({ userId: session.data.userId })
       .sort({ createdAt: -1 })
       .limit(100)
       .lean();
+
+    const investmentIds = txns
+      .map((t) => t.investmentId)
+      .filter((id): id is NonNullable<typeof id> => Boolean(id));
+    const investments =
+      investmentIds.length > 0
+        ? await Investment.find({ _id: { $in: investmentIds } })
+            .select("cycleTitle")
+            .lean()
+        : [];
+    const titleByInvestmentId = new Map(
+      investments.map((inv) => [inv._id.toString(), inv.cycleTitle]),
+    );
 
     return txns.map((txn) => ({
       id: txn._id.toString(),
@@ -384,6 +464,9 @@ export const getMyTransactionsFn = createServerFn({ method: "GET" }).handler(asy
       status: txn.status,
       reference: txn.reference,
       externalReference: txn.externalReference ?? undefined,
+      investmentTitle: txn.investmentId
+        ? titleByInvestmentId.get(txn.investmentId.toString())
+        : undefined,
       createdAt: txn.createdAt?.toISOString() ?? "",
     }));
   }, []);

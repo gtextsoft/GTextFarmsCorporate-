@@ -1,8 +1,9 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
+import { CirclePlus } from "lucide-react";
 
-import { SectionHeader } from "@/components/marketing/SectionHeader";
+import { InvestmentsPortfolio } from "@/components/app/InvestmentsPortfolio";
+import { Button } from "@/components/ui/button";
 import { getMyInvestmentsFn } from "@/lib/api/wallet.functions";
-import { formatNaira } from "@/lib/format";
 
 export const Route = createFileRoute("/app/investments/")({
   head: () => ({ meta: [{ title: "My Investments — GText Farms" }] }),
@@ -15,82 +16,41 @@ function InvestmentsPage() {
 
   if ("error" in investments) {
     return (
-      <main className="px-6 py-12">
-        <p className="text-muted-foreground">{investments.error}</p>
+      <main className="px-4 py-12 md:px-8">
+        <div className="mx-auto max-w-6xl rounded-2xl border border-destructive/30 bg-destructive/5 p-8 text-center">
+          <p className="text-destructive">{investments.error}</p>
+        </div>
       </main>
     );
   }
 
   return (
-    <main className="px-6 py-12">
+    <main className="px-4 py-8 md:px-8">
       <div className="mx-auto max-w-6xl">
-        <SectionHeader
-          eyebrow="Portfolio"
-          title="My investments."
-          sub="All confirmed cycle participations, expected returns, and certificates."
-        />
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.15em] text-forest">
+              Portfolio
+            </p>
+            <h1 className="mt-2 font-display text-3xl text-forest-deep md:text-4xl">
+              My investments
+            </h1>
+            <p className="mt-2 max-w-2xl text-sm text-muted-foreground md:text-base">
+              Track your cycle participations, projected returns, progress, and certificates in
+              one place.
+            </p>
+          </div>
+          {investments.length > 0 && (
+            <Button asChild className="shrink-0 rounded-xl">
+              <Link to="/app/invest">
+                <CirclePlus className="size-4" />
+                New investment
+              </Link>
+            </Button>
+          )}
+        </div>
 
-        {investments.length === 0 ? (
-          <div className="mt-10 rounded-2xl border border-border bg-card p-8 text-center shadow-soft">
-            <p className="text-muted-foreground">You have not invested in any cycles yet.</p>
-            <Link
-              to="/app/invest"
-              className="mt-4 inline-flex rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
-            >
-              Browse opportunities
-            </Link>
-          </div>
-        ) : (
-          <div className="mt-10 overflow-hidden rounded-2xl border border-border">
-            <table className="w-full text-sm">
-              <thead className="bg-bone/40 text-left text-xs uppercase tracking-wide text-muted-foreground">
-                <tr>
-                  <th className="px-4 py-3">Cycle</th>
-                  <th className="px-4 py-3">Invested</th>
-                  <th className="hidden px-4 py-3 md:table-cell">Expected return</th>
-                  <th className="hidden px-4 py-3 sm:table-cell">Date</th>
-                  <th className="px-4 py-3">Status</th>
-                  <th className="px-4 py-3" />
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border bg-card">
-                {investments.map((inv) => (
-                  <tr key={inv.id}>
-                    <td className="px-4 py-3">
-                      <div className="font-medium">{inv.cycleTitle}</div>
-                      <div className="font-mono text-xs text-muted-foreground">
-                        {inv.certificateNumber}
-                      </div>
-                    </td>
-                    <td className="px-4 py-3">{formatNaira(inv.amount)}</td>
-                    <td className="hidden px-4 py-3 text-muted-foreground md:table-cell">
-                      {formatNaira(inv.expectedReturnMin)} – {formatNaira(inv.expectedReturnMax)}
-                    </td>
-                    <td className="hidden px-4 py-3 text-muted-foreground sm:table-cell">
-                      {inv.investedAt
-                        ? new Date(inv.investedAt).toLocaleDateString("en-NG", {
-                            day: "numeric",
-                            month: "short",
-                            year: "numeric",
-                          })
-                        : "—"}
-                    </td>
-                    <td className="px-4 py-3 capitalize text-muted-foreground">{inv.status}</td>
-                    <td className="px-4 py-3 text-right">
-                      <Link
-                        to="/app/investments/$investmentId/certificate"
-                        params={{ investmentId: inv.id }}
-                        className="font-medium text-forest-deep hover:underline"
-                      >
-                        Certificate
-                      </Link>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+        <InvestmentsPortfolio investments={investments} />
       </div>
     </main>
   );

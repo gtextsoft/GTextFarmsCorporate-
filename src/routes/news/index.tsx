@@ -3,19 +3,17 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 import { MarketingLayout } from "@/components/marketing/MarketingLayout";
 import { SectionHeader } from "@/components/marketing/SectionHeader";
 import { getPublicNewsFn } from "@/lib/api/content.functions";
-import { brand, brandTitle } from "@/lib/brand";
+import { buildPageHead } from "@/lib/seo";
 
 export const Route = createFileRoute("/news/")({
   loader: () => getPublicNewsFn(),
-  head: () => ({
-    meta: [
-      { title: brandTitle("News") },
-      {
-        name: "description",
-        content: `Farm updates, harvest reports, and investor news from ${brand.name}.`,
-      },
-    ],
-  }),
+  head: () =>
+    buildPageHead({
+      title: "News & Updates",
+      description:
+        "Latest farm updates, harvest reports, expansion news, and investor announcements from GText Farms — a GText Holdings agricultural company in Nigeria.",
+      path: "/news",
+    }),
   component: NewsPage,
 });
 

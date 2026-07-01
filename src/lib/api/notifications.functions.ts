@@ -33,6 +33,29 @@ export const getMyNotificationsFn = createServerFn({ method: "GET" }).handler(as
   }, []);
 });
 
+export const getRecentNotificationsFn = createServerFn({ method: "GET" }).handler(async () => {
+  const auth = await requireUserId();
+  if ("error" in auth) return { error: auth.error };
+
+  return withDatabase(async () => {
+    const { Notification } = await import("@/lib/models/notification.model.server");
+    const docs = await Notification.find({ userId: auth.userId })
+      .sort({ createdAt: -1 })
+      .limit(8)
+      .lean();
+
+    return docs.map((doc) => ({
+      id: doc._id.toString(),
+      type: doc.type,
+      title: doc.title,
+      body: doc.body,
+      link: doc.link ?? undefined,
+      read: doc.read,
+      createdAt: doc.createdAt?.toISOString() ?? "",
+    }));
+  }, []);
+});
+
 export const getUnreadNotificationCountFn = createServerFn({ method: "GET" }).handler(async () => {
   const auth = await requireUserId();
   if ("error" in auth) return { error: auth.error, count: 0 };

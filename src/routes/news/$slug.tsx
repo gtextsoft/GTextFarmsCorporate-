@@ -1,21 +1,29 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
 
 import { MarketingLayout } from "@/components/marketing/MarketingLayout";
+import { JsonLd } from "@/components/seo/JsonLd";
 import { getPublicNewsPostFn } from "@/lib/api/content.functions";
-import { brandTitle } from "@/lib/brand";
+import { articleJsonLd, buildPageHead } from "@/lib/seo";
 
 export const Route = createFileRoute("/news/$slug")({
   loader: ({ params }) => getPublicNewsPostFn({ data: { slug: params.slug } }),
-  head: ({ loaderData }) => ({
-    meta: [
-      {
-        title:
-          loaderData && "title" in loaderData
-            ? brandTitle(loaderData.title)
-            : brandTitle("News"),
-      },
-    ],
-  }),
+  head: ({ loaderData, params }) => {
+    if (!loaderData || "error" in loaderData) {
+      return buildPageHead({
+        title: "News",
+        description: "Farm and company news from GText Farms.",
+        path: `/news/${params.slug}`,
+      });
+    }
+
+    return buildPageHead({
+      title: loaderData.title,
+      description: loaderData.excerpt,
+      path: `/news/${params.slug}`,
+      image: loaderData.imageUrl,
+      type: "article",
+    });
+  },
   component: NewsPostPage,
 });
 
@@ -37,6 +45,15 @@ function NewsPostPage() {
 
   return (
     <MarketingLayout>
+      <JsonLd
+        data={articleJsonLd({
+          title: post.title,
+          description: post.excerpt,
+          path: `/news/${post.slug}`,
+          image: post.imageUrl,
+          datePublished: post.publishedAt ?? new Date().toISOString(),
+        })}
+      />
       <article className="px-6 py-16 md:py-24">
         <div className="mx-auto max-w-3xl">
           <Link to="/news" className="text-sm text-muted-foreground hover:text-foreground">
@@ -64,7 +81,7 @@ function NewsPostPage() {
           {post.imageUrl && (
             <img
               src={post.imageUrl}
-              alt=""
+              alt={post.title}
               className="mt-8 aspect-[16/9] w-full rounded-2xl object-cover"
             />
           )}

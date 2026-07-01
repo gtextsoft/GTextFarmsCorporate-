@@ -2,12 +2,14 @@ import { createFileRoute, redirect, useRouteContext } from "@tanstack/react-rout
 
 import { AdminShell } from "@/components/admin/AdminShell";
 import { getAdminQueueCountsFn } from "@/lib/api/admin.queue.functions";
+import { privatePageHead } from "@/lib/seo";
 
 function isAdminRole(role: string | undefined) {
   return role === "admin" || role === "super_admin";
 }
 
 export const Route = createFileRoute("/admin")({
+  head: () => privatePageHead("/admin", "Admin"),
   beforeLoad: ({ context }) => {
     if (!context.user) {
       throw redirect({ to: "/auth/sign-in" });

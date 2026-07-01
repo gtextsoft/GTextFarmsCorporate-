@@ -1,11 +1,17 @@
 import { Link, createFileRoute, redirect, useRouter } from "@tanstack/react-router";
+import { Loader2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
-import { MarketingLayout } from "@/components/marketing/MarketingLayout";
-import { SectionHeader } from "@/components/marketing/SectionHeader";
+import { AuthFormCard, PasswordField } from "@/components/auth/AuthForm";
+import { AuthShell, AuthTrustNote } from "@/components/auth/AuthShell";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { signInFn } from "@/lib/api/auth.functions";
 import { handleClientRedirect } from "@/lib/client-redirect";
+import { privatePageHead } from "@/lib/seo";
 
 export const Route = createFileRoute("/auth/sign-in")({
   beforeLoad: ({ context }) => {
@@ -21,7 +27,7 @@ export const Route = createFileRoute("/auth/sign-in")({
       });
     }
   },
-  head: () => ({ meta: [{ title: "Sign In — GText Farms" }] }),
+  head: () => privatePageHead("/auth/sign-in", "Sign In"),
   component: SignInPage,
 });
 
@@ -31,98 +37,98 @@ function SignInPage() {
   const [error, setError] = useState<string | null>(null);
 
   return (
-    <MarketingLayout>
-      <section className="px-6 py-16 md:py-24">
-        <div className="mx-auto max-w-md">
-          <SectionHeader
-            eyebrow="Investor access"
-            title="Sign in to your account."
-            sub="Track your investments, wallet, and weekly farm reports."
+    <AuthShell
+      variant="sign-in"
+      eyebrow="Investor access"
+      title="Sign in"
+      subtitle="Track your investments, wallet balance, and weekly farm reports."
+      footer={
+        <p className="text-center text-sm text-muted-foreground">
+          No account?{" "}
+          <Link to="/auth/sign-up" className="font-semibold text-forest-deep hover:underline">
+            Create one free
+          </Link>
+        </p>
+      }
+    >
+      <AuthFormCard>
+        <form
+          className="space-y-5"
+          onSubmit={async (e) => {
+            e.preventDefault();
+            setPending(true);
+            setError(null);
+            const form = new FormData(e.currentTarget);
+            try {
+              const result = await signInFn({
+                data: {
+                  email: String(form.get("email")),
+                  password: String(form.get("password")),
+                },
+              });
+              if (result?.error) {
+                setError(result.error);
+                toast.error(result.error);
+              }
+            } catch (err) {
+              if (await handleClientRedirect(router, err)) return;
+              console.error(err);
+              toast.error("Something went wrong. Please try again.");
+            } finally {
+              setPending(false);
+            }
+          }}
+        >
+          {error && (
+            <Alert variant="destructive">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+
+          <div>
+            <Label htmlFor="email">Email address</Label>
+            <Input
+              id="email"
+              name="email"
+              type="email"
+              required
+              autoComplete="email"
+              placeholder="you@example.com"
+              className="mt-1.5"
+            />
+          </div>
+
+          <PasswordField
+            id="password"
+            name="password"
+            label="Password"
+            autoComplete="current-password"
+            labelAction={
+              <Link
+                to="/auth/forgot-password"
+                className="text-xs font-medium text-forest-deep hover:underline"
+              >
+                Forgot password?
+              </Link>
+            }
           />
 
-          <form
-            className="mt-10 space-y-5 rounded-2xl border border-border bg-card p-8 shadow-soft"
-            onSubmit={async (e) => {
-              e.preventDefault();
-              setPending(true);
-              setError(null);
-              const form = new FormData(e.currentTarget);
-              try {
-                const result = await signInFn({
-                  data: {
-                    email: String(form.get("email")),
-                    password: String(form.get("password")),
-                  },
-                });
-                if (result?.error) {
-                  setError(result.error);
-                  toast.error(result.error);
-                }
-              } catch (err) {
-                if (await handleClientRedirect(router, err)) return;
-                console.error(err);
-                toast.error("Something went wrong. Please try again.");
-              } finally {
-                setPending(false);
-              }
-            }}
-          >
-            {error && (
-              <p className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">
-                {error}
-              </p>
+          <Button type="submit" disabled={pending} className="w-full rounded-xl">
+            {pending ? (
+              <>
+                <Loader2 className="size-4 animate-spin" />
+                Signing in…
+              </>
+            ) : (
+              "Sign in"
             )}
-            <div>
-              <label htmlFor="email" className="text-sm font-medium">
-                Email
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                required
-                autoComplete="email"
-                className="mt-1.5 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
-              />
-            </div>
-            <div>
-              <div className="flex items-center justify-between">
-                <label htmlFor="password" className="text-sm font-medium">
-                  Password
-                </label>
-                <Link
-                  to="/auth/forgot-password"
-                  className="text-xs text-forest-deep hover:underline"
-                >
-                  Forgot password?
-                </Link>
-              </div>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                required
-                autoComplete="current-password"
-                className="mt-1.5 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
-              />
-            </div>
-            <button
-              type="submit"
-              disabled={pending}
-              className="w-full rounded-full bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-60"
-            >
-              {pending ? "Signing in…" : "Sign in"}
-            </button>
-          </form>
+          </Button>
+        </form>
+      </AuthFormCard>
 
-          <p className="mt-6 text-center text-sm text-muted-foreground">
-            No account?{" "}
-            <Link to="/auth/sign-up" className="font-medium text-forest-deep hover:underline">
-              Create one
-            </Link>
-          </p>
-        </div>
-      </section>
-    </MarketingLayout>
+      <div className="mt-6">
+        <AuthTrustNote />
+      </div>
+    </AuthShell>
   );
 }

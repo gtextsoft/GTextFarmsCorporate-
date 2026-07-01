@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="GText Farms">
+  <rect width="1200" height="630" fill="#1a4d3a"/>
+  <circle cx="180" cy="315" r="88" fill="#245c45"/>
+  <path
+    fill="#f5f0e6"
+    d="M180 248c-38 30-60 64-60 99a60 60 0 0 0 120 0c0-35-22-69-60-99zm0 138a39 39 0 0 1-39-39c0-20 14-41 39-63 25 22 39 43 39 63a39 39 0 0 1-39 39z"
+  />
+  <text x="310" y="270" fill="#f5f0e6" font-family="Georgia, 'Times New Roman', serif" font-size="72" font-weight="700">
+    GText Farms
+  </text>
+  <text x="310" y="340" fill="#c8dfc0" font-family="Arial, Helvetica, sans-serif" font-size="34">
+    Growing Healthy Food. Creating Sustainable Wealth.
+  </text>
+  <text x="310" y="410" fill="#8fbc6a" font-family="Arial, Helvetica, sans-serif" font-size="28">
+    Nigerian poultry investment � Farm-fresh produce � GText Holdings
+  </text>
+  <text x="310" y="470" fill="#a8c9a0" font-family="Arial, Helvetica, sans-serif" font-size="24">
+    Victoria Island, Lagos � Nationwide operations
+  </text>
+</svg>

@@ -3,7 +3,12 @@ import { Bell, ChevronDown, Gift, LogOut, Mail } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import type { CSSProperties, ReactNode } from "react";
 
+import { MessagesChat } from "@/components/app/MessagesChat";
 import { Logo } from "@/components/marketing/Logo";
+import {
+  NotificationBellDropdown,
+  type NotificationPreview,
+} from "@/components/portal/NotificationBellDropdown";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -18,6 +23,7 @@ import {
   SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
+  SidebarGroupLabel,
   SidebarHeader,
   SidebarInset,
   SidebarMenu,
@@ -37,6 +43,12 @@ export type PortalNavItem = {
   exact?: boolean;
   hash?: string;
   badge?: number;
+};
+
+export type PortalNavSection = {
+  /** Section heading. Omit for the top-level ungrouped items (e.g. Dashboard). */
+  label?: string;
+  items: PortalNavItem[];
 };
 
 export const portalSidebarStyle = {
@@ -105,7 +117,9 @@ export function PortalShell({
   headerSubtitle,
   notificationCount = 0,
   messageCount = 0,
+  recentNotifications = [],
   notificationTo,
+  messagesTo,
   showReferEarn = false,
   menuItems,
   headerAction,
@@ -114,14 +128,16 @@ export function PortalShell({
   homeTo: string;
   brandLine1: string;
   brandLine2: string;
-  navItems: PortalNavItem[];
+  navItems: PortalNavSection[];
   userName?: string;
   userRole?: string;
   avatarUrl?: string;
   headerSubtitle: string;
   notificationCount?: number;
   messageCount?: number;
+  recentNotifications?: NotificationPreview[];
   notificationTo?: string;
+  messagesTo?: string;
   showReferEarn?: boolean;
   menuItems: { label: string; to: string }[];
   headerAction?: ReactNode;
@@ -148,15 +164,22 @@ export function PortalShell({
         </SidebarHeader>
 
         <SidebarContent className="px-2 py-3">
-          <SidebarGroup>
-            <SidebarGroupContent>
-              <SidebarMenu className="gap-1">
-                {navItems.map((item) => (
-                  <PortalNavLink key={`${item.to}-${item.label}`} item={item} />
-                ))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
+          {navItems.map((section, index) => (
+            <SidebarGroup key={section.label ?? `section-${index}`} className="py-1">
+              {section.label ? (
+                <SidebarGroupLabel className="px-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-sidebar-foreground/55">
+                  {section.label}
+                </SidebarGroupLabel>
+              ) : null}
+              <SidebarGroupContent>
+                <SidebarMenu className="gap-1">
+                  {section.items.map((item) => (
+                    <PortalNavLink key={`${item.to}-${item.label}`} item={item} />
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          ))}
         </SidebarContent>
 
         <SidebarFooter className="gap-3 border-t border-sidebar-border p-4">
@@ -213,18 +236,11 @@ export function PortalShell({
           <div className="flex items-center gap-2 sm:gap-3">
             {headerAction}
             {notificationTo ? (
-              <Link
-                to={notificationTo}
-                className="relative grid size-10 place-items-center rounded-full border border-border bg-card text-muted-foreground transition hover:text-foreground"
-                aria-label={`Notifications${notificationCount ? `, ${notificationCount} unread` : ""}`}
-              >
-                <Bell className="size-[18px]" />
-                {notificationCount > 0 && (
-                  <span className="absolute -right-0.5 -top-0.5 grid min-w-[18px] place-items-center rounded-full bg-destructive px-1 text-[10px] font-bold text-white">
-                    {notificationCount > 9 ? "9+" : notificationCount}
-                  </span>
-                )}
-              </Link>
+              <NotificationBellDropdown
+                notifications={recentNotifications}
+                unreadCount={notificationCount}
+                viewAllTo={notificationTo}
+              />
             ) : (
               <button
                 type="button"
@@ -239,18 +255,22 @@ export function PortalShell({
                 )}
               </button>
             )}
-            <button
-              type="button"
-              className="relative hidden size-10 place-items-center rounded-full border border-border bg-card text-muted-foreground transition hover:text-foreground sm:grid"
-              aria-label={`Messages${messageCount ? `, ${messageCount} unread` : ""}`}
-            >
-              <Mail className="size-[18px]" />
-              {messageCount > 0 && (
-                <span className="absolute -right-0.5 -top-0.5 grid min-w-[18px] place-items-center rounded-full bg-destructive px-1 text-[10px] font-bold text-white">
-                  {messageCount > 9 ? "9+" : messageCount}
-                </span>
-              )}
-            </button>
+            {messagesTo ? (
+              <MessagesChat unreadCount={messageCount} viewAllTo={messagesTo} />
+            ) : (
+              <button
+                type="button"
+                className="relative hidden size-10 place-items-center rounded-full border border-border bg-card text-muted-foreground transition hover:text-foreground sm:grid"
+                aria-label={`Messages${messageCount ? `, ${messageCount} unread` : ""}`}
+              >
+                <Mail className="size-[18px]" />
+                {messageCount > 0 && (
+                  <span className="absolute -right-0.5 -top-0.5 grid min-w-[18px] place-items-center rounded-full bg-destructive px-1 text-[10px] font-bold text-white">
+                    {messageCount > 9 ? "9+" : messageCount}
+                  </span>
+                )}
+              </button>
+            )}
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

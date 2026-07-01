@@ -1,7 +1,8 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
+import { BarChart3 } from "lucide-react";
 
-import { InvestorPerformanceCharts } from "@/components/app/InvestorPerformanceCharts";
-import { SectionHeader } from "@/components/marketing/SectionHeader";
+import { InvestorPerformanceDashboard } from "@/components/app/InvestorPerformanceDashboard";
+import { Button } from "@/components/ui/button";
 import { getInvestorPerformanceFn } from "@/lib/api/investor.performance.functions";
 
 export const Route = createFileRoute("/app/performance/")({
@@ -15,8 +16,10 @@ function PerformancePage() {
 
   if ("error" in performance) {
     return (
-      <main className="px-6 py-12">
-        <p className="text-muted-foreground">{performance.error}</p>
+      <main className="px-4 py-12 md:px-8">
+        <div className="mx-auto max-w-6xl rounded-2xl border border-destructive/30 bg-destructive/5 p-8 text-center">
+          <p className="text-destructive">{performance.error}</p>
+        </div>
       </main>
     );
   }
@@ -24,46 +27,32 @@ function PerformancePage() {
   const hasInvestments = performance.portfolioAllocation.length > 0;
 
   return (
-    <main className="px-6 py-12">
+    <main className="px-4 py-8 md:px-8">
       <div className="mx-auto max-w-6xl">
-        <SectionHeader
-          eyebrow="Farm transparency"
-          title="Performance charts."
-          sub="Mortality, feed conversion, and production metrics from published field reports on cycles you've invested in."
-        />
-
-        {!hasInvestments ? (
-          <div className="mt-10 rounded-2xl border border-border bg-card p-8 text-center shadow-soft">
-            <p className="text-muted-foreground">Invest in a cycle to track farm performance here.</p>
-            <Link
-              to="/app/invest"
-              className="mt-4 inline-flex rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
-            >
-              Browse opportunities
-            </Link>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.15em] text-forest">
+              Farm transparency
+            </p>
+            <h1 className="mt-2 font-display text-3xl text-forest-deep md:text-4xl">
+              Performance
+            </h1>
+            <p className="mt-2 max-w-2xl text-sm text-muted-foreground md:text-base">
+              Mortality, feed conversion, egg production, and portfolio metrics from published
+              field reports on cycles you&apos;ve invested in.
+            </p>
           </div>
-        ) : (
-          <>
-            <div className="mt-6 flex flex-wrap gap-3">
-              <Link
-                to="/app/activity"
-                className="inline-flex rounded-full border border-border px-4 py-2 text-sm font-medium hover:bg-secondary"
-              >
-                Weekly field reports
+          {hasInvestments && (
+            <Button asChild variant="outline" className="shrink-0 rounded-xl">
+              <Link to="/app/activity">
+                <BarChart3 className="size-4" />
+                Field reports
               </Link>
-              <Link
-                to="/app/investments"
-                className="inline-flex rounded-full border border-border px-4 py-2 text-sm font-medium hover:bg-secondary"
-              >
-                My investments
-              </Link>
-            </div>
+            </Button>
+          )}
+        </div>
 
-            <div className="mt-10">
-              <InvestorPerformanceCharts data={performance} />
-            </div>
-          </>
-        )}
+        <InvestorPerformanceDashboard data={performance} />
       </div>
     </main>
   );

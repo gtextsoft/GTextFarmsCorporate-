@@ -5,6 +5,7 @@ import { MarketingLayout } from "@/components/marketing/MarketingLayout";
 import { SectionHeader } from "@/components/marketing/SectionHeader";
 import { VerificationBadges } from "@/components/marketing/trust/VerificationBadges";
 import { listFarmsFn, listOpportunitiesFn } from "@/lib/api/cycles.functions";
+import { buildPageHead } from "@/lib/seo";
 import { images } from "@/lib/images";
 import type { Farm, Opportunity } from "@/lib/mock-data";
 
@@ -21,16 +22,13 @@ export const Route = createFileRoute("/farms/")({
         : undefined,
     }));
   },
-  head: () => ({
-    meta: [
-      { title: "Live Farms — GText Farms" },
-      {
-        name: "description",
-        content:
-          "Explore verified GText Farms poultry farms with live statistics, weekly reports, and operational transparency.",
-      },
-    ],
-  }),
+  head: () =>
+    buildPageHead({
+      title: "Our Farms",
+      description:
+        "Explore verified GText Farms poultry operations in Nigeria — live statistics, weekly field reports, veterinary oversight, and transparent investor cycles.",
+      path: "/farms",
+    }),
   component: FarmsPage,
 });
 

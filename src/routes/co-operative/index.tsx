@@ -1,18 +1,16 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
 
 import { SectionHeader } from "@/components/marketing/SectionHeader";
+import { buildPageHead } from "@/lib/seo";
 
 export const Route = createFileRoute("/co-operative/")({
-  head: () => ({
-    meta: [
-      { title: "GText Farms Co-operative Society" },
-      {
-        name: "description",
-        content:
-          "Join GText Farms Co-operative Society. Register as a member, complete your profile, and invest in poultry farming.",
-      },
-    ],
-  }),
+  head: () =>
+    buildPageHead({
+      title: "Co-operative Society",
+      description:
+        "Join GText Farms Co-operative Society — register as a member, complete your profile, and access poultry farming investment opportunities across Nigeria.",
+      path: "/co-operative",
+    }),
   component: CoopLandingPage,
 });
 

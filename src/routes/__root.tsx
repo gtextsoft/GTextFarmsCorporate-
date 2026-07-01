@@ -10,8 +10,14 @@ import {
 import { useEffect, type ReactNode } from "react";
 
 import { Toaster } from "@/components/ui/sonner";
+import { JsonLd } from "@/components/seo/JsonLd";
 import { getAuthUser } from "@/lib/api/auth.functions";
 import { brand, brandTitle } from "@/lib/brand";
+import {
+  buildPageHead,
+  organizationJsonLd,
+  rootHeadLinks,
+} from "@/lib/seo";
 import type { SafeUser } from "@/lib/types";
 
 import appCss from "../styles.css?url";
@@ -85,33 +91,31 @@ export const Route = createRootRouteWithContext<{
     const user = await getAuthUser();
     return { user };
   },
-  head: () => ({
-    meta: [
-      { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: brandTitle("Agricultural Investment Platform") },
-      {
-        name: "description",
-        content: `${brand.name} — ${brand.tagline} Invest in verified Nigerian poultry farms with transparent operations, weekly reports, and realistic returns.`,
-      },
-      { name: "author", content: brand.name },
-      { property: "og:title", content: brandTitle("Agricultural Investment Platform") },
-      {
-        property: "og:description",
-        content:
-          "Track real poultry operations, monitor farm performance, and earn returns from verified production cycles.",
-      },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-    links: [
-      { rel: "stylesheet", href: appCss },
-      {
-        rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap",
-      },
-    ],
-  }),
+  head: () => {
+    const page = buildPageHead({
+      title: brandTitle("Agricultural Investment Platform"),
+      description: `${brand.name} — ${brand.tagline} A GText Holdings company investing in verified Nigerian poultry farms, farm-fresh produce, and sustainable agribusiness across Nigeria.`,
+      path: "/",
+    });
+
+    return {
+      meta: [
+        { charSet: "utf-8" },
+        { name: "viewport", content: "width=device-width, initial-scale=1" },
+        { name: "keywords", content: brand.seoKeywords },
+        ...page.meta,
+      ],
+      links: [
+        ...rootHeadLinks(),
+        ...page.links,
+        { rel: "stylesheet", href: appCss },
+        {
+          rel: "stylesheet",
+          href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap",
+        },
+      ],
+    };
+  },
   shellComponent: RootShell,
   component: RootComponent,
   notFoundComponent: NotFoundComponent,
@@ -120,9 +124,10 @@ export const Route = createRootRouteWithContext<{
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en-NG">
       <head>
         <HeadContent />
+        <JsonLd data={organizationJsonLd()} />
       </head>
       <body>
         {children}

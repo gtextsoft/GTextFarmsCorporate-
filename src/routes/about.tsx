@@ -6,7 +6,8 @@ import { SectionHeader } from "@/components/marketing/SectionHeader";
 import { Team } from "@/components/marketing/Team";
 import { WhatWeDo } from "@/components/marketing/WhatWeDo";
 import { getPublicTeamFn } from "@/lib/api/content.functions";
-import { brand, brandTitle } from "@/lib/brand";
+import { brand } from "@/lib/brand";
+import { buildPageHead } from "@/lib/seo";
 import { getPlatformStatsFn } from "@/lib/api/cycles.functions";
 
 export const Route = createFileRoute("/about")({
@@ -17,15 +18,13 @@ export const Route = createFileRoute("/about")({
     ]);
     return { platformStats, teamMembers };
   },
-  head: () => ({
-    meta: [
-      { title: brandTitle("About") },
-      {
-        name: "description",
-        content: `${brand.name} — ${brand.tagline} Integrated farming, processing, consulting, and agricultural investments across Nigeria.`,
-      },
-    ],
-  }),
+  head: () =>
+    buildPageHead({
+      title: "About Us",
+      description:
+        "GText Farms is the agricultural arm of GText Holdings — integrated farming, poultry investment, food processing, and consulting across Nigeria. Mission, vision, and leadership.",
+      path: "/about",
+    }),
   component: AboutPage,
 });
 

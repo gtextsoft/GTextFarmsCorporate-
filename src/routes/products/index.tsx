@@ -7,7 +7,8 @@ import { CTA } from "@/components/marketing/CTA";
 import { MarketingLayout } from "@/components/marketing/MarketingLayout";
 import { SectionHeader } from "@/components/marketing/SectionHeader";
 import { getPublicProductsFn } from "@/lib/api/content.functions";
-import { brand, brandTitle } from "@/lib/brand";
+import { brand } from "@/lib/brand";
+import { buildPageHead } from "@/lib/seo";
 import {
   productCategoryLabels,
   type ProductCategory,
@@ -20,15 +21,13 @@ const categoryFilterSchema = z.object({
 export const Route = createFileRoute("/products/")({
   validateSearch: categoryFilterSchema,
   loader: () => getPublicProductsFn(),
-  head: () => ({
-    meta: [
-      { title: brandTitle("Products") },
-      {
-        name: "description",
-        content: `Fresh eggs, broilers, vegetables, palm oil, garri, and cassava products from ${brand.name}. Request a quote or place a bulk order.`,
-      },
-    ],
-  }),
+  head: () =>
+    buildPageHead({
+      title: "Farm-Fresh Products",
+      description:
+        "Order premium Nigerian farm-fresh produce from GText Farms — eggs, broilers, tomatoes, peppers, rice, yam, palm oil, garri, and cassava products. Bulk and retail supply nationwide.",
+      path: "/products",
+    }),
   component: ProductsPage,
 });
 

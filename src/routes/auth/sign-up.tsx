@@ -1,9 +1,14 @@
 import { Link, createFileRoute, redirect, useRouter } from "@tanstack/react-router";
+import { Loader2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
-import { MarketingLayout } from "@/components/marketing/MarketingLayout";
-import { SectionHeader } from "@/components/marketing/SectionHeader";
+import { AuthFormCard, PasswordField } from "@/components/auth/AuthForm";
+import { AuthShell, AuthTrustNote } from "@/components/auth/AuthShell";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { signUpFn } from "@/lib/api/auth.functions";
 import { handleClientRedirect } from "@/lib/client-redirect";
 
@@ -23,122 +28,135 @@ function SignUpPage() {
   const [error, setError] = useState<string | null>(null);
 
   return (
-    <MarketingLayout>
-      <section className="px-6 py-16 md:py-24">
-        <div className="mx-auto max-w-md">
-          <SectionHeader
-            eyebrow="Get started"
-            title="Create your investor account."
-            sub="Takes under 5 minutes. Complete KYC next to start investing."
+    <AuthShell
+      variant="sign-up"
+      eyebrow="Get started"
+      title="Create your account"
+      subtitle="Takes under 5 minutes. You'll complete KYC next before investing."
+      footer={
+        <p className="text-center text-sm text-muted-foreground">
+          Already have an account?{" "}
+          <Link to="/auth/sign-in" className="font-semibold text-forest-deep hover:underline">
+            Sign in
+          </Link>
+        </p>
+      }
+    >
+      <AuthFormCard>
+        <form
+          className="space-y-5"
+          onSubmit={async (e) => {
+            e.preventDefault();
+            setPending(true);
+            setError(null);
+            const form = new FormData(e.currentTarget);
+            try {
+              const result = await signUpFn({
+                data: {
+                  fullName: String(form.get("fullName")),
+                  email: String(form.get("email")),
+                  phone: String(form.get("phone") || undefined),
+                  password: String(form.get("password")),
+                },
+              });
+              if (result?.error) {
+                setError(result.error);
+                toast.error(result.error);
+              }
+            } catch (err) {
+              if (await handleClientRedirect(router, err)) return;
+              console.error(err);
+              toast.error("Something went wrong. Please try again.");
+            } finally {
+              setPending(false);
+            }
+          }}
+        >
+          {error && (
+            <Alert variant="destructive">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+
+          <div>
+            <Label htmlFor="fullName">Full name</Label>
+            <Input
+              id="fullName"
+              name="fullName"
+              type="text"
+              required
+              autoComplete="name"
+              placeholder="Ada Okafor"
+              className="mt-1.5"
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="email">Email address</Label>
+            <Input
+              id="email"
+              name="email"
+              type="email"
+              required
+              autoComplete="email"
+              placeholder="you@example.com"
+              className="mt-1.5"
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="phone">Phone number</Label>
+            <Input
+              id="phone"
+              name="phone"
+              type="tel"
+              placeholder="08012345678"
+              required
+              autoComplete="tel"
+              className="mt-1.5"
+            />
+            <p className="mt-1.5 text-xs text-muted-foreground">
+              Required for SMS alerts on deposits, investments, and withdrawals
+            </p>
+          </div>
+
+          <PasswordField
+            id="password"
+            name="password"
+            label="Password"
+            autoComplete="new-password"
+            minLength={8}
+            hint="At least 8 characters"
           />
 
-          <form
-            className="mt-10 space-y-5 rounded-2xl border border-border bg-card p-8 shadow-soft"
-            onSubmit={async (e) => {
-              e.preventDefault();
-              setPending(true);
-              setError(null);
-              const form = new FormData(e.currentTarget);
-              try {
-                const result = await signUpFn({
-                  data: {
-                    fullName: String(form.get("fullName")),
-                    email: String(form.get("email")),
-                    phone: String(form.get("phone") || undefined),
-                    password: String(form.get("password")),
-                  },
-                });
-                if (result?.error) {
-                  setError(result.error);
-                  toast.error(result.error);
-                }
-              } catch (err) {
-                if (await handleClientRedirect(router, err)) return;
-                console.error(err);
-                toast.error("Something went wrong. Please try again.");
-              } finally {
-                setPending(false);
-              }
-            }}
-          >
-            {error && (
-              <p className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">
-                {error}
-              </p>
+          <Button type="submit" disabled={pending} className="w-full rounded-xl">
+            {pending ? (
+              <>
+                <Loader2 className="size-4 animate-spin" />
+                Creating account…
+              </>
+            ) : (
+              "Create account"
             )}
-            <div>
-              <label htmlFor="fullName" className="text-sm font-medium">
-                Full name
-              </label>
-              <input
-                id="fullName"
-                name="fullName"
-                type="text"
-                required
-                autoComplete="name"
-                className="mt-1.5 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
-              />
-            </div>
-            <div>
-              <label htmlFor="email" className="text-sm font-medium">
-                Email
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                required
-                autoComplete="email"
-                className="mt-1.5 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
-              />
-            </div>
-            <div>
-              <label htmlFor="phone" className="text-sm font-medium">
-                Phone number
-              </label>
-              <input
-                id="phone"
-                name="phone"
-                type="tel"
-                placeholder="08012345678"
-                required
-                autoComplete="tel"
-                className="mt-1.5 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
-              />
-              <p className="mt-1 text-xs text-muted-foreground">Required for SMS account alerts</p>
-            </div>
-            <div>
-              <label htmlFor="password" className="text-sm font-medium">
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                required
-                minLength={8}
-                autoComplete="new-password"
-                className="mt-1.5 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
-              />
-              <p className="mt-1 text-xs text-muted-foreground">At least 8 characters</p>
-            </div>
-            <button
-              type="submit"
-              disabled={pending}
-              className="w-full rounded-full bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-60"
-            >
-              {pending ? "Creating account…" : "Create account"}
-            </button>
-          </form>
+          </Button>
 
-          <p className="mt-6 text-center text-sm text-muted-foreground">
-            Already have an account?{" "}
-            <Link to="/auth/sign-in" className="font-medium text-forest-deep hover:underline">
-              Sign in
+          <p className="text-center text-xs leading-relaxed text-muted-foreground">
+            By creating an account, you agree to our{" "}
+            <Link to="/legal/terms" className="text-forest-deep hover:underline">
+              Terms of Service
+            </Link>{" "}
+            and{" "}
+            <Link to="/legal/investment-agreement" className="text-forest-deep hover:underline">
+              Investment Agreement
             </Link>
+            .
           </p>
-        </div>
-      </section>
-    </MarketingLayout>
+        </form>
+      </AuthFormCard>
+
+      <div className="mt-6">
+        <AuthTrustNote />
+      </div>
+    </AuthShell>
   );
 }

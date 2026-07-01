@@ -2,12 +2,14 @@ import { Link, createFileRoute, redirect, useRouteContext } from "@tanstack/reac
 import { FilePlus, FileText, Shield, User } from "lucide-react";
 
 import { SidebarShell, type ShellNavItem } from "@/components/SidebarShell";
+import { privatePageHead } from "@/lib/seo";
 
 function isFieldRole(role: string | undefined) {
   return role === "field_officer" || role === "admin" || role === "super_admin";
 }
 
 export const Route = createFileRoute("/field")({
+  head: () => privatePageHead("/field", "Field Portal"),
   beforeLoad: ({ context }) => {
     if (!context.user) {
       throw redirect({ to: "/auth/sign-in" });

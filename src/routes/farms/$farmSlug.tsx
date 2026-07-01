@@ -6,17 +6,23 @@ import { OpportunityCard } from "@/components/marketing/OpportunityCard";
 import { SectionHeader } from "@/components/marketing/SectionHeader";
 import { VerificationBadges } from "@/components/marketing/trust/VerificationBadges";
 import { getCyclesForFarmFn, getFarmFn } from "@/lib/api/cycles.functions";
+import { buildPageHead, farmJsonLd } from "@/lib/seo";
+import { JsonLd } from "@/components/seo/JsonLd";
 
 export const Route = createFileRoute("/farms/$farmSlug")({
-  head: ({ params }) => ({
-    meta: [
-      { title: `Farm — ${params.farmSlug}` },
-      {
-        name: "description",
-        content: "Verified GText Farms poultry farm profile.",
-      },
-    ],
-  }),
+  head: ({ loaderData, params }) => {
+    const farm = loaderData?.farm;
+    const title = farm?.name ?? params.farmSlug;
+    const description =
+      farm?.description ??
+      `Verified GText Farms poultry farm in ${farm?.location ?? "Nigeria"} — transparent operations, weekly reports, and investor cycles.`;
+    return buildPageHead({
+      title,
+      description,
+      path: `/farms/${params.farmSlug}`,
+      image: farm?.heroImage,
+    });
+  },
   loader: async ({ params }) => {
     const [farm, cycles] = await Promise.all([
       getFarmFn({ data: { slug: params.farmSlug } }),
@@ -34,6 +40,16 @@ function FarmProfilePage() {
 
   return (
     <MarketingLayout>
+      <JsonLd
+        data={farmJsonLd({
+          name: farm.name,
+          description: farm.description,
+          path: `/farms/${farm.slug}`,
+          image: farm.heroImage,
+          location: farm.location,
+          state: farm.state,
+        })}
+      />
       <section className="px-6 py-16 md:py-24">
         <div className="mx-auto max-w-7xl">
           <div className="relative overflow-hidden rounded-3xl shadow-lifted">

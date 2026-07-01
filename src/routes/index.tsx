@@ -17,7 +17,7 @@ import {
 } from "@/lib/api/cycles.functions";
 import { getPublicFaqFn, getPublicGalleryFn } from "@/lib/api/content.functions";
 import { getPublicPerformanceFn } from "@/lib/api/performance.functions";
-import { brand, brandTitle } from "@/lib/brand";
+import { buildPageHead } from "@/lib/seo";
 import { farms as fallbackFarms, opportunities as fallbackOpportunities } from "@/lib/mock-data";
 import { buildTrustBarStats } from "@/lib/platform-stats";
 
@@ -57,22 +57,13 @@ export const Route = createFileRoute("/")({
       galleryItems,
     };
   },
-  head: () => ({
-    meta: [
-      { title: brandTitle("Invest in Real Poultry Farms") },
-      {
-        name: "description",
-        content:
-          `${brand.name} — ${brand.tagline} Invest in verified Nigerian poultry farms with weekly reports and transparent financials.`,
-      },
-      { property: "og:title", content: brandTitle("Agricultural Investment Platform") },
-      {
-        property: "og:description",
-        content:
-          "Verified farms. Weekly field reports. Transparent financials. Realistic returns from real poultry cycles.",
-      },
-    ],
-  }),
+  head: () =>
+    buildPageHead({
+      title: "Invest in Real Nigerian Poultry Farms",
+      description:
+        "Fund verified poultry cycles with GText Farms — a GText Holdings agricultural company. Weekly field reports, transparent financials, and farm-fresh produce across Nigeria.",
+      path: "/",
+    }),
   component: Landing,
 });
 

@@ -6,6 +6,15 @@ export const brand = {
   name: "GText Farms",
   legalName: "GText Farms Ltd.",
   tagline: "Growing Healthy Food. Creating Sustainable Wealth.",
+  foundingYear: "2018",
+
+  /** Parent company — agricultural arm of GText Holdings (Dr Stephen Akintayo). */
+  parentCompany: {
+    name: "GText Holdings",
+    url: "https://gtextholdings.com",
+    description:
+      "Diversified Nigerian holding group spanning agriculture, renewable energy, and technology.",
+  },
 
   headline: "Feeding Africa Through Smart Agriculture",
   subheadline:
@@ -64,11 +73,32 @@ export const brand = {
   footerBlurb:
     "A leading integrated agricultural company in Nigeria - farming, processing, consulting, and investment opportunities across poultry, vegetables, cassava, and palm oil.",
   location: "Nigeria",
+
+  /** Geographic SEO — Victoria Island HQ, nationwide operations. */
+  geo: {
+    region: "NG-LA",
+    placename: "Lagos, Nigeria",
+    locale: "en_NG",
+    latitude: 6.4281,
+    longitude: 3.4219,
+    position: "6.4281;3.4219",
+    icbm: "6.4281, 3.4219",
+  },
+
+  social: [
+    "https://gtextfarms.com",
+    "https://gtextholdings.com",
+  ] as const,
+
+  seoKeywords:
+    "GText Farms, GText Holdings, Nigerian agriculture, poultry investment, farm investment Nigeria, agricultural investment, broiler farming, layer poultry, farm fresh produce Nigeria, Lagos agribusiness, sustainable farming Africa",
+
   contact: {
     salesEmail: "sales@gtextfarms.ng",
     investEmail: "invest@gtextfarms.ng",
     careersEmail: "careers@gtextfarms.ng",
     phone: "+234 800 GTEXT FARMS",
+    phoneE164: "+2347063649172",
     office: "Victoria Island, Lagos, Nigeria",
   },
 } as const;

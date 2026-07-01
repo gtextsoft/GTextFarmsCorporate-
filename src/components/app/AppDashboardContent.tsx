@@ -15,6 +15,7 @@ import {
   PiggyBank,
   Receipt,
   TrendingUp,
+  Video,
   Wallet,
   Wheat,
 } from "lucide-react";
@@ -36,9 +37,11 @@ import { cn } from "@/lib/utils";
 
 type Summary = {
   balance: number;
+  availableBalance: number;
   totalInvested: number;
   activeInvestments: number;
   totalReturns: number;
+  projectedMonthly: number;
 };
 
 type Investment = {
@@ -87,20 +90,13 @@ const STAGES = [
   "Capital Return",
 ] as const;
 
-const CAMERA_FEEDS = [
-  { id: "main", label: "Main Pen" },
-  { id: "feed", label: "Feed Store" },
-  { id: "eggs", label: "Egg Collection" },
-  { id: "gate", label: "Entrance Gate" },
-] as const;
-
 const QUICK_ACTIONS = [
   { label: "Invest Now", icon: CirclePlus, to: "/app/invest" as const, tone: "bg-emerald-50 text-emerald-700" },
   { label: "Fund Wallet", icon: Wallet, to: "/app/wallet" as const, tone: "bg-sky-50 text-sky-700" },
   { label: "Withdrawal", icon: PiggyBank, to: "/app/wallet" as const, tone: "bg-violet-50 text-violet-700" },
   { label: "View Reports", icon: BarChart3, to: "/app" as const, hash: "performance" as const, tone: "bg-amber-50 text-amber-700" },
   { label: "Documents", icon: FileText, to: "/app/reports" as const, tone: "bg-rose-50 text-rose-700" },
-  { label: "Contact Support", icon: Headphones, to: "/app" as const, hash: "support" as const, tone: "bg-teal-50 text-teal-700" },
+  { label: "Contact Support", icon: Headphones, to: "/app/support" as const, tone: "bg-teal-50 text-teal-700" },
 ] as const;
 
 function DashboardCard({
@@ -204,6 +200,24 @@ function kycLabel(status?: string) {
   }
 }
 
+/** Relative % change between the latest and previous report for count metrics. */
+function pctDelta(current?: number, previous?: number, hasReport?: unknown) {
+  if (current == null || previous == null || previous === 0) {
+    return hasReport ? "vs last report" : "Awaiting data";
+  }
+  const change = ((current - previous) / previous) * 100;
+  return `${change >= 0 ? "+" : ""}${change.toFixed(1)}% vs last report`;
+}
+
+/** Percentage-point change for metrics that are themselves rates (e.g. mortality). */
+function pointsDelta(current?: number, previous?: number, hasReport?: unknown) {
+  if (current == null || previous == null) {
+    return hasReport ? "vs last report" : "Awaiting data";
+  }
+  const diff = current - previous;
+  return `${diff >= 0 ? "+" : ""}${diff.toFixed(1)} pts vs last report`;
+}
+
 export function AppDashboardContent({
   user,
   stats,
@@ -232,36 +246,37 @@ export function AppDashboardContent({
           crates: point.crates,
         }));
   const latestReport = activity[0];
+  // Previous published report for the same cycle, for period-over-period deltas.
+  const previousReport = latestReport
+    ? activity.slice(1).find((r) => r.cycleSlug === latestReport.cycleSlug)
+    : undefined;
   const unreadCount = notifications.filter((n) => !n.read).length;
   const totalBalance = stats.balance + stats.totalInvested;
-  const projectedMonthly =
-    primaryInv?.expectedReturnMin && cycleMeta
-      ? Math.round(primaryInv.expectedReturnMin / 18)
-      : 0;
+  const projectedMonthly = stats.projectedMonthly;
 
   const performanceStats = [
     {
       label: "Eggs Collected",
       value: latestReport?.eggCount ? latestReport.eggCount.toLocaleString() : "—",
-      delta: latestReport ? "vs last report" : "Awaiting data",
+      delta: pctDelta(latestReport?.eggCount, previousReport?.eggCount, latestReport),
     },
     {
       label: "Crates Produced",
       value: latestReport?.eggCount ? Math.round(latestReport.eggCount / 30).toLocaleString() : "—",
-      delta: latestReport ? "vs last report" : "Awaiting data",
+      delta: pctDelta(latestReport?.eggCount, previousReport?.eggCount, latestReport),
     },
     {
       label: "Feed Consumed",
       value: latestReport?.feedConsumptionKg
         ? `${latestReport.feedConsumptionKg.toLocaleString()} kg`
         : "—",
-      delta: latestReport ? "vs last report" : "Awaiting data",
+      delta: pctDelta(latestReport?.feedConsumptionKg, previousReport?.feedConsumptionKg, latestReport),
     },
     {
       label: "Mortality Rate",
       value:
         latestReport?.mortalityRate != null ? `${latestReport.mortalityRate.toFixed(1)}%` : "—",
-      delta: latestReport ? "vs last report" : "Awaiting data",
+      delta: pointsDelta(latestReport?.mortalityRate, previousReport?.mortalityRate, latestReport),
     },
   ];
 
@@ -477,39 +492,30 @@ export function AppDashboardContent({
         <DashboardCard className="xl:col-span-4" id="cctv">
           <div className="flex items-center justify-between gap-3">
             <h2 className="text-lg font-semibold">View Farm Live (CCTV)</h2>
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-destructive/10 px-2.5 py-1 text-xs font-semibold text-destructive">
-              <span className="size-2 rounded-full bg-destructive" />
-              LIVE
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700">
+              Coming soon
             </span>
           </div>
           <div className="relative mt-4 overflow-hidden rounded-xl bg-ink">
             <div className="flex aspect-video items-center justify-center bg-gradient-to-br from-forest-deep to-ink text-center text-white/80">
-              <div>
-                <Egg className="mx-auto size-10 opacity-70" />
-                <p className="mt-3 text-sm font-medium">Live farm feed</p>
+              <div className="px-6">
+                <Video className="mx-auto size-10 opacity-70" />
+                <p className="mt-3 text-sm font-medium">Live camera access is being set up</p>
                 <p className="mt-1 text-xs text-white/60">
-                  {cycleMeta?.farmName ?? "Connect cameras to your active farm"}
+                  {cycleMeta?.farmName
+                    ? `We're installing cameras at ${cycleMeta.farmName}. Weekly field reports below keep you updated in the meantime.`
+                    : "Follow your farm through weekly field reports below until live cameras go online."}
                 </p>
               </div>
             </div>
           </div>
-          <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
-            {CAMERA_FEEDS.map((camera, index) => (
-              <button
-                key={camera.id}
-                type="button"
-                className={cn(
-                  "rounded-xl border px-2 py-3 text-left transition",
-                  index === 0
-                    ? "border-forest bg-forest/5"
-                    : "border-border bg-secondary/30 hover:bg-secondary/60",
-                )}
-              >
-                <div className="aspect-video rounded-lg bg-forest/15" />
-                <p className="mt-2 text-[11px] font-medium">{camera.label}</p>
-              </button>
-            ))}
-          </div>
+          <Link
+            to="/app/activity"
+            className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-border bg-card px-4 py-2.5 text-sm font-semibold transition hover:bg-secondary"
+          >
+            View Field Reports
+            <ArrowRight className="size-4" />
+          </Link>
         </DashboardCard>
 
         <DashboardCard className="xl:col-span-3">
@@ -732,12 +738,12 @@ export function AppDashboardContent({
                 <p className="mt-1 text-sm text-muted-foreground">
                   Our support team can help with KYC, wallet funding, and investments.
                 </p>
-                <button
-                  type="button"
-                  className="mt-4 inline-flex rounded-xl bg-forest-deep px-4 py-2 text-sm font-semibold text-primary-foreground"
+                <Link
+                  to="/app/support"
+                  className="mt-4 inline-flex rounded-xl bg-forest-deep px-4 py-2 text-sm font-semibold text-primary-foreground transition hover:opacity-90"
                 >
                   Contact Support
-                </button>
+                </Link>
               </div>
             </div>
           </DashboardCard>

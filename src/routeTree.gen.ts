@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as FieldRouteRouteImport } from './routes/field/route'
@@ -48,10 +49,13 @@ import { Route as AuthForgotPasswordRouteImport } from './routes/auth/forgot-pas
 import { Route as AppWalletRouteImport } from './routes/app/wallet'
 import { Route as ApiHealthRouteImport } from './routes/api/health'
 import { Route as FieldProfileIndexRouteImport } from './routes/field/profile/index'
+import { Route as AppSupportIndexRouteImport } from './routes/app/support/index'
 import { Route as AppReportsIndexRouteImport } from './routes/app/reports/index'
 import { Route as AppProfileIndexRouteImport } from './routes/app/profile/index'
 import { Route as AppPerformanceIndexRouteImport } from './routes/app/performance/index'
 import { Route as AppNotificationsIndexRouteImport } from './routes/app/notifications/index'
+import { Route as AppMessagesIndexRouteImport } from './routes/app/messages/index'
+import { Route as AppLiveIndexRouteImport } from './routes/app/live/index'
 import { Route as AppInvestmentsIndexRouteImport } from './routes/app/investments/index'
 import { Route as AppInvestIndexRouteImport } from './routes/app/invest/index'
 import { Route as AppActivityIndexRouteImport } from './routes/app/activity/index'
@@ -63,6 +67,7 @@ import { Route as AdminProfileIndexRouteImport } from './routes/admin/profile/in
 import { Route as AdminProductsIndexRouteImport } from './routes/admin/products/index'
 import { Route as AdminPerformanceIndexRouteImport } from './routes/admin/performance/index'
 import { Route as AdminNewsIndexRouteImport } from './routes/admin/news/index'
+import { Route as AdminMessagesIndexRouteImport } from './routes/admin/messages/index'
 import { Route as AdminInvestorsIndexRouteImport } from './routes/admin/investors/index'
 import { Route as AdminInquiriesIndexRouteImport } from './routes/admin/inquiries/index'
 import { Route as AdminGalleryIndexRouteImport } from './routes/admin/gallery/index'
@@ -92,6 +97,7 @@ import { Route as AdminFaqNewRouteImport } from './routes/admin/faq/new'
 import { Route as AdminFaqFaqIdRouteImport } from './routes/admin/faq/$faqId'
 import { Route as AdminCyclesNewRouteImport } from './routes/admin/cycles/new'
 import { Route as AdminCyclesCycleSlugRouteImport } from './routes/admin/cycles/$cycleSlug'
+import { Route as AppInvestmentsInvestmentIdIndexRouteImport } from './routes/app/investments/$investmentId/index'
 import { Route as AdminCooperativePaymentsIndexRouteImport } from './routes/admin/cooperative/payments/index'
 import { Route as AdminCooperativeMembersIndexRouteImport } from './routes/admin/cooperative/members/index'
 import { Route as FieldReportsReportIdViewRouteImport } from './routes/field/reports/$reportId/view'
@@ -99,6 +105,11 @@ import { Route as AppReportsTransactionIdReceiptRouteImport } from './routes/app
 import { Route as AppInvestmentsInvestmentIdCertificateRouteImport } from './routes/app/investments/$investmentId/certificate'
 import { Route as AppInvestOpportunityCycleSlugRouteImport } from './routes/app/invest/opportunity/$cycleSlug'
 
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ContactRoute = ContactRouteImport.update({
   id: '/contact',
   path: '/contact',
@@ -296,6 +307,11 @@ const FieldProfileIndexRoute = FieldProfileIndexRouteImport.update({
   path: '/profile/',
   getParentRoute: () => FieldRouteRoute,
 } as any)
+const AppSupportIndexRoute = AppSupportIndexRouteImport.update({
+  id: '/support/',
+  path: '/support/',
+  getParentRoute: () => AppRouteRoute,
+} as any)
 const AppReportsIndexRoute = AppReportsIndexRouteImport.update({
   id: '/reports/',
   path: '/reports/',
@@ -314,6 +330,16 @@ const AppPerformanceIndexRoute = AppPerformanceIndexRouteImport.update({
 const AppNotificationsIndexRoute = AppNotificationsIndexRouteImport.update({
   id: '/notifications/',
   path: '/notifications/',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+const AppMessagesIndexRoute = AppMessagesIndexRouteImport.update({
+  id: '/messages/',
+  path: '/messages/',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+const AppLiveIndexRoute = AppLiveIndexRouteImport.update({
+  id: '/live/',
+  path: '/live/',
   getParentRoute: () => AppRouteRoute,
 } as any)
 const AppInvestmentsIndexRoute = AppInvestmentsIndexRouteImport.update({
@@ -369,6 +395,11 @@ const AdminPerformanceIndexRoute = AdminPerformanceIndexRouteImport.update({
 const AdminNewsIndexRoute = AdminNewsIndexRouteImport.update({
   id: '/news/',
   path: '/news/',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminMessagesIndexRoute = AdminMessagesIndexRouteImport.update({
+  id: '/messages/',
+  path: '/messages/',
   getParentRoute: () => AdminRouteRoute,
 } as any)
 const AdminInvestorsIndexRoute = AdminInvestorsIndexRouteImport.update({
@@ -518,6 +549,12 @@ const AdminCyclesCycleSlugRoute = AdminCyclesCycleSlugRouteImport.update({
   path: '/cycles/$cycleSlug',
   getParentRoute: () => AdminRouteRoute,
 } as any)
+const AppInvestmentsInvestmentIdIndexRoute =
+  AppInvestmentsInvestmentIdIndexRouteImport.update({
+    id: '/investments/$investmentId/',
+    path: '/investments/$investmentId/',
+    getParentRoute: () => AppRouteRoute,
+  } as any)
 const AdminCooperativePaymentsIndexRoute =
   AdminCooperativePaymentsIndexRouteImport.update({
     id: '/cooperative/payments/',
@@ -563,6 +600,7 @@ export interface FileRoutesByFullPath {
   '/field': typeof FieldRouteRouteWithChildren
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/api/health': typeof ApiHealthRoute
   '/app/wallet': typeof AppWalletRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
@@ -623,6 +661,7 @@ export interface FileRoutesByFullPath {
   '/admin/gallery/': typeof AdminGalleryIndexRoute
   '/admin/inquiries/': typeof AdminInquiriesIndexRoute
   '/admin/investors/': typeof AdminInvestorsIndexRoute
+  '/admin/messages/': typeof AdminMessagesIndexRoute
   '/admin/news/': typeof AdminNewsIndexRoute
   '/admin/performance/': typeof AdminPerformanceIndexRoute
   '/admin/products/': typeof AdminProductsIndexRoute
@@ -634,10 +673,13 @@ export interface FileRoutesByFullPath {
   '/app/activity/': typeof AppActivityIndexRoute
   '/app/invest/': typeof AppInvestIndexRoute
   '/app/investments/': typeof AppInvestmentsIndexRoute
+  '/app/live/': typeof AppLiveIndexRoute
+  '/app/messages/': typeof AppMessagesIndexRoute
   '/app/notifications/': typeof AppNotificationsIndexRoute
   '/app/performance/': typeof AppPerformanceIndexRoute
   '/app/profile/': typeof AppProfileIndexRoute
   '/app/reports/': typeof AppReportsIndexRoute
+  '/app/support/': typeof AppSupportIndexRoute
   '/field/profile/': typeof FieldProfileIndexRoute
   '/app/invest/opportunity/$cycleSlug': typeof AppInvestOpportunityCycleSlugRoute
   '/app/investments/$investmentId/certificate': typeof AppInvestmentsInvestmentIdCertificateRoute
@@ -645,11 +687,13 @@ export interface FileRoutesByFullPath {
   '/field/reports/$reportId/view': typeof FieldReportsReportIdViewRoute
   '/admin/cooperative/members/': typeof AdminCooperativeMembersIndexRoute
   '/admin/cooperative/payments/': typeof AdminCooperativePaymentsIndexRoute
+  '/app/investments/$investmentId/': typeof AppInvestmentsInvestmentIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/api/health': typeof ApiHealthRoute
   '/app/wallet': typeof AppWalletRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
@@ -710,6 +754,7 @@ export interface FileRoutesByTo {
   '/admin/gallery': typeof AdminGalleryIndexRoute
   '/admin/inquiries': typeof AdminInquiriesIndexRoute
   '/admin/investors': typeof AdminInvestorsIndexRoute
+  '/admin/messages': typeof AdminMessagesIndexRoute
   '/admin/news': typeof AdminNewsIndexRoute
   '/admin/performance': typeof AdminPerformanceIndexRoute
   '/admin/products': typeof AdminProductsIndexRoute
@@ -721,10 +766,13 @@ export interface FileRoutesByTo {
   '/app/activity': typeof AppActivityIndexRoute
   '/app/invest': typeof AppInvestIndexRoute
   '/app/investments': typeof AppInvestmentsIndexRoute
+  '/app/live': typeof AppLiveIndexRoute
+  '/app/messages': typeof AppMessagesIndexRoute
   '/app/notifications': typeof AppNotificationsIndexRoute
   '/app/performance': typeof AppPerformanceIndexRoute
   '/app/profile': typeof AppProfileIndexRoute
   '/app/reports': typeof AppReportsIndexRoute
+  '/app/support': typeof AppSupportIndexRoute
   '/field/profile': typeof FieldProfileIndexRoute
   '/app/invest/opportunity/$cycleSlug': typeof AppInvestOpportunityCycleSlugRoute
   '/app/investments/$investmentId/certificate': typeof AppInvestmentsInvestmentIdCertificateRoute
@@ -732,6 +780,7 @@ export interface FileRoutesByTo {
   '/field/reports/$reportId/view': typeof FieldReportsReportIdViewRoute
   '/admin/cooperative/members': typeof AdminCooperativeMembersIndexRoute
   '/admin/cooperative/payments': typeof AdminCooperativePaymentsIndexRoute
+  '/app/investments/$investmentId': typeof AppInvestmentsInvestmentIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -742,6 +791,7 @@ export interface FileRoutesById {
   '/field': typeof FieldRouteRouteWithChildren
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/api/health': typeof ApiHealthRoute
   '/app/wallet': typeof AppWalletRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
@@ -802,6 +852,7 @@ export interface FileRoutesById {
   '/admin/gallery/': typeof AdminGalleryIndexRoute
   '/admin/inquiries/': typeof AdminInquiriesIndexRoute
   '/admin/investors/': typeof AdminInvestorsIndexRoute
+  '/admin/messages/': typeof AdminMessagesIndexRoute
   '/admin/news/': typeof AdminNewsIndexRoute
   '/admin/performance/': typeof AdminPerformanceIndexRoute
   '/admin/products/': typeof AdminProductsIndexRoute
@@ -813,10 +864,13 @@ export interface FileRoutesById {
   '/app/activity/': typeof AppActivityIndexRoute
   '/app/invest/': typeof AppInvestIndexRoute
   '/app/investments/': typeof AppInvestmentsIndexRoute
+  '/app/live/': typeof AppLiveIndexRoute
+  '/app/messages/': typeof AppMessagesIndexRoute
   '/app/notifications/': typeof AppNotificationsIndexRoute
   '/app/performance/': typeof AppPerformanceIndexRoute
   '/app/profile/': typeof AppProfileIndexRoute
   '/app/reports/': typeof AppReportsIndexRoute
+  '/app/support/': typeof AppSupportIndexRoute
   '/field/profile/': typeof FieldProfileIndexRoute
   '/app/invest/opportunity/$cycleSlug': typeof AppInvestOpportunityCycleSlugRoute
   '/app/investments/$investmentId/certificate': typeof AppInvestmentsInvestmentIdCertificateRoute
@@ -824,6 +878,7 @@ export interface FileRoutesById {
   '/field/reports/$reportId/view': typeof FieldReportsReportIdViewRoute
   '/admin/cooperative/members/': typeof AdminCooperativeMembersIndexRoute
   '/admin/cooperative/payments/': typeof AdminCooperativePaymentsIndexRoute
+  '/app/investments/$investmentId/': typeof AppInvestmentsInvestmentIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -835,6 +890,7 @@ export interface FileRouteTypes {
     | '/field'
     | '/about'
     | '/contact'
+    | '/sitemap.xml'
     | '/api/health'
     | '/app/wallet'
     | '/auth/forgot-password'
@@ -895,6 +951,7 @@ export interface FileRouteTypes {
     | '/admin/gallery/'
     | '/admin/inquiries/'
     | '/admin/investors/'
+    | '/admin/messages/'
     | '/admin/news/'
     | '/admin/performance/'
     | '/admin/products/'
@@ -906,10 +963,13 @@ export interface FileRouteTypes {
     | '/app/activity/'
     | '/app/invest/'
     | '/app/investments/'
+    | '/app/live/'
+    | '/app/messages/'
     | '/app/notifications/'
     | '/app/performance/'
     | '/app/profile/'
     | '/app/reports/'
+    | '/app/support/'
     | '/field/profile/'
     | '/app/invest/opportunity/$cycleSlug'
     | '/app/investments/$investmentId/certificate'
@@ -917,11 +977,13 @@ export interface FileRouteTypes {
     | '/field/reports/$reportId/view'
     | '/admin/cooperative/members/'
     | '/admin/cooperative/payments/'
+    | '/app/investments/$investmentId/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/about'
     | '/contact'
+    | '/sitemap.xml'
     | '/api/health'
     | '/app/wallet'
     | '/auth/forgot-password'
@@ -982,6 +1044,7 @@ export interface FileRouteTypes {
     | '/admin/gallery'
     | '/admin/inquiries'
     | '/admin/investors'
+    | '/admin/messages'
     | '/admin/news'
     | '/admin/performance'
     | '/admin/products'
@@ -993,10 +1056,13 @@ export interface FileRouteTypes {
     | '/app/activity'
     | '/app/invest'
     | '/app/investments'
+    | '/app/live'
+    | '/app/messages'
     | '/app/notifications'
     | '/app/performance'
     | '/app/profile'
     | '/app/reports'
+    | '/app/support'
     | '/field/profile'
     | '/app/invest/opportunity/$cycleSlug'
     | '/app/investments/$investmentId/certificate'
@@ -1004,6 +1070,7 @@ export interface FileRouteTypes {
     | '/field/reports/$reportId/view'
     | '/admin/cooperative/members'
     | '/admin/cooperative/payments'
+    | '/app/investments/$investmentId'
   id:
     | '__root__'
     | '/'
@@ -1013,6 +1080,7 @@ export interface FileRouteTypes {
     | '/field'
     | '/about'
     | '/contact'
+    | '/sitemap.xml'
     | '/api/health'
     | '/app/wallet'
     | '/auth/forgot-password'
@@ -1073,6 +1141,7 @@ export interface FileRouteTypes {
     | '/admin/gallery/'
     | '/admin/inquiries/'
     | '/admin/investors/'
+    | '/admin/messages/'
     | '/admin/news/'
     | '/admin/performance/'
     | '/admin/products/'
@@ -1084,10 +1153,13 @@ export interface FileRouteTypes {
     | '/app/activity/'
     | '/app/invest/'
     | '/app/investments/'
+    | '/app/live/'
+    | '/app/messages/'
     | '/app/notifications/'
     | '/app/performance/'
     | '/app/profile/'
     | '/app/reports/'
+    | '/app/support/'
     | '/field/profile/'
     | '/app/invest/opportunity/$cycleSlug'
     | '/app/investments/$investmentId/certificate'
@@ -1095,6 +1167,7 @@ export interface FileRouteTypes {
     | '/field/reports/$reportId/view'
     | '/admin/cooperative/members/'
     | '/admin/cooperative/payments/'
+    | '/app/investments/$investmentId/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -1105,6 +1178,7 @@ export interface RootRouteChildren {
   FieldRouteRoute: typeof FieldRouteRouteWithChildren
   AboutRoute: typeof AboutRoute
   ContactRoute: typeof ContactRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   ApiHealthRoute: typeof ApiHealthRoute
   AuthForgotPasswordRoute: typeof AuthForgotPasswordRoute
   AuthKycRoute: typeof AuthKycRoute
@@ -1131,6 +1205,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/contact': {
       id: '/contact'
       path: '/contact'
@@ -1404,6 +1485,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FieldProfileIndexRouteImport
       parentRoute: typeof FieldRouteRoute
     }
+    '/app/support/': {
+      id: '/app/support/'
+      path: '/support'
+      fullPath: '/app/support/'
+      preLoaderRoute: typeof AppSupportIndexRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
     '/app/reports/': {
       id: '/app/reports/'
       path: '/reports'
@@ -1430,6 +1518,20 @@ declare module '@tanstack/react-router' {
       path: '/notifications'
       fullPath: '/app/notifications/'
       preLoaderRoute: typeof AppNotificationsIndexRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/app/messages/': {
+      id: '/app/messages/'
+      path: '/messages'
+      fullPath: '/app/messages/'
+      preLoaderRoute: typeof AppMessagesIndexRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/app/live/': {
+      id: '/app/live/'
+      path: '/live'
+      fullPath: '/app/live/'
+      preLoaderRoute: typeof AppLiveIndexRouteImport
       parentRoute: typeof AppRouteRoute
     }
     '/app/investments/': {
@@ -1507,6 +1609,13 @@ declare module '@tanstack/react-router' {
       path: '/news'
       fullPath: '/admin/news/'
       preLoaderRoute: typeof AdminNewsIndexRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/admin/messages/': {
+      id: '/admin/messages/'
+      path: '/messages'
+      fullPath: '/admin/messages/'
+      preLoaderRoute: typeof AdminMessagesIndexRouteImport
       parentRoute: typeof AdminRouteRoute
     }
     '/admin/investors/': {
@@ -1712,6 +1821,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCyclesCycleSlugRouteImport
       parentRoute: typeof AdminRouteRoute
     }
+    '/app/investments/$investmentId/': {
+      id: '/app/investments/$investmentId/'
+      path: '/investments/$investmentId'
+      fullPath: '/app/investments/$investmentId/'
+      preLoaderRoute: typeof AppInvestmentsInvestmentIdIndexRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
     '/admin/cooperative/payments/': {
       id: '/admin/cooperative/payments/'
       path: '/cooperative/payments'
@@ -1783,6 +1899,7 @@ interface AdminRouteRouteChildren {
   AdminGalleryIndexRoute: typeof AdminGalleryIndexRoute
   AdminInquiriesIndexRoute: typeof AdminInquiriesIndexRoute
   AdminInvestorsIndexRoute: typeof AdminInvestorsIndexRoute
+  AdminMessagesIndexRoute: typeof AdminMessagesIndexRoute
   AdminNewsIndexRoute: typeof AdminNewsIndexRoute
   AdminPerformanceIndexRoute: typeof AdminPerformanceIndexRoute
   AdminProductsIndexRoute: typeof AdminProductsIndexRoute
@@ -1821,6 +1938,7 @@ const AdminRouteRouteChildren: AdminRouteRouteChildren = {
   AdminGalleryIndexRoute: AdminGalleryIndexRoute,
   AdminInquiriesIndexRoute: AdminInquiriesIndexRoute,
   AdminInvestorsIndexRoute: AdminInvestorsIndexRoute,
+  AdminMessagesIndexRoute: AdminMessagesIndexRoute,
   AdminNewsIndexRoute: AdminNewsIndexRoute,
   AdminPerformanceIndexRoute: AdminPerformanceIndexRoute,
   AdminProductsIndexRoute: AdminProductsIndexRoute,
@@ -1844,13 +1962,17 @@ interface AppRouteRouteChildren {
   AppActivityIndexRoute: typeof AppActivityIndexRoute
   AppInvestIndexRoute: typeof AppInvestIndexRoute
   AppInvestmentsIndexRoute: typeof AppInvestmentsIndexRoute
+  AppLiveIndexRoute: typeof AppLiveIndexRoute
+  AppMessagesIndexRoute: typeof AppMessagesIndexRoute
   AppNotificationsIndexRoute: typeof AppNotificationsIndexRoute
   AppPerformanceIndexRoute: typeof AppPerformanceIndexRoute
   AppProfileIndexRoute: typeof AppProfileIndexRoute
   AppReportsIndexRoute: typeof AppReportsIndexRoute
+  AppSupportIndexRoute: typeof AppSupportIndexRoute
   AppInvestOpportunityCycleSlugRoute: typeof AppInvestOpportunityCycleSlugRoute
   AppInvestmentsInvestmentIdCertificateRoute: typeof AppInvestmentsInvestmentIdCertificateRoute
   AppReportsTransactionIdReceiptRoute: typeof AppReportsTransactionIdReceiptRoute
+  AppInvestmentsInvestmentIdIndexRoute: typeof AppInvestmentsInvestmentIdIndexRoute
 }
 
 const AppRouteRouteChildren: AppRouteRouteChildren = {
@@ -1860,14 +1982,18 @@ const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppActivityIndexRoute: AppActivityIndexRoute,
   AppInvestIndexRoute: AppInvestIndexRoute,
   AppInvestmentsIndexRoute: AppInvestmentsIndexRoute,
+  AppLiveIndexRoute: AppLiveIndexRoute,
+  AppMessagesIndexRoute: AppMessagesIndexRoute,
   AppNotificationsIndexRoute: AppNotificationsIndexRoute,
   AppPerformanceIndexRoute: AppPerformanceIndexRoute,
   AppProfileIndexRoute: AppProfileIndexRoute,
   AppReportsIndexRoute: AppReportsIndexRoute,
+  AppSupportIndexRoute: AppSupportIndexRoute,
   AppInvestOpportunityCycleSlugRoute: AppInvestOpportunityCycleSlugRoute,
   AppInvestmentsInvestmentIdCertificateRoute:
     AppInvestmentsInvestmentIdCertificateRoute,
   AppReportsTransactionIdReceiptRoute: AppReportsTransactionIdReceiptRoute,
+  AppInvestmentsInvestmentIdIndexRoute: AppInvestmentsInvestmentIdIndexRoute,
 }
 
 const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(
@@ -1934,6 +2060,7 @@ const rootRouteChildren: RootRouteChildren = {
   FieldRouteRoute: FieldRouteRouteWithChildren,
   AboutRoute: AboutRoute,
   ContactRoute: ContactRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   ApiHealthRoute: ApiHealthRoute,
   AuthForgotPasswordRoute: AuthForgotPasswordRoute,
   AuthKycRoute: AuthKycRoute,

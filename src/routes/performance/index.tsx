@@ -5,19 +5,17 @@ import { MarketingLayout } from "@/components/marketing/MarketingLayout";
 import { PayoutHistory } from "@/components/marketing/PayoutHistory";
 import { SectionHeader } from "@/components/marketing/SectionHeader";
 import { getPublicPerformanceFn } from "@/lib/api/performance.functions";
+import { buildPageHead } from "@/lib/seo";
 
 export const Route = createFileRoute("/performance/")({
   loader: () => getPublicPerformanceFn(),
-  head: () => ({
-    meta: [
-      { title: "Performance & Track Record — GText Farms" },
-      {
-        name: "description",
-        content:
-          "Historical cycle performance, payout history, and platform statistics for GText Farms poultry investments.",
-      },
-    ],
-  }),
+  head: () =>
+    buildPageHead({
+      title: "Investment Performance & Track Record",
+      description:
+        "Public track record for GText Farms poultry investments — completed cycles, verified payouts, historical ROI, and platform statistics for prospective investors in Nigeria.",
+      path: "/performance",
+    }),
   component: PerformancePage,
 });
 
